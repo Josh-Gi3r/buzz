@@ -1,0 +1,74 @@
+/**
+ * Studio visual profile — material tokens for the futuristic OS layer.
+ * Activate with data-visual-profile="studio" on a subtree or document root.
+ *
+ * Hierarchy (from research):
+ * 1. Atmosphere — gradient/grain field
+ * 2. System chrome glass — nav, command, overlays
+ * 3. Workspace lens — high-contrast stage
+ * 4. Inspector material — translucent panels
+ * 5. Content surfaces — opaque when text-dense
+ */
+
+[data-visual-profile="studio"] {
+  --studio-glass-tint: 220 30% 50%;
+  --studio-glass-opacity: 0.55;
+  --studio-blur: 20px;
+  --studio-border-luminosity: 0.14;
+  --studio-depth-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  --studio-accent-bloom: 0 0 40px hsl(var(--primary) / 0.25);
+  --studio-focus-halo: 0 0 0 2px hsl(var(--primary) / 0.45);
+  --studio-panel-elevation: 8;
+  --studio-transition-fast: 120ms;
+  --studio-transition-ui: 200ms;
+  --studio-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-visual-profile="studio"].preview-studio {
+  background: transparent;
+}
+
+[data-visual-profile="studio"] .preview-studio__stage {
+  isolation: isolate;
+}
+
+[data-visual-profile="studio"] .preview-studio__atmosphere {
+  background:
+    radial-gradient(
+      120% 80% at 10% 0%,
+      hsl(var(--primary) / 0.12),
+      transparent 55%
+    ),
+    radial-gradient(90% 70% at 90% 20%, hsl(200 80% 60% / 0.1), transparent 50%),
+    radial-gradient(
+      70% 50% at 50% 100%,
+      hsl(40 80% 55% / 0.06),
+      transparent 45%
+    );
+}
+
+[data-visual-profile="studio"] .preview-studio__lens {
+  box-shadow: var(--studio-depth-shadow), var(--studio-accent-bloom);
+}
+
+[data-visual-profile="studio"] .preview-studio__rail,
+[data-visual-profile="studio"] .preview-studio__inspector {
+  backdrop-filter: blur(var(--studio-blur)) saturate(1.2);
+  -webkit-backdrop-filter: blur(var(--studio-blur)) saturate(1.2);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  [data-visual-profile="studio"] .preview-studio__rail,
+  [data-visual-profile="studio"] .preview-studio__inspector,
+  [data-visual-profile="studio"] .preview-studio__lens {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: hsl(var(--background) / 0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-visual-profile="studio"] * {
+    transition-duration: 0.01ms !important;
+  }
+}

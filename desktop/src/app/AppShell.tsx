@@ -130,6 +130,7 @@ export function AppShell() {
     goHome,
     goNewMessage,
     goProjects,
+    goPreviewStudio,
     goPulse,
     goSettings,
     goWorkflows,
@@ -883,6 +884,7 @@ export function AppShell() {
                             searchFocusRequest={searchFocusRequest}
                             onSelectHome={() => void goHome()}
                             onSelectProjects={() => void goProjects()}
+                            onSelectPreviewStudio={() => void goPreviewStudio()}
                             onSelectPulse={() => void goPulse()}
                             onSelectSettings={handleOpenSettings}
                             onSelectWorkflows={() => void goWorkflows()}

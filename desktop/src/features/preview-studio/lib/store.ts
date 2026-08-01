@@ -1,0 +1,361 @@
+import { newId } from "./ids";
+import type {
+  Artifact,
+  ArtifactDecision,
+  ArtifactManifestV1,
+  ArtifactRevision,
+  ArtifactReview,
+  ArtifactType,
+  DecisionStatus,
+  ReviewStatus,
+} from "./types";
+import { DEMO_ARTIFACTS, DEMO_REVISIONS } from "./demoCatalog";
+
+const STORAGE_KEY = "buzz.previewStudio.library.v1";
+/** Soft cap so localStorage does not explode (per file, data URL). */
+export const MAX_PERSISTED_DATA_URL_BYTES = 2_500_000;
+
+export type ArtifactLibrarySnapshot = {
+  version: 1;
+  artifacts: Artifact[];
+  revisions: ArtifactRevision[];
+  reviews: ArtifactReview[];
+  decisions: ArtifactDecision[];
+};
+
+function emptySnapshot(): ArtifactLibrarySnapshot {
+  return {
+    version: 1,
+    artifacts: [],
+    revisions: [],
+    reviews: [],
+    decisions: [],
+  };
+}
+
+function seedSnapshot(): ArtifactLibrarySnapshot {
+  return {
+    version: 1,
+    artifacts: structuredClone(DEMO_ARTIFACTS),
+    revisions: structuredClone(DEMO_REVISIONS),
+    reviews: [],
+    decisions: DEMO_ARTIFACTS.filter((a) => a.currentRevisionId).map((a) => ({
+      revisionId: a.currentRevisionId as string,
+      reviewerPubkey: "local",
+      status: "pending" as DecisionStatus,
+      updatedAt: Date.now(),
+    })),
+  };
+}
+
+function canUseStorage(): boolean {
+  return typeof localStorage !== "undefined";
+}
+
+function backupUnreadablePayload(raw: string | null): void {
+  if (!raw) return;
+  try {
+    localStorage.setItem(`${STORAGE_KEY}.unreadable`, raw);
+  } catch {
+    // Best effort — quota may already be the reason we are here.
+  }
+}
+
+/** Object URLs do not survive an app restart; blank them so the stage
+ * shows its fallback instead of a broken element. */
+function pruneDeadObjectUrls(
+  snapshot: ArtifactLibrarySnapshot,
+): ArtifactLibrarySnapshot {
+  return {
+    ...snapshot,
+    revisions: snapshot.revisions.map((revision) => {
+      const source = revision.manifest.source;
+      if (source.kind !== "local" || !source.uri.startsWith("blob:")) {
+        return revision;
+      }
+      return {
+        ...revision,
+        manifest: {
+          ...revision.manifest,
+          source: { ...source, uri: "" },
+        },
+      };
+    }),
+  };
+}
+
+export function loadLibrary(): ArtifactLibrarySnapshot {
+  if (!canUseStorage()) return seedSnapshot();
+  let raw: string | null = null;
+  try {
+    raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      const seeded = seedSnapshot();
+      saveLibrary(seeded);
+      return seeded;
+    }
+    const parsed = JSON.parse(raw) as ArtifactLibrarySnapshot;
+    if (parsed?.version !== 1 || !Array.isArray(parsed.artifacts)) {
+      backupUnreadablePayload(raw);
+      const seeded = seedSnapshot();
+      saveLibrary(seeded);
+      return seeded;
+    }
+    return pruneDeadObjectUrls({
+      version: 1,
+      artifacts: parsed.artifacts ?? [],
+      revisions: parsed.revisions ?? [],
+      reviews: parsed.reviews ?? [],
+      decisions: parsed.decisions ?? [],
+    });
+  } catch {
+    backupUnreadablePayload(raw);
+    const seeded = seedSnapshot();
+    saveLibrary(seeded);
+    return seeded;
+  }
+}
+
+export function saveLibrary(snapshot: ArtifactLibrarySnapshot): boolean {
+  if (!canUseStorage()) return false;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+    return true;
+  } catch {
+    // Quota exceeded — caller decides how to surface session-only state.
+    return false;
+  }
+}
+
+export function resetLibraryToSeed(): ArtifactLibrarySnapshot {
+  const seeded = seedSnapshot();
+  saveLibrary(seeded);
+  return seeded;
+}
+
+export function getRevision(
+  snapshot: ArtifactLibrarySnapshot,
+  revisionId: string | null | undefined,
+): ArtifactRevision | undefined {
+  if (!revisionId) return undefined;
+  return snapshot.revisions.find((r) => r.id === revisionId);
+}
+
+export function reviewsForRevision(
+  snapshot: ArtifactLibrarySnapshot,
+  revisionId: string,
+): ArtifactReview[] {
+  return snapshot.reviews
+    .filter((r) => r.revisionId === revisionId)
+    .sort((a, b) => a.createdAt - b.createdAt);
+}
+
+export function decisionForRevision(
+  snapshot: ArtifactLibrarySnapshot,
+  revisionId: string,
+): ArtifactDecision | undefined {
+  return snapshot.decisions.find(
+    (d) => d.revisionId === revisionId && d.reviewerPubkey === "local",
+  );
+}
+
+function mimeToType(mime: string): ArtifactType {
+  if (mime.startsWith("image/")) return "image";
+  if (mime.startsWith("video/")) return "video";
+  if (mime === "application/pdf") return "pdf";
+  return "generic_file";
+}
+
+/** Keep in sync with IMPORT_ACCEPT — one predicate owns what can be imported. */
+export function isImportableType(mime: string): boolean {
+  return mimeToType(mime) !== "generic_file";
+}
+
+/** For the file-input accept attribute. */
+export const IMPORT_ACCEPT = "image/*,video/*,application/pdf";
+
+/** Read a File as a data URL (for persistence under size cap). */
+export function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error ?? new Error("read failed"));
+    reader.onload = () => {
+      if (typeof reader.result === "string") resolve(reader.result);
+      else reject(new Error("expected data URL string"));
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+export type ImportResult = {
+  snapshot: ArtifactLibrarySnapshot;
+  /** False when the library could not be written to device storage. */
+  persisted: boolean;
+};
+
+export async function importLocalFile(
+  snapshot: ArtifactLibrarySnapshot,
+  file: File,
+): Promise<ImportResult> {
+  const artifactType = mimeToType(file.type || "application/octet-stream");
+  const now = Date.now();
+  const artifactId = newId("art");
+  const revisionId = newId("rev");
+
+  let uri: string;
+  let ephemeral = false;
+  if (file.size <= MAX_PERSISTED_DATA_URL_BYTES) {
+    uri = await readFileAsDataUrl(file);
+  } else {
+    uri = URL.createObjectURL(file);
+    ephemeral = true;
+  }
+
+  const manifest: ArtifactManifestV1 = {
+    schemaVersion: 1,
+    artifactId,
+    revisionId,
+    title: file.name.replace(/\.[^.]+$/, "") || file.name,
+    artifactType,
+    source: {
+      kind: "local",
+      uri,
+      mime: file.type || undefined,
+      filename: file.name,
+      ephemeral: ephemeral || undefined,
+    },
+    capabilities: ["view", "comment", "inspect", "approve"],
+    securityPolicy: {
+      network: "deny",
+      clipboard: "deny",
+      downloads: "allow",
+    },
+    provenance: {
+      createdBy: "local",
+      createdAt: new Date(now).toISOString(),
+    },
+  };
+
+  const artifact: Artifact = {
+    id: artifactId,
+    title: manifest.title,
+    artifactType,
+    currentRevisionId: revisionId,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  const revision: ArtifactRevision = {
+    id: revisionId,
+    artifactId,
+    manifest,
+    createdAt: now,
+  };
+
+  const decision: ArtifactDecision = {
+    revisionId,
+    reviewerPubkey: "local",
+    status: "pending",
+    updatedAt: now,
+  };
+
+  const next: ArtifactLibrarySnapshot = {
+    ...snapshot,
+    artifacts: [artifact, ...snapshot.artifacts],
+    revisions: [revision, ...snapshot.revisions],
+    decisions: [decision, ...snapshot.decisions],
+  };
+  const persisted = saveLibrary(next);
+  return { snapshot: next, persisted };
+}
+
+export function deleteArtifact(
+  snapshot: ArtifactLibrarySnapshot,
+  artifactId: string,
+): ArtifactLibrarySnapshot {
+  for (const revision of snapshot.revisions) {
+    const source = revision.manifest.source;
+    if (
+      revision.artifactId === artifactId &&
+      source.kind === "local" &&
+      source.uri.startsWith("blob:")
+    ) {
+      URL.revokeObjectURL(source.uri);
+    }
+  }
+  const revisionIds = new Set(
+    snapshot.revisions
+      .filter((r) => r.artifactId === artifactId)
+      .map((r) => r.id),
+  );
+  const next: ArtifactLibrarySnapshot = {
+    ...snapshot,
+    artifacts: snapshot.artifacts.filter((a) => a.id !== artifactId),
+    revisions: snapshot.revisions.filter((r) => r.artifactId !== artifactId),
+    reviews: snapshot.reviews.filter((r) => !revisionIds.has(r.revisionId)),
+    decisions: snapshot.decisions.filter((d) => !revisionIds.has(d.revisionId)),
+  };
+  saveLibrary(next);
+  return next;
+}
+
+export function addReview(
+  snapshot: ArtifactLibrarySnapshot,
+  input: {
+    revisionId: string;
+    body: string;
+    timeMs?: number;
+  },
+): ArtifactLibrarySnapshot {
+  const body = input.body.trim();
+  if (!body) return snapshot;
+
+  const review: ArtifactReview = {
+    id: newId("revw"),
+    revisionId: input.revisionId,
+    body,
+    status: "open" as ReviewStatus,
+    authorPubkey: "local",
+    createdAt: Date.now(),
+    anchor:
+      input.timeMs !== undefined
+        ? { revisionId: input.revisionId, timeMs: input.timeMs }
+        : { revisionId: input.revisionId },
+  };
+
+  const next: ArtifactLibrarySnapshot = {
+    ...snapshot,
+    reviews: [...snapshot.reviews, review],
+  };
+  saveLibrary(next);
+  return next;
+}
+
+export function setDecision(
+  snapshot: ArtifactLibrarySnapshot,
+  revisionId: string,
+  status: DecisionStatus,
+): ArtifactLibrarySnapshot {
+  const updatedAt = Date.now();
+  const existing = snapshot.decisions.findIndex(
+    (d) => d.revisionId === revisionId && d.reviewerPubkey === "local",
+  );
+  const decision: ArtifactDecision = {
+    revisionId,
+    reviewerPubkey: "local",
+    status,
+    updatedAt,
+  };
+  const decisions = [...snapshot.decisions];
+  if (existing >= 0) decisions[existing] = decision;
+  else decisions.push(decision);
+
+  const next: ArtifactLibrarySnapshot = { ...snapshot, decisions };
+  saveLibrary(next);
+  return next;
+}
+
+/** Exposed for tests */
+export function __emptySnapshotForTests(): ArtifactLibrarySnapshot {
+  return emptySnapshot();
+}

@@ -30,6 +30,12 @@
       "name": "Agent-managed profiles",
       "description": "Let agents manage their own relay name and avatar instead of restoring the desktop copy",
       "platforms": ["desktop"]
+    },
+    {
+      "id": "preview-studio",
+      "name": "Preview Studio",
+      "description": "Local artifact library with image, video, and PDF preview, review comments, and approval decisions (experimental)",
+      "platforms": ["desktop"]
     }
   ]
 }

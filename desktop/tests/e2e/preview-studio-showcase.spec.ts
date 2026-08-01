@@ -1,0 +1,378 @@
+import { expect, test } from "@playwright/test";
+
+import { waitForAnimations } from "../helpers/animations";
+import { installMockBridge } from "../helpers/bridge";
+
+/**
+ * Captures the Preview Studio screenshots used by the README
+ * (docs/assets/preview-studio-*.png). The library is seeded with a
+ * fictional anime-streaming iOS app ("AniStream") so the stage, review
+ * rail, and decisions are populated with realistic product content.
+ *
+ * Regenerate assets with:
+ *   pnpm build:e2e && pnpm exec playwright test preview-studio-showcase --project=smoke
+ */
+
+const SHOTS = "test-results/preview-studio-showcase";
+const FEATURE_OVERRIDES_KEY = "buzz-feature-overrides-v1";
+const LIBRARY_KEY = "buzz.previewStudio.library.v1";
+
+type Screen = {
+  id: string;
+  title: string;
+  svg: string;
+};
+
+const PALETTE = {
+  bg: "#0b0e15",
+  surface: "#141927",
+  card: "#1b2234",
+  accent: "#a78bfa",
+  accent2: "#38bdf8",
+  warm: "#fbbf24",
+  text: "#e9edf6",
+  muted: "#8b95a8",
+};
+
+function phoneFrame(content: string): string {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="786" height="1704" viewBox="0 0 393 852">
+  <defs>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${PALETTE.accent}"/>
+      <stop offset="1" stop-color="${PALETTE.accent2}"/>
+    </linearGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${PALETTE.warm}"/>
+      <stop offset="1" stop-color="#f87171"/>
+    </linearGradient>
+    <linearGradient id="cool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#34d399"/>
+      <stop offset="1" stop-color="${PALETTE.accent2}"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${PALETTE.bg}" stop-opacity="0"/>
+      <stop offset="1" stop-color="${PALETTE.bg}"/>
+    </linearGradient>
+  </defs>
+  <rect width="393" height="852" rx="46" fill="${PALETTE.bg}"/>
+  <text x="32" y="36" font-family="system-ui" font-size="12" font-weight="600" fill="${PALETTE.text}">9:41</text>
+  <rect x="330" y="26" width="24" height="12" rx="3.5" fill="none" stroke="${PALETTE.muted}" stroke-width="1"/>
+  <rect x="332" y="28" width="16" height="8" rx="2" fill="${PALETTE.text}"/>
+  ${content}
+  <rect x="132" y="836" width="129" height="5" rx="2.5" fill="${PALETTE.text}" opacity="0.85"/>
+</svg>`;
+}
+
+function homeScreen(): string {
+  const cards = [0, 1, 2]
+    .map(
+      (i) => `
+    <g transform="translate(${28 + i * 118}, 556)">
+      <rect width="104" height="140" rx="14" fill="${PALETTE.card}"/>
+      <rect width="104" height="96" rx="14" fill="url(#${["hero", "warm", "cool"][i]})" opacity="0.8"/>
+      <rect y="82" width="104" height="14" fill="${PALETTE.card}"/>
+      <text x="10" y="116" font-family="system-ui" font-size="10" font-weight="600" fill="${PALETTE.text}">${["Solar Knights", "Paper Comets", "Mirror Lake"][i]}</text>
+      <text x="10" y="129" font-family="system-ui" font-size="8" fill="${PALETTE.muted}">Ep ${[7, 3, 11][i]} · ${[42, 12, 87][i]}% left</text>
+      <rect x="10" y="70" width="84" height="3" rx="1.5" fill="#000" opacity="0.35"/>
+      <rect x="10" y="70" width="${[49, 74, 11][i]}" height="3" rx="1.5" fill="${PALETTE.text}"/>
+    </g>`,
+    )
+    .join("");
+  return `
+  <text x="28" y="86" font-family="system-ui" font-size="26" font-weight="800" fill="${PALETTE.text}">AniStream</text>
+  <circle cx="349" cy="78" r="16" fill="url(#hero)"/>
+  <text x="343" y="83" font-family="system-ui" font-size="12" font-weight="700" fill="#0b0e15">K</text>
+  <rect x="28" y="112" width="337" height="380" rx="22" fill="url(#hero)"/>
+  <rect x="28" y="332" width="337" height="160" rx="22" fill="url(#fade)" opacity="0.9"/>
+  <text x="48" y="424" font-family="system-ui" font-size="11" font-weight="700" letter-spacing="2" fill="${PALETTE.warm}">NEW SEASON</text>
+  <text x="48" y="452" font-family="system-ui" font-size="24" font-weight="800" fill="${PALETTE.text}">Solar Knights II</text>
+  <rect x="48" y="464" width="96" height="30" rx="15" fill="${PALETTE.text}"/>
+  <text x="66" y="484" font-family="system-ui" font-size="12" font-weight="700" fill="#0b0e15">▶ Play</text>
+  <rect x="152" y="464" width="76" height="30" rx="15" fill="#ffffff" opacity="0.14"/>
+  <text x="166" y="484" font-family="system-ui" font-size="12" font-weight="600" fill="${PALETTE.text}">+ List</text>
+  <text x="28" y="540" font-family="system-ui" font-size="15" font-weight="700" fill="${PALETTE.text}">Continue watching</text>
+  ${cards}
+  <g transform="translate(0, 764)">
+    <rect x="0" width="393" height="88" fill="${PALETTE.surface}"/>
+    <text x="44" y="34" font-family="system-ui" font-size="16" fill="${PALETTE.accent}">⌂</text>
+    <text x="136" y="34" font-family="system-ui" font-size="16" fill="${PALETTE.muted}">▤</text>
+    <text x="228" y="34" font-family="system-ui" font-size="16" fill="${PALETTE.muted}">⌕</text>
+    <text x="320" y="34" font-family="system-ui" font-size="16" fill="${PALETTE.muted}">☰</text>
+  </g>`;
+}
+
+function playerScreen(): string {
+  const upNext = [0, 1, 2]
+    .map(
+      (i) => `
+    <g transform="translate(28, ${492 + i * 76})">
+      <rect width="337" height="64" rx="14" fill="${PALETTE.card}"/>
+      <rect x="10" y="10" width="78" height="44" rx="9" fill="url(#${["cool", "warm", "hero"][i]})" opacity="0.75"/>
+      <text x="100" y="28" font-family="system-ui" font-size="12" font-weight="600" fill="${PALETTE.text}">Episode ${8 + i} — ${["Undertow", "The Lighthouse", "Static Bloom"][i]}</text>
+      <text x="100" y="46" font-family="system-ui" font-size="10" fill="${PALETTE.muted}">${[24, 23, 25][i]} min</text>
+    </g>`,
+    )
+    .join("");
+  return `
+  <text x="28" y="72" font-family="system-ui" font-size="14" fill="${PALETTE.muted}">‹ Back</text>
+  <rect x="0" y="96" width="393" height="222" fill="url(#hero)"/>
+  <rect x="0" y="96" width="393" height="222" fill="#000" opacity="0.25"/>
+  <circle cx="196" cy="207" r="30" fill="#ffffff" opacity="0.92"/>
+  <path d="M 188 192 L 212 207 L 188 222 Z" fill="#0b0e15"/>
+  <rect x="24" y="292" width="345" height="4" rx="2" fill="#000" opacity="0.4"/>
+  <rect x="24" y="292" width="128" height="4" rx="2" fill="${PALETTE.warm}"/>
+  <text x="28" y="356" font-family="system-ui" font-size="19" font-weight="800" fill="${PALETTE.text}">Ep 7 — The Glass Sea</text>
+  <text x="28" y="380" font-family="system-ui" font-size="12" fill="${PALETTE.muted}">Solar Knights · S1 · 9:12 / 24:00</text>
+  <text x="28" y="424" font-family="system-ui" font-size="12" fill="${PALETTE.text}" opacity="0.85">The fleet crosses the mirror-calm strait while Aya
+    <tspan x="28" dy="16">decodes the lighthouse signal.</tspan></text>
+  <text x="28" y="474" font-family="system-ui" font-size="15" font-weight="700" fill="${PALETTE.text}">Up next</text>
+  ${upNext}`;
+}
+
+function libraryScreen(): string {
+  const titles = [
+    "Solar Knights",
+    "Paper Comets",
+    "Mirror Lake",
+    "Static Bloom",
+    "North of Noon",
+    "Glasswing",
+  ];
+  const grads = ["hero", "warm", "cool", "cool", "hero", "warm"];
+  const grid = titles
+    .map((t, i) => {
+      const x = 28 + (i % 2) * 174;
+      const y = 132 + Math.floor(i / 2) * 214;
+      return `
+    <g transform="translate(${x}, ${y})">
+      <rect width="163" height="196" rx="16" fill="${PALETTE.card}"/>
+      <rect width="163" height="148" rx="16" fill="url(#${grads[i]})" opacity="0.78"/>
+      <rect y="132" width="163" height="16" fill="${PALETTE.card}"/>
+      <text x="12" y="172" font-family="system-ui" font-size="12" font-weight="700" fill="${PALETTE.text}">${t}</text>
+      <text x="12" y="187" font-family="system-ui" font-size="9" fill="${PALETTE.muted}">${12 + i * 3} episodes</text>
+    </g>`;
+    })
+    .join("");
+  return `
+  <text x="28" y="86" font-family="system-ui" font-size="26" font-weight="800" fill="${PALETTE.text}">Library</text>
+  <rect x="28" y="100" width="337" height="1" fill="#ffffff" opacity="0.08"/>
+  ${grid}`;
+}
+
+function svgDataUrl(svg: string): string {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+function buildLibrary() {
+  const now = Date.now();
+  const screens: Screen[] = [
+    { id: "home", title: "AniStream — Home", svg: phoneFrame(homeScreen()) },
+    {
+      id: "player",
+      title: "AniStream — Player",
+      svg: phoneFrame(playerScreen()),
+    },
+    {
+      id: "library",
+      title: "AniStream — Library",
+      svg: phoneFrame(libraryScreen()),
+    },
+  ];
+
+  const artifacts = screens.map((screen, i) => ({
+    id: `art-anistream-${screen.id}`,
+    title: screen.title,
+    artifactType: "image",
+    currentRevisionId: `rev-anistream-${screen.id}-2`,
+    createdAt: now - (i + 2) * 86_400_000,
+    updatedAt: now - (i + 1) * 3_600_000,
+  }));
+
+  const revisions = screens.map((screen) => ({
+    id: `rev-anistream-${screen.id}-2`,
+    artifactId: `art-anistream-${screen.id}`,
+    createdAt: now - 3_600_000,
+    manifest: {
+      schemaVersion: 1,
+      artifactId: `art-anistream-${screen.id}`,
+      revisionId: `rev-anistream-${screen.id}-2`,
+      title: screen.title,
+      artifactType: "image",
+      source: {
+        kind: "local",
+        uri: svgDataUrl(screen.svg),
+        mime: "image/svg+xml",
+        filename: `${screen.id}@2x.svg`,
+      },
+      capabilities: ["view", "comment", "inspect", "approve"],
+      securityPolicy: {
+        network: "deny",
+        clipboard: "deny",
+        downloads: "allow",
+      },
+      provenance: {
+        createdBy: "local",
+        createdAt: new Date(now - 3_600_000).toISOString(),
+      },
+    },
+  }));
+
+  artifacts.push({
+    id: "art-anistream-ios",
+    title: "AniStream iOS — build 42",
+    artifactType: "ios",
+    currentRevisionId: "rev-anistream-ios-42",
+    createdAt: now - 5 * 86_400_000,
+    updatedAt: now - 2 * 3_600_000,
+  });
+  revisions.push({
+    id: "rev-anistream-ios-42",
+    artifactId: "art-anistream-ios",
+    createdAt: now - 2 * 3_600_000,
+    manifest: {
+      schemaVersion: 1,
+      artifactId: "art-anistream-ios",
+      revisionId: "rev-anistream-ios-42",
+      title: "AniStream iOS — build 42",
+      artifactType: "ios",
+      source: {
+        kind: "blob",
+        sha256: "e3".repeat(32),
+        mime: "application/octet-stream",
+        filename: "AniStream-42.ipa",
+      },
+      capabilities: ["view", "comment", "approve"],
+      securityPolicy: { network: "deny", clipboard: "deny", downloads: "deny" },
+      provenance: {
+        createdBy: "local",
+        workflowRun: "ci-build-42",
+        createdAt: new Date(now - 2 * 3_600_000).toISOString(),
+      },
+    },
+  } as (typeof revisions)[number]);
+
+  const homeRev = "rev-anistream-home-2";
+  const playerRev = "rev-anistream-player-2";
+  return {
+    version: 1,
+    artifacts,
+    revisions,
+    reviews: [
+      {
+        id: "revw-1",
+        revisionId: homeRev,
+        body: "Hero gradient reads great in dark mode. Ship it.",
+        status: "open",
+        authorPubkey: "local",
+        createdAt: now - 2_700_000,
+        anchor: { revisionId: homeRev },
+      },
+      {
+        id: "revw-2",
+        revisionId: homeRev,
+        body: "Progress bars on Continue Watching need 2px more contrast.",
+        status: "open",
+        authorPubkey: "local",
+        createdAt: now - 1_500_000,
+        anchor: { revisionId: homeRev, x: 0.12, y: 0.68 },
+      },
+      {
+        id: "revw-3",
+        revisionId: playerRev,
+        body: "Scrubber thumb is hard to grab on device — bump the hit area.",
+        status: "open",
+        authorPubkey: "local",
+        createdAt: now - 900_000,
+        anchor: { revisionId: playerRev, x: 0.06, y: 0.34 },
+      },
+    ],
+    decisions: [
+      {
+        revisionId: homeRev,
+        reviewerPubkey: "local",
+        status: "approved",
+        updatedAt: now - 600_000,
+      },
+      {
+        revisionId: playerRev,
+        reviewerPubkey: "local",
+        status: "changes_requested",
+        updatedAt: now - 500_000,
+      },
+      {
+        revisionId: "rev-anistream-library-2",
+        reviewerPubkey: "local",
+        status: "pending",
+        updatedAt: now - 400_000,
+      },
+    ],
+  };
+}
+
+test.describe("preview studio showcase", () => {
+  test.use({ viewport: { width: 1440, height: 840 }, deviceScaleFactor: 2 });
+
+  test("captures README assets", async ({ page }) => {
+    const library = buildLibrary();
+    await page.addInitScript(
+      ([overridesKey, libraryKey, lib]) => {
+        window.localStorage.setItem(
+          overridesKey as string,
+          JSON.stringify({ "preview-studio": true }),
+        );
+        window.localStorage.setItem(libraryKey as string, lib as string);
+        // Dark theme shows the Studio material layer as intended.
+        window.localStorage.setItem("buzz-theme", "houston");
+      },
+      [FEATURE_OVERRIDES_KEY, LIBRARY_KEY, JSON.stringify(library)] as const,
+    );
+    await installMockBridge(page);
+
+    // The static test server has no SPA fallback — enter via the sidebar.
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.getByTestId("open-preview-studio-view").click();
+    await expect(page.getByTestId("preview-studio-screen")).toBeVisible({
+      timeout: 15_000,
+    });
+
+    // 1 — hero: home screen selected, approved, reviews visible
+    await page
+      .getByTestId("preview-studio-artifact-art-anistream-home")
+      .click();
+    await expect(page.locator('[data-stage-kind="image"] img')).toBeVisible();
+    await waitForAnimations(page);
+    await page.screenshot({ path: `${SHOTS}/01-hero.png` });
+
+    // 2 — player screen with changes requested
+    await page
+      .getByTestId("preview-studio-artifact-art-anistream-player")
+      .click();
+    await expect(page.locator('[data-stage-kind="image"] img')).toBeVisible();
+    await waitForAnimations(page);
+    await page.screenshot({ path: `${SHOTS}/02-player-changes.png` });
+
+    // 3 — library grid screen
+    await page
+      .getByTestId("preview-studio-artifact-art-anistream-library")
+      .click();
+    await expect(page.locator('[data-stage-kind="image"] img')).toBeVisible();
+    await waitForAnimations(page);
+    await page.screenshot({ path: `${SHOTS}/03-library.png` });
+
+    // 4 — typed review comment on the player screen
+    await page
+      .getByTestId("preview-studio-artifact-art-anistream-player")
+      .click();
+    await page
+      .getByTestId("preview-studio-review-input")
+      .fill("Retest the scrubber after the hit-area fix on device.");
+    await waitForAnimations(page);
+    await page.screenshot({ path: `${SHOTS}/04-review.png` });
+
+    // 5 — iOS build artifact fallback card (honest not-yet state)
+    await page.getByTestId("preview-studio-artifact-art-anistream-ios").click();
+    await expect(page.getByTestId("preview-studio-stage")).toBeVisible();
+    await waitForAnimations(page);
+    await page.screenshot({ path: `${SHOTS}/05-ios-artifact.png` });
+  });
+});
