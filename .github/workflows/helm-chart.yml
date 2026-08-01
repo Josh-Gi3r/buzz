@@ -54,6 +54,7 @@ env:
 
 jobs:
   lint-and-unittest:
+    if: github.repository == 'block/buzz'
     name: lint + unittest + render matrix
     runs-on: ubuntu-latest
     permissions:
@@ -113,7 +114,7 @@ jobs:
     # `inputs.version == ''` excludes the chart-tag rescue dispatch (which
     # carries a version): that path only packages+publishes, it does not install.
     name: install on kind (gated)
-    if: github.event_name == 'workflow_dispatch' && inputs.version == ''
+    if: github.repository == 'block/buzz' && github.event_name == 'workflow_dispatch' && inputs.version == ''
     runs-on: ubuntu-latest
     needs: lint-and-unittest
     permissions:
@@ -156,8 +157,9 @@ jobs:
     # GHCR publish (login with GITHUB_TOKEN, packages: write, fork override var).
     name: publish chart to GHCR
     if: >
-      startsWith(github.ref, 'refs/tags/chart-v') ||
-      (github.event_name == 'workflow_dispatch' && inputs.version != '')
+      github.repository == 'block/buzz' &&
+      (startsWith(github.ref, 'refs/tags/chart-v') ||
+      (github.event_name == 'workflow_dispatch' && inputs.version != ''))
     runs-on: ubuntu-latest
     needs: lint-and-unittest
     timeout-minutes: 15

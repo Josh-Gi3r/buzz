@@ -80,6 +80,7 @@ env:
 
 jobs:
   build:
+    if: github.repository == 'block/buzz'
     name: Build (${{ matrix.platform }})
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
@@ -224,7 +225,7 @@ jobs:
 
   merge:
     name: Merge ${{ matrix.variant }} multi-arch manifest
-    if: github.event_name != 'pull_request'
+    if: github.repository == 'block/buzz' && github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     needs: build
     timeout-minutes: 15
@@ -341,6 +342,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   push-gateway-build:
+    if: github.repository == 'block/buzz'
     name: Build public push gateway (${{ matrix.platform }})
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
@@ -419,7 +421,7 @@ jobs:
 
   push-gateway-merge:
     name: Publish public push gateway image
-    if: github.event_name != 'pull_request'
+    if: github.repository == 'block/buzz' && github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     needs: push-gateway-build
     timeout-minutes: 15

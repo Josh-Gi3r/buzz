@@ -1,5 +1,20 @@
 # Security Policy
 
+## This fork
+
+This repository is an independent fork of [block/buzz](https://github.com/block/buzz).
+Where to report depends on where the vulnerability lives:
+
+- **Upstream Buzz code** (relay, desktop core, mobile, CLI — anything unmodified from
+  upstream): report to the upstream policy at **buzz@block.xyz**, per the process below.
+- **Fork-added code** (`desktop/src/features/preview-studio/`,
+  `desktop/src/shared/theme/prism/`, `scripts/run-prism-sandbox.sh`): report via
+  [GitHub private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)
+  on this repository. Please do not open public issues for security reports.
+
+The rest of this document is the upstream Buzz security policy, which applies to the
+shared codebase.
+
 ## Reporting a Vulnerability
 
 **Please do not report security vulnerabilities through public GitHub issues.**
