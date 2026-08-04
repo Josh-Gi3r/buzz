@@ -1,8 +1,4 @@
-import {
-  DEMO_BRAND_STILL,
-  DEMO_HOMEPAGE_IMAGE,
-  DEMO_MOTION_POSTER,
-} from "./demoAssets";
+import { DEMO_BRAND_STILL, DEMO_MOTION_POSTER } from "./demoAssets";
 import { DEMO_DECK } from "./deckSource";
 import { DEMO_WEBSITE } from "./webSource";
 import type { Artifact, ArtifactManifestV1, ArtifactRevision } from "./types";
@@ -12,7 +8,6 @@ import type { Artifact, ArtifactManifestV1, ArtifactRevision } from "./types";
  * offline and actually depict what their title says.
  */
 
-const SAMPLE_IMAGE = DEMO_HOMEPAGE_IMAGE;
 const SAMPLE_IMAGE_ALT = DEMO_BRAND_STILL;
 const SAMPLE_VIDEO =
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
@@ -48,32 +43,10 @@ function revision(
   return { id: revisionId, artifactId, manifest, createdAt };
 }
 
-const imageRev = revision(
-  "art-homepage",
-  "rev-homepage-1",
-  "Homepage redesign",
-  "image",
-  {
-    source: {
-      kind: "url",
-      url: SAMPLE_IMAGE,
-    },
-    renditions: [
-      {
-        role: "stream",
-        uri: SAMPLE_IMAGE,
-        mime: "image/svg+xml",
-        width: 1600,
-        height: 1000,
-      },
-    ],
-  },
-);
-
 const imageRevB = revision(
   "art-brand-still",
   "rev-brand-1",
-  "Brand still",
+  "Brand key visual",
   "image",
   {
     source: {
@@ -157,7 +130,6 @@ const webRev = revision(
 );
 
 export const DEMO_REVISIONS: ArtifactRevision[] = [
-  imageRev,
   imageRevB,
   videoRev,
   deckRev,
@@ -166,16 +138,16 @@ export const DEMO_REVISIONS: ArtifactRevision[] = [
 
 export const DEMO_ARTIFACTS: Artifact[] = [
   {
-    id: "art-homepage",
-    title: "Homepage redesign",
-    artifactType: "image",
-    currentRevisionId: imageRev.id,
-    createdAt: Date.now() - 86_400_000,
-    updatedAt: Date.now() - 3_600_000,
+    id: "art-checkout",
+    title: "Northwind homepage",
+    artifactType: "website",
+    currentRevisionId: webRev.id,
+    createdAt: Date.now() - 43_200_000,
+    updatedAt: Date.now() - 1_800_000,
   },
   {
     id: "art-brand-still",
-    title: "Brand still",
+    title: "Brand key visual",
     artifactType: "image",
     currentRevisionId: imageRevB.id,
     createdAt: Date.now() - 80_000_000,
@@ -196,13 +168,5 @@ export const DEMO_ARTIFACTS: Artifact[] = [
     currentRevisionId: deckRev.id,
     createdAt: Date.now() - 259_200_000,
     updatedAt: Date.now() - 86_400_000,
-  },
-  {
-    id: "art-checkout",
-    title: "Northwind homepage",
-    artifactType: "website",
-    currentRevisionId: webRev.id,
-    createdAt: Date.now() - 43_200_000,
-    updatedAt: Date.now() - 1_800_000,
   },
 ];

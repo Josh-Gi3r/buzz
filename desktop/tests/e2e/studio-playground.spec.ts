@@ -21,10 +21,5 @@ test("preview studio playground", async ({ page }) => {
   await expect(page.getByTestId("preview-studio-screen")).toBeVisible({
     timeout: 20_000,
   });
-  // Land on the deck so the slide viewer is the first thing visible.
-  await page.getByTestId("preview-studio-artifact-art-investor-deck").click();
-  await expect(page.getByTestId("preview-studio-slide-next")).toBeVisible({
-    timeout: 10_000,
-  });
   await page.waitForTimeout(6 * 60 * 60 * 1000);
 });
