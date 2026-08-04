@@ -5,7 +5,7 @@ Apache-2.0 §4(b) requirement to state changes and this fork's additive-only
 policy: substantial work lives in new files and directories; upstream files
 receive only thin integration seams.
 
-**Upstream baseline:** `block/buzz` @ `19d57b0`
+**Upstream baseline:** `block/buzz` @ `desktop-v0.5.4`
 
 ## Modified upstream files
 
@@ -21,8 +21,8 @@ receive only thin integration seams.
 | `.github/workflows/helm-chart.yml` | Repo guards on lint/install/publish jobs |
 | `.github/workflows/push-gateway-helm-chart.yml` | Repo guards on validate/publish jobs |
 | `preview-features.json` | Registered the `preview-studio` feature gate (default off) |
-| `Cargo.lock` | `nostr-relay-pool` 0.44.1 → 0.44.2 (RUSTSEC-2026-0224) |
 | `desktop/src/features/agents/lib/personaCatalogRelay.test.mjs` | Lint fix (template literals); upstream PR candidate |
+| `desktop/playwright.config.ts` | E2E preview port reads `BUZZ_E2E_PORT`; upstream PR candidate |
 | `desktop/src/app/routes.ts` | Registered the `/preview-studio` route |
 | `desktop/src/app/routeTree.gen.ts` | Regenerated for the `/preview-studio` route |
 | `desktop/src/app/AppShell.helpers.ts` | `preview-studio` AppView + shell-route derivation |
