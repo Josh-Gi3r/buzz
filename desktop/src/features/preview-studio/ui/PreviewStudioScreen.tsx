@@ -42,14 +42,23 @@ function decisionLabel(status: DecisionStatus | undefined): string {
 }
 
 export function PreviewStudioScreen() {
-  const { library, importFiles, remove, review, decide, reset } =
-    useArtifactLibrary();
+  const {
+    library,
+    importFiles,
+    remove,
+    review,
+    decide,
+    saveDeck,
+    saveWeb,
+    reset,
+  } = useArtifactLibrary();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [selectedId, setSelectedId] = React.useState<string>("");
   const [inspectorOpen, setInspectorOpen] = React.useState(true);
   const [comment, setComment] = React.useState("");
   const [importing, setImporting] = React.useState(false);
   const [sessionOnly, setSessionOnly] = React.useState(false);
+  const [slideIndex, setSlideIndex] = React.useState(0);
 
   // Keep selection valid when library changes
   React.useEffect(() => {
@@ -58,6 +67,10 @@ export function PreviewStudioScreen() {
     }
     setSelectedId(library.artifacts[0]?.id ?? "");
   }, [library.artifacts, selectedId]);
+
+  React.useEffect(() => {
+    setSlideIndex(0);
+  }, [selectedId]);
 
   const selected: Artifact | undefined = library.artifacts.find(
     (a) => a.id === selectedId,
@@ -93,9 +106,18 @@ export function PreviewStudioScreen() {
     }
   }
 
+  const isPaged =
+    revision?.manifest.artifactType === "deck" ||
+    revision?.manifest.artifactType === "slideshow";
+
   function submitReview() {
     if (!revision || !comment.trim()) return;
-    review(revision.id, comment);
+    review(
+      revision.id,
+      comment,
+      undefined,
+      isPaged ? slideIndex + 1 : undefined,
+    );
     setComment("");
   }
 
@@ -260,6 +282,10 @@ export function PreviewStudioScreen() {
               manifest={revision?.manifest}
               fallback={fallback}
               rendererLabel={renderer?.label}
+              slideIndex={slideIndex}
+              onSlideIndexChange={setSlideIndex}
+              onDeckSave={(deck) => revision && saveDeck(revision.id, deck)}
+              onWebSave={(web) => revision && saveWeb(revision.id, web)}
             />
           </div>
 
@@ -358,6 +384,9 @@ export function PreviewStudioScreen() {
                           >
                             <p className="text-foreground">{r.body}</p>
                             <p className="mt-0.5 text-muted-foreground">
+                              {r.anchor?.slide !== undefined
+                                ? `Slide ${r.anchor.slide} · `
+                                : ""}
                               {r.anchor?.timeMs !== undefined
                                 ? `${(r.anchor.timeMs / 1000).toFixed(1)}s · `
                                 : ""}
@@ -370,7 +399,11 @@ export function PreviewStudioScreen() {
                     <Textarea
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
-                      placeholder="Leave a review comment…"
+                      placeholder={
+                        isPaged
+                          ? `Comment on slide ${slideIndex + 1}…`
+                          : "Leave a review comment…"
+                      }
                       className="min-h-16 text-sm"
                       data-testid="preview-studio-review-input"
                     />

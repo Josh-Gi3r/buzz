@@ -1,8 +1,13 @@
 import * as React from "react";
 
 import type { FallbackPresentation } from "../lib/registry";
-import { resolveDisplayUri } from "../lib/resolveDisplayUri";
+import { resolveDisplayUri, resolveSlides } from "../lib/resolveDisplayUri";
 import type { ArtifactManifestV1, ArtifactType } from "../lib/types";
+import { isDeckDocument } from "../lib/deckSource";
+import { isWebDocument } from "../lib/webSource";
+import { DeckStage } from "./DeckStage";
+import { RevealDeckStage } from "./RevealDeckStage";
+import { WebStage } from "./WebStage";
 import { artifactTypeIcon } from "./typeIcons";
 import { cn } from "@/shared/lib/cn";
 import { SimpleImageLightbox } from "@/shared/ui/SimpleImageLightbox";
@@ -74,11 +79,19 @@ export function PreviewStage({
   manifest,
   fallback,
   rendererLabel,
+  slideIndex = 0,
+  onSlideIndexChange,
+  onDeckSave,
+  onWebSave,
   className,
 }: {
   manifest: ArtifactManifestV1 | undefined;
   fallback: FallbackPresentation | null;
   rendererLabel?: string;
+  slideIndex?: number;
+  onSlideIndexChange?: (index: number) => void;
+  onDeckSave?: (deck: unknown) => void;
+  onWebSave?: (web: unknown) => void;
   className?: string;
 }) {
   const [lightboxOpen, setLightboxOpen] = React.useState(false);
@@ -185,6 +198,46 @@ export function PreviewStage({
           {manifest.title}
         </p>
       </div>
+    );
+  }
+
+  if (isWebDocument(manifest.web)) {
+    return (
+      <WebStage
+        doc={manifest.web}
+        onSave={(next) => onWebSave?.(next)}
+        className={className}
+      />
+    );
+  }
+
+  if (isDeckDocument(manifest.deck)) {
+    return (
+      <RevealDeckStage
+        title={manifest.title}
+        doc={manifest.deck}
+        slideIndex={slideIndex}
+        onSlideIndexChange={onSlideIndexChange ?? (() => {})}
+        onSave={(next) => onDeckSave?.(next)}
+        className={className}
+      />
+    );
+  }
+
+  const slides = resolveSlides(manifest);
+  if (
+    (manifest.artifactType === "deck" ||
+      manifest.artifactType === "slideshow") &&
+    slides.length > 0
+  ) {
+    return (
+      <DeckStage
+        title={manifest.title}
+        slides={slides}
+        slideIndex={slideIndex}
+        onSlideIndexChange={onSlideIndexChange ?? (() => {})}
+        className={className}
+      />
     );
   }
 

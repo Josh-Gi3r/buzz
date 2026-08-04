@@ -305,6 +305,7 @@ export function addReview(
     revisionId: string;
     body: string;
     timeMs?: number;
+    slide?: number;
   },
 ): ArtifactLibrarySnapshot {
   const body = input.body.trim();
@@ -317,15 +318,65 @@ export function addReview(
     status: "open" as ReviewStatus,
     authorPubkey: "local",
     createdAt: Date.now(),
-    anchor:
-      input.timeMs !== undefined
-        ? { revisionId: input.revisionId, timeMs: input.timeMs }
-        : { revisionId: input.revisionId },
+    anchor: {
+      revisionId: input.revisionId,
+      ...(input.timeMs !== undefined ? { timeMs: input.timeMs } : {}),
+      ...(input.slide !== undefined ? { slide: input.slide } : {}),
+    },
   };
 
   const next: ArtifactLibrarySnapshot = {
     ...snapshot,
     reviews: [...snapshot.reviews, review],
+  };
+  saveLibrary(next);
+  return next;
+}
+
+/** Source edits never mutate a revision — they create the next one. */
+export function saveSourceRevision(
+  snapshot: ArtifactLibrarySnapshot,
+  revisionId: string,
+  patch: Partial<Pick<ArtifactManifestV1, "deck" | "web">>,
+): ArtifactLibrarySnapshot {
+  const previous = snapshot.revisions.find((r) => r.id === revisionId);
+  if (!previous) return snapshot;
+
+  const now = Date.now();
+  const nextRevisionId = newId("rev");
+  const revision: ArtifactRevision = {
+    id: nextRevisionId,
+    artifactId: previous.artifactId,
+    createdAt: now,
+    manifest: {
+      ...previous.manifest,
+      revisionId: nextRevisionId,
+      ...patch,
+      provenance: {
+        ...previous.manifest.provenance,
+        createdBy: "local",
+        createdAt: new Date(now).toISOString(),
+      },
+    },
+  };
+
+  const next: ArtifactLibrarySnapshot = {
+    ...snapshot,
+    revisions: [revision, ...snapshot.revisions],
+    artifacts: snapshot.artifacts.map((a) =>
+      a.id === previous.artifactId
+        ? { ...a, currentRevisionId: nextRevisionId, updatedAt: now }
+        : a,
+    ),
+    decisions: [
+      {
+        revisionId: nextRevisionId,
+        reviewerPubkey: "local",
+        status: "pending" as DecisionStatus,
+        updatedAt: now,
+      },
+      ...snapshot.decisions,
+    ],
   };
   saveLibrary(next);
   return next;

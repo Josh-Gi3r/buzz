@@ -22,6 +22,10 @@ export default defineConfig({
       name: "smoke",
       testMatch: [
         "**/smoke.spec.ts",
+        "**/studio-playground.spec.ts",
+        "**/deck-verify.spec.ts",
+        "**/web-verify.spec.ts",
+        "**/deck-editable.spec.ts",
         "**/preview-studio-showcase.spec.ts",
         "**/onboarding-docked-cta-screenshots.spec.ts",
         "**/identity-key-help.spec.ts",

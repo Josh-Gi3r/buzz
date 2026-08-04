@@ -67,6 +67,8 @@ export type RenditionRole =
 
 export interface ArtifactRendition {
   role: RenditionRole;
+  /** 1-based position for paged renditions (deck slides, PDF pages). */
+  page?: number;
   sha256?: string;
   mime?: string;
   width?: number;
@@ -98,6 +100,10 @@ export interface ArtifactManifestV1 {
     createdAt?: string;
   };
   renditions?: ArtifactRendition[];
+  /** Deck source document (HTML slides). Present on deck artifacts. */
+  deck?: unknown;
+  /** Website/web-app source files. Present on website and web_app artifacts. */
+  web?: unknown;
   capabilities?: ArtifactCapability[];
   securityPolicy?: ArtifactSecurityPolicy;
 }

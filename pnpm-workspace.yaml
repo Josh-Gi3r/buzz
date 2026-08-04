@@ -3,6 +3,7 @@ packages:
   - "web"
   - "admin-web"
 allowBuilds:
+  es5-ext: set this to true or false
   esbuild: true
 overrides:
   # Force a single copy of the dismissable-layer. Radix packages otherwise

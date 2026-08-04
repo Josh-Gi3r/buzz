@@ -23,6 +23,8 @@ receive only thin integration seams.
 | `preview-features.json` | Registered the `preview-studio` feature gate (default off) |
 | `desktop/src/features/agents/lib/personaCatalogRelay.test.mjs` | Lint fix (template literals); upstream PR candidate |
 | `desktop/playwright.config.ts` | E2E preview port reads `BUZZ_E2E_PORT`; upstream PR candidate |
+| `desktop/src/features/onboarding/communityOnboarding.tsx` | Type the browser timer explicitly so ambient Node types cannot redefine it; upstream PR candidate |
+| `package.json` | pnpm `ignoredBuiltDependencies` (es5-ext) + single `@types/node` override |
 | `desktop/src/app/routes.ts` | Registered the `/preview-studio` route |
 | `desktop/src/app/routeTree.gen.ts` | Regenerated for the `/preview-studio` route |
 | `desktop/src/app/AppShell.helpers.ts` | `preview-studio` AppView + shell-route derivation |

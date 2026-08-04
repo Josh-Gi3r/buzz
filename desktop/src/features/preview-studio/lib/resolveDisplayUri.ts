@@ -23,3 +23,14 @@ export function resolveDisplayUri(
   }
   return undefined;
 }
+
+/** Ordered page/slide renditions, if this revision has any. */
+export function resolveSlides(manifest: ArtifactManifestV1): string[] {
+  const pages = (manifest.renditions ?? []).filter(
+    (r) => r.role === "page" && r.uri,
+  );
+  if (pages.length === 0) return [];
+  return [...pages]
+    .sort((a, b) => (a.page ?? 0) - (b.page ?? 0))
+    .map((r) => r.uri as string);
+}

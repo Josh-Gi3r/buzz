@@ -7,6 +7,7 @@ import {
   isImportableType,
   loadLibrary,
   resetLibraryToSeed,
+  saveSourceRevision,
   setDecision,
   type ArtifactLibrarySnapshot,
 } from "./lib/store";
@@ -45,8 +46,10 @@ export function useArtifactLibrary() {
   }, []);
 
   const review = React.useCallback(
-    (revisionId: string, body: string, timeMs?: number) => {
-      setLibrary((prev) => addReview(prev, { revisionId, body, timeMs }));
+    (revisionId: string, body: string, timeMs?: number, slide?: number) => {
+      setLibrary((prev) =>
+        addReview(prev, { revisionId, body, timeMs, slide }),
+      );
     },
     [],
   );
@@ -58,6 +61,14 @@ export function useArtifactLibrary() {
     [],
   );
 
+  const saveDeck = React.useCallback((revisionId: string, deck: unknown) => {
+    setLibrary((prev) => saveSourceRevision(prev, revisionId, { deck }));
+  }, []);
+
+  const saveWeb = React.useCallback((revisionId: string, web: unknown) => {
+    setLibrary((prev) => saveSourceRevision(prev, revisionId, { web }));
+  }, []);
+
   const reset = React.useCallback(() => {
     setLibrary(resetLibraryToSeed());
   }, []);
@@ -68,6 +79,8 @@ export function useArtifactLibrary() {
     remove,
     review,
     decide,
+    saveDeck,
+    saveWeb,
     reset,
   };
 }

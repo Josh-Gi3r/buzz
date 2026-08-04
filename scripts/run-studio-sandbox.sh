@@ -14,9 +14,14 @@
 #   - --fresh wipes sandbox app data only, never a production install
 #
 # Usage:
-#   ./scripts/run-studio-sandbox.sh              # mock identity (default) — no real account
+#   ./scripts/run-studio-sandbox.sh              # normal onboarding in the sandbox
 #   ./scripts/run-studio-sandbox.sh --fresh      # wipe sandbox app data first
-#   ./scripts/run-studio-sandbox.sh --real-id    # throwaway sandbox key instead of the mock
+#   ./scripts/run-studio-sandbox.sh --mock       # e2e mock data; BROWSER ONLY, see note
+#
+# Note: --mock injects the Playwright e2e bridge, which calls mockWindows()
+# from @tauri-apps/api/mocks. That only works on a plain browser page — inside
+# the real Tauri shell it throws and the window never paints. Use --mock with
+# the dev URL in a browser, not with the app window.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -30,12 +35,12 @@ VITE_PORT="${BUZZ_STUDIO_VITE_PORT:-15240}"
 HMR_PORT=$((VITE_PORT + 1))
 
 FRESH=0
-# Default: e2e mock skips community/sign-in onboarding and never uses prod keys.
-MOCK=1
+# Off by default: the e2e bridge cannot run inside the real Tauri shell.
+MOCK=0
 for arg in "$@"; do
   case "$arg" in
     --fresh|-f) FRESH=1 ;;
-    --real-id) MOCK=0 ;;
+    --mock) MOCK=1 ;;
     --help|-h)
       sed -n '2,19p' "$0"
       exit 0
@@ -54,7 +59,7 @@ echo "  Keyring:  $KEYRING"
 echo "  Nest:     ~/.buzz-dev  (a production ~/.buzz is never used)"
 echo "  Vite:     http://localhost:${VITE_PORT}"
 echo "  Relay:    none started"
-echo "  Account:  $([[ "$MOCK" == "1" ]] && echo 'E2E MOCK — no real sign-in / not your identity' || echo 'throwaway sandbox key (NOT prod account)')"
+echo "  Account:  $([[ "$MOCK" == "1" ]] && echo 'E2E MOCK (browser only)' || echo 'sandbox keyring — a throwaway identity, never your prod account')"
 echo "  Production app data and ~/.buzz are not touched"
 echo "════════════════════════════════════════════════════════"
 
@@ -64,14 +69,35 @@ if [[ ! -d "$HOME/.buzz-dev" ]]; then
   echo "Created empty ~/.buzz-dev (dev nest). Prod ~/.buzz left as-is."
 fi
 
-# Build sidecars needed by Tauri (dev copies)
-echo "→ Building agent/CLI sidecars (debug)…"
-cargo build -p buzz-acp -p buzz-agent -p buzz-dev-mcp -p buzz-cli -p git-credential-nostr
+# Build the sidecars Tauri expects. The list is read from tauri.conf.json so an
+# upstream merge that adds a sidecar cannot silently break this script.
+BINS=$(node -p "JSON.parse(require('fs').readFileSync('desktop/src-tauri/tauri.conf.json','utf8')).bundle.externalBin.map(p => p.split('/').pop()).join(' ')")
+echo "→ Building sidecars (debug): $BINS"
+
+# Map binary name -> cargo package (they differ for the CLI).
+pkg_for_bin() {
+  case "$1" in
+    buzz) echo "buzz-cli" ;;
+    *) echo "$1" ;;
+  esac
+}
+
+CARGO_ARGS=()
+for bin in $BINS; do
+  CARGO_ARGS+=(-p "$(pkg_for_bin "$bin")")
+done
+cargo build "${CARGO_ARGS[@]}"
+
 TARGET=$(rustc -vV | sed -n 's|host: ||p')
 TARGET_DIR=$(cargo metadata --format-version 1 --no-deps | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).target_directory")
 mkdir -p desktop/src-tauri/binaries
-for bin in buzz-acp buzz-agent buzz-dev-mcp git-credential-nostr buzz; do
-  cp "${TARGET_DIR}/debug/${bin}" "desktop/src-tauri/binaries/${bin}-${TARGET}"
+for bin in $BINS; do
+  src="${TARGET_DIR}/debug/${bin}"
+  if [[ ! -f "$src" ]]; then
+    echo "✗ sidecar '$bin' was not produced at $src" >&2
+    exit 1
+  fi
+  cp "$src" "desktop/src-tauri/binaries/${bin}-${TARGET}"
   chmod +x "desktop/src-tauri/binaries/${bin}-${TARGET}"
 done
 
@@ -99,7 +125,7 @@ if [[ "$FRESH" == "1" ]]; then
 fi
 if [[ "$MOCK" == "1" ]]; then
   QS+=("e2e=mock")
-  echo "→ E2E mock mode: fake community, skip onboarding, no real account"
+  echo "→ E2E mock mode (browser only — the app window will not paint with this)"
 fi
 DEV_URL="http://localhost:${VITE_PORT}"
 if [[ ${#QS[@]} -gt 0 ]]; then
