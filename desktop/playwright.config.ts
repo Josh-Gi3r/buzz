@@ -25,6 +25,7 @@ export default defineConfig({
         "**/studio-playground.spec.ts",
         "**/deck-verify.spec.ts",
         "**/web-verify.spec.ts",
+        "**/generate-verify.spec.ts",
         "**/deck-editable.spec.ts",
         "**/preview-studio-showcase.spec.ts",
         "**/onboarding-docked-cta-screenshots.spec.ts",

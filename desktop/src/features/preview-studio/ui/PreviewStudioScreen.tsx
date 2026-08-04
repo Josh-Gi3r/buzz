@@ -7,6 +7,7 @@ import {
   Sparkles,
   Trash2,
   Upload,
+  Wand2,
 } from "lucide-react";
 import * as React from "react";
 
@@ -19,6 +20,7 @@ import {
 import { listRenderers, resolveRenderer } from "../lib/registry";
 import type { Artifact, DecisionStatus } from "../lib/types";
 import { useArtifactLibrary } from "../hooks";
+import { GeneratePanel } from "./GeneratePanel";
 import { PreviewStage } from "./PreviewStage";
 import { artifactTypeIcon } from "./typeIcons";
 import { cn } from "@/shared/lib/cn";
@@ -50,6 +52,7 @@ export function PreviewStudioScreen() {
     decide,
     saveDeck,
     saveWeb,
+    addGenerated,
     reset,
   } = useArtifactLibrary();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -59,6 +62,7 @@ export function PreviewStudioScreen() {
   const [importing, setImporting] = React.useState(false);
   const [sessionOnly, setSessionOnly] = React.useState(false);
   const [slideIndex, setSlideIndex] = React.useState(0);
+  const [generateOpen, setGenerateOpen] = React.useState(false);
 
   // Keep selection valid when library changes
   React.useEffect(() => {
@@ -161,6 +165,17 @@ export function PreviewStudioScreen() {
             >
               <Upload className="h-3.5 w-3.5" />
               {importing ? "Importing…" : "Import"}
+            </Button>
+            <Button
+              type="button"
+              variant={generateOpen ? "secondary" : "ghost"}
+              size="sm"
+              className="h-8 gap-1.5"
+              onClick={() => setGenerateOpen((v) => !v)}
+              data-testid="preview-studio-open-generate"
+            >
+              <Wand2 className="h-3.5 w-3.5" />
+              Generate
             </Button>
             <Button
               type="button"
@@ -320,6 +335,15 @@ export function PreviewStudioScreen() {
             </div>
           </div>
         </main>
+
+        {generateOpen ? (
+          <GeneratePanel
+            onClose={() => setGenerateOpen(false)}
+            onGenerated={(image) => {
+              addGenerated({ ...image, model: "generated" });
+            }}
+          />
+        ) : null}
 
         {inspectorOpen ? (
           <aside className="preview-studio__inspector flex w-80 shrink-0 flex-col border-l border-border/50 bg-background/55 backdrop-blur-xl">

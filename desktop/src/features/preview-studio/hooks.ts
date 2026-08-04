@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import {
+  addGeneratedImage,
   addReview,
   deleteArtifact,
   importLocalFile,
@@ -65,6 +66,18 @@ export function useArtifactLibrary() {
     setLibrary((prev) => saveSourceRevision(prev, revisionId, { deck }));
   }, []);
 
+  const addGenerated = React.useCallback(
+    (input: {
+      dataUrl: string;
+      mime: string;
+      title: string;
+      model: string;
+    }) => {
+      setLibrary((prev) => addGeneratedImage(prev, input));
+    },
+    [],
+  );
+
   const saveWeb = React.useCallback((revisionId: string, web: unknown) => {
     setLibrary((prev) => saveSourceRevision(prev, revisionId, { web }));
   }, []);
@@ -81,6 +94,7 @@ export function useArtifactLibrary() {
     decide,
     saveDeck,
     saveWeb,
+    addGenerated,
     reset,
   };
 }

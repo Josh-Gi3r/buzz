@@ -269,6 +269,62 @@ export async function importLocalFile(
   return { snapshot: next, persisted };
 }
 
+/** A generated image becomes a first-class artifact with its own revision. */
+export function addGeneratedImage(
+  snapshot: ArtifactLibrarySnapshot,
+  input: { dataUrl: string; mime: string; title: string; model: string },
+): ArtifactLibrarySnapshot {
+  const now = Date.now();
+  const artifactId = newId("art");
+  const revisionId = newId("rev");
+  const title = input.title || "Generated image";
+
+  const manifest: ArtifactManifestV1 = {
+    schemaVersion: 1,
+    artifactId,
+    revisionId,
+    title,
+    artifactType: "image",
+    source: { kind: "local", uri: input.dataUrl, mime: input.mime },
+    capabilities: ["view", "comment", "inspect", "approve"],
+    securityPolicy: { network: "deny", clipboard: "deny", downloads: "allow" },
+    provenance: {
+      createdBy: input.model,
+      createdAt: new Date(now).toISOString(),
+    },
+  };
+
+  const next: ArtifactLibrarySnapshot = {
+    ...snapshot,
+    artifacts: [
+      {
+        id: artifactId,
+        title,
+        artifactType: "image",
+        currentRevisionId: revisionId,
+        createdAt: now,
+        updatedAt: now,
+      },
+      ...snapshot.artifacts,
+    ],
+    revisions: [
+      { id: revisionId, artifactId, manifest, createdAt: now },
+      ...snapshot.revisions,
+    ],
+    decisions: [
+      {
+        revisionId,
+        reviewerPubkey: "local",
+        status: "pending" as DecisionStatus,
+        updatedAt: now,
+      },
+      ...snapshot.decisions,
+    ],
+  };
+  saveLibrary(next);
+  return next;
+}
+
 export function deleteArtifact(
   snapshot: ArtifactLibrarySnapshot,
   artifactId: string,
