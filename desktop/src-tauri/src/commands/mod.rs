@@ -36,6 +36,7 @@ mod messages;
 mod notifications;
 mod observer_archive;
 mod os_idle;
+pub mod media_tools;
 pub mod pairing;
 mod personas;
 mod prevent_sleep;

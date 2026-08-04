@@ -25,6 +25,8 @@ receive only thin integration seams.
 | `desktop/playwright.config.ts` | E2E preview port reads `BUZZ_E2E_PORT`; upstream PR candidate |
 | `desktop/src/features/onboarding/communityOnboarding.tsx` | Type the browser timer explicitly so ambient Node types cannot redefine it; upstream PR candidate |
 | `package.json` | pnpm `ignoredBuiltDependencies` (es5-ext) + single `@types/node` override |
+| `desktop/src-tauri/src/commands/mod.rs` | Register the `media_tools` module |
+| `desktop/src-tauri/src/lib.rs` | Register `media_tool_available` / `run_media_tool` commands |
 | `desktop/src/app/routes.ts` | Registered the `/preview-studio` route |
 | `desktop/src/app/routeTree.gen.ts` | Regenerated for the `/preview-studio` route |
 | `desktop/src/app/AppShell.helpers.ts` | `preview-studio` AppView + shell-route derivation |
@@ -38,6 +40,7 @@ receive only thin integration seams.
 ## New fork-owned areas (not patches)
 
 - `desktop/src/features/preview-studio/**`
+- `desktop/src-tauri/src/commands/media_tools.rs`
 - `desktop/src/app/routes/preview-studio.tsx`
 - `desktop/src/shared/theme/studio/**`
 - `docs/design/**`
