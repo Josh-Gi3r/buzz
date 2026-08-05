@@ -2,6 +2,7 @@ import * as React from "react";
 
 import {
   addGeneratedImage,
+  addGeneratedVideo,
   addReview,
   deleteArtifact,
   importLocalFile,
@@ -78,6 +79,13 @@ export function useArtifactLibrary() {
     [],
   );
 
+  const addGeneratedVid = React.useCallback(
+    (input: { url: string; title: string; model: string }) => {
+      setLibrary((prev) => addGeneratedVideo(prev, input));
+    },
+    [],
+  );
+
   const saveWeb = React.useCallback((revisionId: string, web: unknown) => {
     setLibrary((prev) => saveSourceRevision(prev, revisionId, { web }));
   }, []);
@@ -95,6 +103,7 @@ export function useArtifactLibrary() {
     saveDeck,
     saveWeb,
     addGenerated,
+    addGeneratedVid,
     reset,
   };
 }

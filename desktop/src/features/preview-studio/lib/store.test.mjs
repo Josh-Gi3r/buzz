@@ -96,14 +96,14 @@ describe("artifact library store", () => {
   it("seeds demo artifacts on first load", () => {
     const snap = loadLibrary();
     assert.equal(snap.version, 1);
-    assert.equal(snap.artifacts.length, 5);
+    assert.equal(snap.artifacts.length, 4);
     assert.ok(localStorage.getItem(STORAGE_KEY));
   });
 
   it("recovers from a corrupt payload and backs it up", () => {
     localStorage.setItem(STORAGE_KEY, "{corrupt");
     const snap = loadLibrary();
-    assert.equal(snap.artifacts.length, 5);
+    assert.equal(snap.artifacts.length, 4);
     assert.equal(localStorage.getItem(`${STORAGE_KEY}.unreadable`), "{corrupt");
   });
 
@@ -111,7 +111,7 @@ describe("artifact library store", () => {
     const bogus = JSON.stringify({ version: 99, artifacts: "nope" });
     localStorage.setItem(STORAGE_KEY, bogus);
     const snap = loadLibrary();
-    assert.equal(snap.artifacts.length, 5);
+    assert.equal(snap.artifacts.length, 4);
     assert.equal(localStorage.getItem(`${STORAGE_KEY}.unreadable`), bogus);
   });
 

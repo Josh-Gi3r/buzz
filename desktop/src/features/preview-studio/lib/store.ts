@@ -325,6 +325,67 @@ export function addGeneratedImage(
   return next;
 }
 
+/** A generated video becomes an artifact with its own revision. */
+export function addGeneratedVideo(
+  snapshot: ArtifactLibrarySnapshot,
+  input: { url: string; title: string; model: string },
+): ArtifactLibrarySnapshot {
+  const now = Date.now();
+  const artifactId = newId("art");
+  const revisionId = newId("rev");
+  const title = input.title || "Generated video";
+
+  const manifest: ArtifactManifestV1 = {
+    schemaVersion: 1,
+    artifactId,
+    revisionId,
+    title,
+    artifactType: "video",
+    source: { kind: "url", url: input.url },
+    renditions: [{ role: "stream", uri: input.url, mime: "video/mp4" }],
+    capabilities: ["view", "comment", "inspect", "approve"],
+    securityPolicy: {
+      network: "allowlist",
+      clipboard: "deny",
+      downloads: "allow",
+    },
+    provenance: {
+      createdBy: input.model,
+      createdAt: new Date(now).toISOString(),
+    },
+  };
+
+  const next: ArtifactLibrarySnapshot = {
+    ...snapshot,
+    artifacts: [
+      {
+        id: artifactId,
+        title,
+        artifactType: "video",
+        currentRevisionId: revisionId,
+        createdAt: now,
+        updatedAt: now,
+      },
+      ...snapshot.artifacts,
+    ],
+    revisions: [
+      { id: revisionId, artifactId, manifest, createdAt: now },
+      ...snapshot.revisions,
+    ],
+    decisions: [
+      {
+        revisionId,
+        reviewerPubkey: "local",
+        status: "pending" as DecisionStatus,
+        updatedAt: now,
+      },
+      ...snapshot.decisions,
+    ],
+  };
+  saveLibrary(next);
+  return next;
+}
+
 export function deleteArtifact(
   snapshot: ArtifactLibrarySnapshot,
   artifactId: string,

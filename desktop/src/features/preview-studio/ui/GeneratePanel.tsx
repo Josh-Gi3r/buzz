@@ -10,23 +10,26 @@ import {
   maskKey,
   setProviderKey,
 } from "../lib/generation/keys";
-import {
-  IMAGE_MODELS,
-  PROVIDER_ENV,
-  VIDEO_MODELS,
-} from "../lib/generation/providers";
+import { IMAGE_MODELS, PROVIDER_ENV } from "../lib/generation/providers";
+import { VideoGenerateSection } from "./VideoGenerateSection";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 import { Textarea } from "@/shared/ui/textarea";
 
 export function GeneratePanel({
   onGenerated,
+  onVideoGenerated,
   onClose,
 }: {
   onGenerated: (image: {
     dataUrl: string;
     mime: string;
     title: string;
+  }) => void;
+  onVideoGenerated: (video: {
+    url: string;
+    title: string;
+    model: string;
   }) => void;
   onClose: () => void;
 }) {
@@ -194,15 +197,7 @@ export function GeneratePanel({
           {busy ? "Generating…" : `Generate — ${model.approxCost}`}
         </Button>
 
-        <section className="space-y-1.5 border-t border-border/40 pt-3">
-          <h3 className="text-xs font-semibold">Video</h3>
-          <p className="text-2xs leading-relaxed text-muted-foreground">
-            Video generation runs through Higgsfield with{" "}
-            {VIDEO_MODELS.map((m) => m.label).join(" or ")}. Picture and sound
-            are always produced in the same pass — audio is never generated
-            separately and never dubbed.
-          </p>
-        </section>
+        <VideoGenerateSection onGenerated={onVideoGenerated} />
       </div>
     </aside>
   );

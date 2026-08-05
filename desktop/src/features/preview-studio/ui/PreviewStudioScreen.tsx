@@ -53,6 +53,7 @@ export function PreviewStudioScreen() {
     saveDeck,
     saveWeb,
     addGenerated,
+    addGeneratedVid,
     reset,
   } = useArtifactLibrary();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -342,6 +343,7 @@ export function PreviewStudioScreen() {
             onGenerated={(image) => {
               addGenerated({ ...image, model: "generated" });
             }}
+            onVideoGenerated={(video) => addGeneratedVid(video)}
           />
         ) : null}
 
