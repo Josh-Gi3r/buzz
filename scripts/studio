@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Open Preview Studio in a browser. No community, no account, no relay.
+#
+#   ./scripts/studio
+#
+# Everything the studio stores stays on this device.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT/desktop"
+
+PORT="${STUDIO_PORT:-4360}"
+while lsof -ti :"$PORT" >/dev/null 2>&1; do PORT=$((PORT + 1)); done
+
+echo "→ Building…"
+./node_modules/.bin/vite build --mode e2e >/dev/null
+
+echo "→ Serving on http://127.0.0.1:${PORT}"
+python3 -m http.server "$PORT" -d dist >/dev/null 2>&1 &
+SERVER_PID=$!
+trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+
+sleep 1
+URL="http://127.0.0.1:${PORT}/?studio=1"
+echo "→ Opening $URL"
+open "$URL"
+
+echo
+echo "Preview Studio is open. Press Ctrl-C here to stop the server."
+wait $SERVER_PID

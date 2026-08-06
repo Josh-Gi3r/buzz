@@ -8,6 +8,10 @@ import { UpdaterProvider } from "@/features/settings/hooks/UpdaterProvider";
 import { migrateLegacyCommunityStorageBeforeRender } from "@/features/communities/legacyCommunityStorage";
 import { CommunitiesProvider } from "@/features/communities/useCommunities";
 import { CommunityOnboardingProvider } from "@/features/onboarding/communityOnboarding";
+import {
+  isStandaloneStudioRequested,
+  StandaloneStudio,
+} from "@/app/StandaloneStudio";
 import { ThemeProvider } from "@/shared/theme/ThemeProvider";
 import { EmojiBurstProvider } from "@/shared/ui/EmojiBurstProvider";
 import { PoofBurstProvider } from "@/shared/ui/PoofBurstProvider";
@@ -71,7 +75,26 @@ function configureDevE2eBridgeFromUrl() {
 }
 
 function renderApp() {
-  ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  const root = ReactDOM.createRoot(
+    document.getElementById("root") as HTMLElement,
+  );
+
+  // Preview Studio is entirely local, so it can run without a community.
+  if (isStandaloneStudioRequested()) {
+    root.render(
+      <React.StrictMode>
+        <ThemeProvider defaultTheme="buzz">
+          <TooltipProvider delayDuration={300}>
+            <StandaloneStudio />
+            <Toaster />
+          </TooltipProvider>
+        </ThemeProvider>
+      </React.StrictMode>,
+    );
+    return;
+  }
+
+  root.render(
     <React.StrictMode>
       <CommunitiesProvider>
         <CommunityOnboardingProvider>
