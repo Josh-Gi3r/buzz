@@ -82,30 +82,35 @@ const BUILTIN_STUBS: Array<{
 }> = [
   {
     id: "image",
+    implemented: true,
     label: "Image",
     types: ["image"],
     caps: ["point", "region", "compare", "approve"],
   },
   {
     id: "video",
+    implemented: true,
     label: "Video",
     types: ["video"],
     caps: ["time", "frame", "compare", "approve"],
   },
   {
     id: "pdf",
+    implemented: true,
     label: "PDF",
     types: ["pdf"],
     caps: ["page", "region", "approve"],
   },
   {
     id: "deck",
+    implemented: true,
     label: "Deck",
     types: ["deck"],
     caps: ["slide", "region", "approve"],
   },
   {
     id: "web-url",
+    implemented: true,
     label: "Website",
     types: ["website"],
     caps: ["route", "approve"],

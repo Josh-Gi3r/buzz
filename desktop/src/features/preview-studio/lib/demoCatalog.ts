@@ -109,7 +109,7 @@ const deckRev = revision(
 const webRev = revision(
   "art-checkout",
   "rev-checkout-3",
-  "Northwind homepage",
+  "Elena Marsh — Photography",
   "website",
   {
     entrypoint: "index.html",
@@ -139,7 +139,7 @@ export const DEMO_REVISIONS: ArtifactRevision[] = [
 export const DEMO_ARTIFACTS: Artifact[] = [
   {
     id: "art-checkout",
-    title: "Northwind homepage",
+    title: "Elena Marsh — Photography",
     artifactType: "website",
     currentRevisionId: webRev.id,
     createdAt: Date.now() - 43_200_000,

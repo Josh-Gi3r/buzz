@@ -205,6 +205,7 @@ export function PreviewStage({
     return (
       <WebStage
         doc={manifest.web}
+        title={manifest.title}
         onSave={(next) => onWebSave?.(next)}
         className={className}
       />
