@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import * as React from "react";
 
+import { bundleStaticSite } from "../lib/webBundle";
 import type { WebDocument } from "../lib/webSource";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
@@ -34,92 +35,93 @@ const STAGE_HEIGHT = 720;
 const SandpackParts = React.lazy(async () => {
   const mod = await import("@codesandbox/sandpack-react");
   return {
-    default: ({
-      doc,
-      mode,
-      width,
-      onFilesChange,
-    }: {
+    default: (props: {
       doc: WebDocument;
       mode: ModeId;
       width: string;
       onFilesChange: (files: Record<string, string>) => void;
-    }) => (
-      <mod.SandpackProvider
-        template={doc.template}
-        files={doc.files}
-        theme={mod.defaultDark}
-        options={{
-          recompileMode: "delayed",
-          recompileDelay: 500,
-          activeFile: doc.entry,
-          visibleFiles: Object.keys(doc.files).filter(
-            (path) => !path.startsWith("/images/"),
-          ),
-        }}
-      >
-        <FileWatcher
-          onFilesChange={onFilesChange}
-          useSandpack={mod.useSandpack}
-        />
-        <mod.SandpackLayout
-          style={{
-            border: "none",
-            background: "transparent",
-            borderRadius: 0,
-            flexWrap: "nowrap",
-            display: "flex",
+      localPreview?: React.ReactNode;
+    }) => {
+      const { doc, mode, width, onFilesChange } = props;
+      return (
+        <mod.SandpackProvider
+          template={doc.template}
+          files={doc.files}
+          theme={mod.defaultDark}
+          options={{
+            recompileMode: "delayed",
+            recompileDelay: 500,
+            activeFile: doc.entry,
+            visibleFiles: Object.keys(doc.files).filter(
+              (path) => !path.startsWith("/images/"),
+            ),
           }}
         >
-          {mode === "code" ? (
-            <mod.SandpackFileExplorer
-              style={{ height: STAGE_HEIGHT, flexGrow: 0, flexBasis: 180 }}
-            />
-          ) : null}
-          {mode !== "preview" ? (
-            <mod.SandpackCodeEditor
-              showLineNumbers
-              showTabs
-              wrapContent
-              style={{
-                height: STAGE_HEIGHT,
-                flexGrow: mode === "code" ? 1 : 0,
-                flexBasis: mode === "code" ? "100%" : "46%",
-                minWidth: 0,
-              }}
-            />
-          ) : null}
-          {mode !== "code" ? (
-            <div
-              style={{
-                flexGrow: 1,
-                flexBasis: mode === "split" ? "54%" : "100%",
-                minWidth: 0,
-                background: "#2b2b30",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "flex-start",
-              }}
-            >
+          <FileWatcher
+            onFilesChange={onFilesChange}
+            useSandpack={mod.useSandpack}
+          />
+          <mod.SandpackLayout
+            style={{
+              border: "none",
+              background: "transparent",
+              borderRadius: 0,
+              flexWrap: "nowrap",
+              display: "flex",
+            }}
+          >
+            {mode === "code" ? (
+              <mod.SandpackFileExplorer
+                style={{ height: STAGE_HEIGHT, flexGrow: 0, flexBasis: 180 }}
+              />
+            ) : null}
+            {mode !== "preview" ? (
+              <mod.SandpackCodeEditor
+                showLineNumbers
+                showTabs
+                wrapContent
+                style={{
+                  height: STAGE_HEIGHT,
+                  flexGrow: mode === "code" ? 1 : 0,
+                  flexBasis: mode === "code" ? "100%" : "46%",
+                  minWidth: 0,
+                }}
+              />
+            ) : null}
+            {mode !== "code" ? (
               <div
                 style={{
-                  width,
-                  maxWidth: "100%",
-                  transition: "width 200ms ease",
+                  flexGrow: 1,
+                  flexBasis: mode === "split" ? "54%" : "100%",
+                  minWidth: 0,
+                  background: "#2b2b30",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "flex-start",
                 }}
               >
-                <mod.SandpackPreview
-                  showOpenInCodeSandbox={false}
-                  showRefreshButton={false}
-                  showNavigator={false}
-                  style={{ height: STAGE_HEIGHT }}
-                />
+                <div
+                  style={{
+                    width,
+                    maxWidth: "100%",
+                    transition: "width 200ms ease",
+                  }}
+                >
+                  {props.localPreview ?? (
+                    <mod.SandpackPreview
+                      showOpenInCodeSandbox={false}
+                      showRefreshButton={false}
+                      showNavigator={false}
+                      style={{ height: STAGE_HEIGHT }}
+                    />
+                  )}
+                </div>
               </div>
-            </div>
-          ) : null}
-        </mod.SandpackLayout>
-      </mod.SandpackProvider>
-    ),
+            ) : null}
+          </mod.SandpackLayout>
+        </mod.SandpackProvider>
+      );
+    },
   };
 });
 
@@ -163,6 +165,29 @@ export function WebStage({
   const [reloadKey, setReloadKey] = React.useState(0);
 
   const width = VIEWPORTS.find((v) => v.id === viewport)?.width ?? "100%";
+
+  // A plain HTML/CSS/JS site is assembled and shown locally; only a project
+  // that genuinely needs a transpile goes out to the hosted bundler.
+  const localHtml = React.useMemo(() => {
+    if (doc.template !== "static") return null;
+    return bundleStaticSite(draft ?? doc.files, doc.entry);
+  }, [doc.template, doc.entry, doc.files, draft]);
+
+  const localPreview = localHtml ? (
+    <iframe
+      key={reloadKey}
+      title={`${title} preview`}
+      sandbox="allow-scripts"
+      srcDoc={localHtml}
+      style={{
+        height: STAGE_HEIGHT,
+        width: "100%",
+        border: 0,
+        background: "#fff",
+      }}
+      data-testid="preview-studio-web-frame"
+    />
+  ) : null;
   const dirty =
     draft !== null && JSON.stringify(draft) !== JSON.stringify(doc.files);
   const host = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "")}.local`;
@@ -264,13 +289,34 @@ export function WebStage({
               </div>
             }
           >
-            <SandpackParts
-              key={reloadKey}
-              doc={doc}
-              mode={mode}
-              width={width}
-              onFilesChange={setDraft}
-            />
+            {localPreview && mode === "preview" ? (
+              <div
+                style={{
+                  background: "#2b2b30",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <div
+                  style={{
+                    width,
+                    maxWidth: "100%",
+                    transition: "width 200ms ease",
+                  }}
+                >
+                  {localPreview}
+                </div>
+              </div>
+            ) : (
+              <SandpackParts
+                key={reloadKey}
+                doc={doc}
+                mode={mode}
+                width={width}
+                onFilesChange={setDraft}
+                localPreview={localPreview}
+              />
+            )}
           </React.Suspense>
         </div>
       </div>
