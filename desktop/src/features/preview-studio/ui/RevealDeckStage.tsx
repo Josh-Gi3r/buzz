@@ -7,10 +7,25 @@ import {
 } from "lucide-react";
 import * as React from "react";
 
-import type { DeckDocument } from "../lib/deckSource";
-import { DECK_CSS } from "./deckTheme";
+import {
+  type DeckDocument,
+  type DeckSlide,
+  resolveDeckMedia,
+  unresolveDeckMedia,
+} from "../lib/deckSource";
+import { DECK_BG, DECK_CSS } from "./deckTheme";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
+
+/**
+ * One slide as markup. The heading and body stay separate elements because the
+ * editor toggles `contentEditable` on exactly those two nodes and reads them
+ * back on save; the wrapper only carries the layout.
+ */
+function slideMarkup(slide: DeckSlide | undefined): string {
+  const body = resolveDeckMedia(slide?.html ?? "");
+  return `<div class="slide" data-layout="${slide?.layout ?? "text"}"><h2>${slide?.title ?? ""}</h2><div class="slide-body">${body}</div></div>`;
+}
 
 export function RevealDeckStage({
   title,
@@ -66,13 +81,13 @@ export function RevealDeckStage({
     const sections = doc.slides
       .map(
         (s) =>
-          `<section><h2>${s.title}</h2><div class="slide-body">${s.html}</div>${s.notes ? `<aside class="notes">${s.notes}</aside>` : ""}</section>`,
+          `<section>${slideMarkup(s)}${s.notes ? `<aside class="notes">${s.notes}</aside>` : ""}</section>`,
       )
       .join("");
     win.document.write(
       `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
        <link rel="stylesheet" href="https://unpkg.com/reveal.js@6/dist/reveal.css">
-       <style>body{background:#0b0e15;margin:0}${DECK_CSS}</style></head>
+       <style>body{background:${DECK_BG};margin:0}${DECK_CSS}</style></head>
        <body><div class="reveal"><div class="slides">${sections}</div></div>
        <script type="module">
          import Reveal from "https://unpkg.com/reveal.js@6/dist/reveal.esm.js";
@@ -88,7 +103,9 @@ export function RevealDeckStage({
     const nextSlide = {
       ...doc.slides[current],
       title: host.querySelector("h2")?.textContent?.trim() ?? "",
-      html: host.querySelector(".slide-body")?.innerHTML ?? "",
+      html: unresolveDeckMedia(
+        host.querySelector(".slide-body")?.innerHTML ?? "",
+      ),
     };
     const slides = doc.slides.map((s, i) => (i === current ? nextSlide : s));
     onSave({ ...doc, slides });
@@ -108,16 +125,18 @@ export function RevealDeckStage({
     >
       <style>{DECK_CSS}</style>
       <div
-        className="reveal aspect-video w-full overflow-auto rounded-2xl bg-[#0b0e15] px-10 py-8"
+        className="reveal aspect-video w-full overflow-hidden rounded-2xl"
+        style={{ background: DECK_BG }}
         ref={hostRef}
         data-testid="preview-studio-deck"
         data-slide={current}
       >
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: slide markup is fork-authored deck source, not remote content */}
         <div
+          className="h-full"
           key={`${current}-${doc.slides[current]?.title ?? ""}`}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: slide markup is fork-authored deck source, not remote content
           dangerouslySetInnerHTML={{
-            __html: `<h2>${doc.slides[current]?.title ?? ""}</h2><div class="slide-body">${doc.slides[current]?.html ?? ""}</div>`,
+            __html: slideMarkup(doc.slides[current]),
           }}
         />
       </div>

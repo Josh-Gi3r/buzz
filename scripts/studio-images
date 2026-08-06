@@ -18,7 +18,8 @@ const fs = require("fs");
 const path = require("path");
 const [, , src, out] = process.argv;
 
-const WANTED = ["hero", "gallery-1", "gallery-2", "gallery-3", "gallery-4", "gallery-5", "gallery-6"];
+const WANTED = ["hero", "gallery-1", "gallery-2", "gallery-3", "gallery-4", "gallery-5", "gallery-6",
+  "deck-cover", "deck-approach", "deck-album", "deck-closing"];
 const MIME = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp" };
 
 const entries = [];

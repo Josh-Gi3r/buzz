@@ -91,16 +91,16 @@ const videoRev = revision(
 );
 
 const deckRev = revision(
-  "art-investor-deck",
-  "rev-deck-7",
-  "Investor deck",
+  "art-pricing-deck",
+  "rev-pricing-1",
+  "Collections & pricing 2027",
   "deck",
   {
     source: {
       kind: "blob",
       sha256: "0".repeat(64),
       mime: "text/html",
-      filename: "investor-v7.deck.html",
+      filename: "collections-2027.deck.html",
     },
     deck: DEMO_DECK,
   },
@@ -162,8 +162,8 @@ export const DEMO_ARTIFACTS: Artifact[] = [
     updatedAt: Date.now() - 7_200_000,
   },
   {
-    id: "art-investor-deck",
-    title: "Investor deck",
+    id: "art-pricing-deck",
+    title: "Collections & pricing 2027",
     artifactType: "deck",
     currentRevisionId: deckRev.id,
     createdAt: Date.now() - 259_200_000,

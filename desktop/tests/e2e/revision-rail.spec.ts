@@ -11,7 +11,7 @@ test("editing keeps the old revision and its comment reachable", async ({ page }
   await installMockBridge(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("open-preview-studio-view").click();
-  await page.getByTestId("preview-studio-artifact-art-investor-deck").click();
+  await page.getByTestId("preview-studio-artifact-art-pricing-deck").click();
   await expect(page.getByTestId("preview-studio-deck")).toBeVisible({ timeout: 15000 });
 
   // comment on v1
@@ -24,12 +24,12 @@ test("editing keeps the old revision and its comment reachable", async ({ page }
 
   // edit -> new revision
   await page.getByTestId("preview-studio-deck-edit").click();
-  const heading = page.getByRole("heading", { name: "Northwind" });
+  const heading = page.getByRole("heading", { name: "Elena Marsh" });
   await heading.click();
   await page.keyboard.press("ControlOrMeta+a");
-  await page.keyboard.type("Northwind 2027");
+  await page.keyboard.type("Elena Marsh 2027");
   await page.getByTestId("preview-studio-deck-save").click();
-  await expect(page.getByRole("heading", { name: "Northwind 2027" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Elena Marsh 2027" })).toBeVisible();
 
   // the rail appears, and the old comment is NOT lost — it is on v1
   const rail = page.getByTestId("preview-studio-revision-rail");

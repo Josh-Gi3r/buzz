@@ -153,11 +153,12 @@ const HTML = `<!doctype html>
   <section class="work" id="work">
     <p class="eyebrow">Selected work</p>
     <div class="grid">
+      <figure class="cell tall" data-place="Morning"><img src="images/gallery-1.jpg" alt="Bride fastening an earring, dress hanging behind" /></figure>
       <figure class="cell wide" data-place="Ceremony"><img src="images/gallery-2.jpg" alt="Ceremony above the lake" /></figure>
-      <figure class="cell tall" data-place="Candid"><img src="images/gallery-6.jpg" alt="Guests at golden hour" /></figure>
       <figure class="cell half" data-place="Details"><img src="images/gallery-3.jpg" alt="Invitation, rings and flowers" /></figure>
       <figure class="cell half" data-place="Reception"><img src="images/gallery-4.jpg" alt="First dance under the lights" /></figure>
-      <figure class="cell full" data-place="Dusk"><img src="images/gallery-5.jpg" alt="Walking the terrace at dusk" /></figure>
+      <figure class="cell tall" data-place="Candid"><img src="images/gallery-6.jpg" alt="Guests at golden hour" /></figure>
+      <figure class="cell wide" data-place="Dusk"><img src="images/gallery-5.jpg" alt="Walking the terrace at dusk" /></figure>
     </div>
   </section>
 
@@ -221,6 +222,7 @@ function placeholder(tone: string, label: string): string {
 /** Photograph slots. Replace a value with a real image URL or data URI. */
 export const PHOTOGRAPHS: Record<string, string> = {
   "images/hero.jpg": placeholder("#8a7a68", "Hero"),
+  "images/gallery-1.jpg": placeholder("#9a8b7c", "Morning"),
   "images/gallery-2.jpg": placeholder("#7d7f70", "Ceremony"),
   "images/gallery-3.jpg": placeholder("#a8968a", "Details"),
   "images/gallery-4.jpg": placeholder("#6f6b66", "Reception"),

@@ -20,9 +20,16 @@ test("website artifact renders real, editable source", async ({ page }) => {
 
   // the site is a live document in a frame, not an image
   const frame = page.frameLocator("iframe").first();
-  await expect(frame.getByRole("heading", { name: /Ship work people can see/i })).toBeVisible({ timeout: 25_000 });
+  await expect(frame.getByRole("heading", { name: /Days worth keeping/i })).toBeVisible({ timeout: 25_000 });
   console.log("hero text from inside the live site:", await frame.locator("h1").first().textContent());
-  console.log("buttons in the live site:", await frame.locator("button").count());
+
+  // the photographs are real pixels, not broken slots
+  const photos = await frame.locator("img").evaluateAll((els) =>
+    els.map((el) => (el as HTMLImageElement).complete && (el as HTMLImageElement).naturalWidth > 0),
+  );
+  console.log(`photographs loaded: ${photos.filter(Boolean).length}/${photos.length}`);
+  expect(photos.length).toBe(7);
+  expect(photos.every(Boolean)).toBe(true);
 
   await page.getByTestId("preview-studio-viewport-mobile").click();
   await page.waitForTimeout(800);

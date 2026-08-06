@@ -14,11 +14,11 @@ test("deck text is real, selectable and editable", async ({ page }) => {
   await installMockBridge(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("open-preview-studio-view").click();
-  await page.getByTestId("preview-studio-artifact-art-investor-deck").click();
+  await page.getByTestId("preview-studio-artifact-art-pricing-deck").click();
   await expect(page.getByTestId("preview-studio-deck")).toBeVisible({ timeout: 15000 });
 
   // 1. it is text in the DOM, not pixels
-  const heading = page.getByRole("heading", { name: "Northwind" });
+  const heading = page.getByRole("heading", { name: "Elena Marsh" });
   await expect(heading).toBeVisible();
   console.log("slide 1 heading text:", await heading.textContent());
 
@@ -26,13 +26,13 @@ test("deck text is real, selectable and editable", async ({ page }) => {
   await page.getByTestId("preview-studio-deck-edit").click();
   await heading.click();
   await page.keyboard.press("ControlOrMeta+a");
-  await page.keyboard.type("Northwind — Series A");
+  await page.keyboard.type("Elena Marsh Photography");
   await page.getByTestId("preview-studio-deck-save").click();
 
   // 3. the edit became a NEW revision (immutable model)
-  await expect(page.getByRole("heading", { name: "Northwind — Series A" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Elena Marsh Photography" })).toBeVisible();
   const rev = await page.locator("code").first().textContent();
   console.log("revision after edit:", rev);
-  expect(rev).not.toBe("rev-deck-7");
+  expect(rev).not.toBe("rev-pricing-1");
   await page.screenshot({ path: "test-results/deck-editable.png" });
 });
