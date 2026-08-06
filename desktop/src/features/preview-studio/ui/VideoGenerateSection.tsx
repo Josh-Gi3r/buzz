@@ -20,10 +20,10 @@ const OFFERED = [
   { jobType: "seedance_2_0", label: "Seedance 2.0" },
   { jobType: "seedance_2_0_mini", label: "Seedance 2.0 Mini" },
   { jobType: "veo3_1", label: "Google Veo 3.1" },
-  { jobType: "veo3", label: "Google Veo 3" },
   { jobType: "kling3_0", label: "Kling 3.0" },
-  { jobType: "kling3_0_turbo", label: "Kling 3.0 Turbo" },
 ];
+// Deliberately absent: veo3 requires a start image this panel does not supply,
+// and kling3_0_turbo publishes no audio parameter so the audio check refuses it.
 
 type AudioState = "checking" | "ok" | "refused";
 

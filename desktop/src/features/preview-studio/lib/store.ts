@@ -141,6 +141,25 @@ export function getRevision(
   return snapshot.revisions.find((r) => r.id === revisionId);
 }
 
+/** Every revision of an artifact, newest first. */
+export function revisionsForArtifact(
+  snapshot: ArtifactLibrarySnapshot,
+  artifactId: string | undefined,
+): ArtifactRevision[] {
+  if (!artifactId) return [];
+  return snapshot.revisions
+    .filter((r) => r.artifactId === artifactId)
+    .sort((a, b) => b.createdAt - a.createdAt);
+}
+
+/** How many comments a revision carries, for the rail. */
+export function reviewCountForRevision(
+  snapshot: ArtifactLibrarySnapshot,
+  revisionId: string,
+): number {
+  return snapshot.reviews.filter((r) => r.revisionId === revisionId).length;
+}
+
 export function reviewsForRevision(
   snapshot: ArtifactLibrarySnapshot,
   revisionId: string,
@@ -273,7 +292,7 @@ export async function importLocalFile(
 export function addGeneratedImage(
   snapshot: ArtifactLibrarySnapshot,
   input: { dataUrl: string; mime: string; title: string; model: string },
-): ArtifactLibrarySnapshot {
+): ImportResult {
   const now = Date.now();
   const artifactId = newId("art");
   const revisionId = newId("rev");
@@ -321,15 +340,15 @@ export function addGeneratedImage(
       ...snapshot.decisions,
     ],
   };
-  saveLibrary(next);
-  return next;
+  const persisted = saveLibrary(next);
+  return { snapshot: next, persisted };
 }
 
 /** A generated video becomes an artifact with its own revision. */
 export function addGeneratedVideo(
   snapshot: ArtifactLibrarySnapshot,
   input: { url: string; title: string; model: string },
-): ArtifactLibrarySnapshot {
+): ImportResult {
   const now = Date.now();
   const artifactId = newId("art");
   const revisionId = newId("rev");
@@ -382,8 +401,8 @@ export function addGeneratedVideo(
       ...snapshot.decisions,
     ],
   };
-  saveLibrary(next);
-  return next;
+  const persisted = saveLibrary(next);
+  return { snapshot: next, persisted };
 }
 
 export function deleteArtifact(

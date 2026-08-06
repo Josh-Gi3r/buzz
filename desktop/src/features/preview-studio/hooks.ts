@@ -73,15 +73,27 @@ export function useArtifactLibrary() {
       mime: string;
       title: string;
       model: string;
-    }) => {
-      setLibrary((prev) => addGeneratedImage(prev, input));
+    }): boolean => {
+      let persisted = true;
+      setLibrary((prev) => {
+        const result = addGeneratedImage(prev, input);
+        persisted = result.persisted;
+        return result.snapshot;
+      });
+      return persisted;
     },
     [],
   );
 
   const addGeneratedVid = React.useCallback(
-    (input: { url: string; title: string; model: string }) => {
-      setLibrary((prev) => addGeneratedVideo(prev, input));
+    (input: { url: string; title: string; model: string }): boolean => {
+      let persisted = true;
+      setLibrary((prev) => {
+        const result = addGeneratedVideo(prev, input);
+        persisted = result.persisted;
+        return result.snapshot;
+      });
+      return persisted;
     },
     [],
   );

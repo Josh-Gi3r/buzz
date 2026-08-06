@@ -28,6 +28,7 @@ export default defineConfig({
         "**/generate-verify.spec.ts",
         "**/what-renders.spec.ts",
         "**/video-panel-verify.spec.ts",
+        "**/revision-rail.spec.ts",
         "**/deck-editable.spec.ts",
         "**/preview-studio-showcase.spec.ts",
         "**/onboarding-docked-cta-screenshots.spec.ts",

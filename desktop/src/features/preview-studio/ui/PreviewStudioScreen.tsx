@@ -14,14 +14,17 @@ import * as React from "react";
 import {
   decisionForRevision,
   getRevision,
+  reviewCountForRevision,
+  revisionsForArtifact,
   IMPORT_ACCEPT,
   reviewsForRevision,
 } from "../lib/store";
-import { listRenderers, resolveRenderer } from "../lib/registry";
+import { listImplementedRenderers, resolveRenderer } from "../lib/registry";
 import type { Artifact, DecisionStatus } from "../lib/types";
 import { useArtifactLibrary } from "../hooks";
 import { GeneratePanel } from "./GeneratePanel";
 import { PreviewStage } from "./PreviewStage";
+import { RevisionRail } from "./RevisionRail";
 import { artifactTypeIcon } from "./typeIcons";
 import { cn } from "@/shared/lib/cn";
 import { TopChromeInsetHeader } from "@/shared/layout/TopChromeInsetHeader";
@@ -64,6 +67,9 @@ export function PreviewStudioScreen() {
   const [sessionOnly, setSessionOnly] = React.useState(false);
   const [slideIndex, setSlideIndex] = React.useState(0);
   const [generateOpen, setGenerateOpen] = React.useState(false);
+  const [selectedRevisionId, setSelectedRevisionId] = React.useState<
+    string | null
+  >(null);
 
   // Keep selection valid when library changes
   React.useEffect(() => {
@@ -75,12 +81,17 @@ export function PreviewStudioScreen() {
 
   React.useEffect(() => {
     setSlideIndex(0);
+    setSelectedRevisionId(null);
   }, [selectedId]);
 
   const selected: Artifact | undefined = library.artifacts.find(
     (a) => a.id === selectedId,
   );
-  const revision = getRevision(library, selected?.currentRevisionId);
+  const revisions = revisionsForArtifact(library, selected?.id);
+  const revision = getRevision(
+    library,
+    selectedRevisionId ?? selected?.currentRevisionId,
+  );
   const renderer = revision ? resolveRenderer(revision.manifest) : undefined;
   const caps = revision
     ? (renderer?.getReviewCapabilities(revision.manifest) ?? [])
@@ -212,8 +223,8 @@ export function PreviewStudioScreen() {
 
       {sessionOnly ? (
         <p className="border-b border-border/40 bg-amber-500/10 px-5 py-1.5 text-2xs text-amber-600 dark:text-amber-400">
-          Device storage is full — the latest imports are kept for this session
-          only.
+          Device storage is full — the most recent artifact is kept for this
+          session only and will be gone after a reload.
         </p>
       ) : null}
 
@@ -286,8 +297,8 @@ export function PreviewStudioScreen() {
             )}
           </ul>
           <div className="border-t border-border/40 px-3 py-2 text-2xs text-muted-foreground">
-            {library.artifacts.length} artifacts · {listRenderers().length}{" "}
-            renderers
+            {library.artifacts.length} artifacts ·{" "}
+            {listImplementedRenderers().length} preview types
           </div>
         </aside>
 
@@ -341,9 +352,13 @@ export function PreviewStudioScreen() {
           <GeneratePanel
             onClose={() => setGenerateOpen(false)}
             onGenerated={(image) => {
-              addGenerated({ ...image, model: "generated" });
+              if (!addGenerated({ ...image, model: "generated" })) {
+                setSessionOnly(true);
+              }
             }}
-            onVideoGenerated={(video) => addGeneratedVid(video)}
+            onVideoGenerated={(video) => {
+              if (!addGeneratedVid(video)) setSessionOnly(true);
+            }}
           />
         ) : null}
 
@@ -355,6 +370,15 @@ export function PreviewStudioScreen() {
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-3 pb-4">
               {selected && revision ? (
                 <>
+                  <RevisionRail
+                    revisions={revisions}
+                    currentRevisionId={selected.currentRevisionId}
+                    selectedRevisionId={revision.id}
+                    decisions={library.decisions}
+                    reviewCount={(id) => reviewCountForRevision(library, id)}
+                    onSelect={setSelectedRevisionId}
+                  />
+
                   <section className="space-y-1.5">
                     <h3 className="text-xs font-semibold">Manifest</h3>
                     <dl className="space-y-1 text-2xs">

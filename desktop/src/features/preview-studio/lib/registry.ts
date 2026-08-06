@@ -25,6 +25,8 @@ export interface FallbackPresentation {
 
 export interface ArtifactRendererDescriptor {
   id: string;
+  /** False for placeholders that only render a fallback card. */
+  implemented: boolean;
   label: string;
   types: ArtifactType[];
   canHandle: (manifest: ArtifactManifestV1) => boolean;
@@ -53,6 +55,11 @@ export function listRenderers(): ArtifactRendererDescriptor[] {
   return [...registry.values()];
 }
 
+/** Only the renderers that actually preview something. */
+export function listImplementedRenderers(): ArtifactRendererDescriptor[] {
+  return [...registry.values()].filter((r) => r.implemented);
+}
+
 function baseFallback(manifest: ArtifactManifestV1): FallbackPresentation {
   return {
     title: manifest.title,
@@ -61,7 +68,13 @@ function baseFallback(manifest: ArtifactManifestV1): FallbackPresentation {
   };
 }
 
+/**
+ * Renderers the studio can resolve. Several are placeholders that present a
+ * fallback card rather than a preview — `implemented` says which, so the UI
+ * never counts an unbuilt adapter as a working one.
+ */
 const BUILTIN_STUBS: Array<{
+  implemented?: boolean;
   id: string;
   label: string;
   types: ArtifactType[];
@@ -140,6 +153,7 @@ export function registerBuiltinRenderers(): void {
     if (registry.has(stub.id)) continue;
     registerRenderer({
       id: stub.id,
+      implemented: stub.implemented ?? false,
       label: stub.label,
       types: stub.types,
       canHandle: (manifest) => stub.types.includes(manifest.artifactType),
