@@ -5,6 +5,7 @@ import {
   estimateCost,
   generateVideo,
   higgsfieldAvailable,
+  type ToolAvailability,
   resolveAudioMode,
 } from "../lib/generation/higgsfield";
 import { Button } from "@/shared/ui/button";
@@ -32,7 +33,9 @@ export function VideoGenerateSection({
 }: {
   onGenerated: (video: { url: string; title: string; model: string }) => void;
 }) {
-  const [available, setAvailable] = React.useState<boolean | null>(null);
+  const [available, setAvailable] = React.useState<ToolAvailability | null>(
+    null,
+  );
   const [jobType, setJobType] = React.useState(OFFERED[0].jobType);
   const [prompt, setPrompt] = React.useState("");
   const [duration, setDuration] = React.useState(5);
@@ -100,12 +103,17 @@ export function VideoGenerateSection({
     }
   }
 
-  if (available === false) {
+  if (available === "unreachable" || available === "missing") {
     return (
-      <section className="space-y-1.5 border-t border-border/40 pt-3">
+      <section
+        className="space-y-1.5 border-t border-border/40 pt-3"
+        data-testid="preview-studio-video-unavailable"
+      >
         <h3 className="text-xs font-semibold">Video</h3>
         <p className="text-2xs text-muted-foreground">
-          The Higgsfield tool is not installed on this device.
+          {available === "unreachable"
+            ? "Video generation drives the Higgsfield CLI on this machine. This build runs in the browser, which cannot launch local tools — open the desktop app to generate."
+            : "The Higgsfield CLI was not found in ~/.local/bin, /opt/homebrew/bin or /usr/local/bin."}
         </p>
       </section>
     );

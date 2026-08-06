@@ -473,7 +473,7 @@ export function addReview(
 export function saveSourceRevision(
   snapshot: ArtifactLibrarySnapshot,
   revisionId: string,
-  patch: Partial<Pick<ArtifactManifestV1, "deck" | "web">>,
+  patch: Partial<Pick<ArtifactManifestV1, "deck" | "web" | "film">>,
 ): ArtifactLibrarySnapshot {
   const previous = snapshot.revisions.find((r) => r.id === revisionId);
   if (!previous) return snapshot;

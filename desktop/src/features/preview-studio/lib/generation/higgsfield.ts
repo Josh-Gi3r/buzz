@@ -32,13 +32,30 @@ type ToolResult = {
   code: number | null;
 };
 
-export async function higgsfieldAvailable(): Promise<boolean> {
+/**
+ * Three different answers, because they need three different sentences:
+ * the tool is here, the tool is missing, or this build has no way to reach it.
+ * Collapsing the last two into "not installed" tells the user a lie — the CLI
+ * is usually installed and it is the browser build that cannot launch it.
+ */
+export type ToolAvailability = "available" | "missing" | "unreachable";
+
+function hasLocalToolBridge(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    "__TAURI_INTERNALS__" in (window as unknown as Record<string, unknown>)
+  );
+}
+
+export async function higgsfieldAvailable(): Promise<ToolAvailability> {
+  if (!hasLocalToolBridge()) return "unreachable";
   try {
-    return await invoke<boolean>("media_tool_available", {
+    const ok = await invoke<boolean>("media_tool_available", {
       tool: "higgsfield",
     });
+    return ok ? "available" : "missing";
   } catch {
-    return false;
+    return "unreachable";
   }
 }
 

@@ -30,6 +30,7 @@ export default defineConfig({
         "**/video-panel-verify.spec.ts",
         "**/revision-rail.spec.ts",
         "**/deck-editable.spec.ts",
+        "**/film-verify.spec.ts",
         "**/preview-studio-showcase.spec.ts",
         "**/onboarding-docked-cta-screenshots.spec.ts",
         "**/identity-key-help.spec.ts",

@@ -104,6 +104,8 @@ export interface ArtifactManifestV1 {
   deck?: unknown;
   /** Website/web-app source files. Present on website and web_app artifacts. */
   web?: unknown;
+  /** Film cut (HyperFrames composition + its render). Present on video artifacts. */
+  film?: unknown;
   capabilities?: ArtifactCapability[];
   securityPolicy?: ArtifactSecurityPolicy;
 }

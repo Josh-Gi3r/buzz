@@ -19,6 +19,7 @@ import {
   IMPORT_ACCEPT,
   reviewsForRevision,
 } from "../lib/store";
+import { isFilmDocument } from "../lib/filmSource";
 import { listImplementedRenderers, resolveRenderer } from "../lib/registry";
 import type { Artifact, DecisionStatus } from "../lib/types";
 import { useArtifactLibrary } from "../hooks";
@@ -54,6 +55,7 @@ export function PreviewStudioScreen() {
     review,
     decide,
     saveDeck,
+    saveFilm,
     saveWeb,
     addGenerated,
     addGeneratedVid,
@@ -66,6 +68,7 @@ export function PreviewStudioScreen() {
   const [importing, setImporting] = React.useState(false);
   const [sessionOnly, setSessionOnly] = React.useState(false);
   const [slideIndex, setSlideIndex] = React.useState(0);
+  const [playheadSeconds, setPlayheadSeconds] = React.useState(0);
   const [generateOpen, setGenerateOpen] = React.useState(false);
   const [selectedRevisionId, setSelectedRevisionId] = React.useState<
     string | null
@@ -81,6 +84,7 @@ export function PreviewStudioScreen() {
 
   React.useEffect(() => {
     setSlideIndex(0);
+    setPlayheadSeconds(0);
     setSelectedRevisionId(null);
   }, [selectedId]);
 
@@ -125,13 +129,15 @@ export function PreviewStudioScreen() {
   const isPaged =
     revision?.manifest.artifactType === "deck" ||
     revision?.manifest.artifactType === "slideshow";
+  /** Film comments pin to the frame you are looking at, like slide comments. */
+  const isTimed = isFilmDocument(revision?.manifest.film);
 
   function submitReview() {
     if (!revision || !comment.trim()) return;
     review(
       revision.id,
       comment,
-      undefined,
+      isTimed ? Math.round(playheadSeconds * 1000) : undefined,
       isPaged ? slideIndex + 1 : undefined,
     );
     setComment("");
@@ -313,6 +319,8 @@ export function PreviewStudioScreen() {
               onSlideIndexChange={setSlideIndex}
               onDeckSave={(deck) => revision && saveDeck(revision.id, deck)}
               onWebSave={(web) => revision && saveWeb(revision.id, web)}
+              onFilmSave={(film) => revision && saveFilm(revision.id, film)}
+              onTimeChange={setPlayheadSeconds}
             />
           </div>
 
@@ -352,9 +360,9 @@ export function PreviewStudioScreen() {
           <GeneratePanel
             onClose={() => setGenerateOpen(false)}
             onGenerated={(image) => {
-              if (!addGenerated({ ...image, model: "generated" })) {
-                setSessionOnly(true);
-              }
+              const { persisted, artifactId } = addGenerated(image);
+              if (!persisted) setSessionOnly(true);
+              if (artifactId) setSelectedId(artifactId);
             }}
             onVideoGenerated={(video) => {
               if (!addGeneratedVid(video)) setSessionOnly(true);
@@ -452,7 +460,9 @@ export function PreviewStudioScreen() {
                       placeholder={
                         isPaged
                           ? `Comment on slide ${slideIndex + 1}…`
-                          : "Leave a review comment…"
+                          : isTimed
+                            ? `Comment at ${playheadSeconds.toFixed(1)}s…`
+                            : "Leave a review comment…"
                       }
                       className="min-h-16 text-sm"
                       data-testid="preview-studio-review-input"

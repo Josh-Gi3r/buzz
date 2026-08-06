@@ -28,7 +28,8 @@ test("website artifact renders real, editable source", async ({ page }) => {
     els.map((el) => (el as HTMLImageElement).complete && (el as HTMLImageElement).naturalWidth > 0),
   );
   console.log(`photographs loaded: ${photos.filter(Boolean).length}/${photos.length}`);
-  expect(photos.length).toBe(7);
+  // hero + six portfolio frames + the film band
+  expect(photos.length).toBe(8);
   expect(photos.every(Boolean)).toBe(true);
 
   await page.getByTestId("preview-studio-viewport-mobile").click();

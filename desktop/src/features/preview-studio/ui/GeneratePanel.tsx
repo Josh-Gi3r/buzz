@@ -1,4 +1,4 @@
-import { AlertTriangle, KeyRound, Sparkles, X } from "lucide-react";
+import { AlertTriangle, ImageIcon, KeyRound, Sparkles, X } from "lucide-react";
 import * as React from "react";
 
 import {
@@ -12,9 +12,34 @@ import {
 } from "../lib/generation/keys";
 import { IMAGE_MODELS, PROVIDER_ENV } from "../lib/generation/providers";
 import { VideoGenerateSection } from "./VideoGenerateSection";
+import { REAL_PHOTOGRAPHS } from "../lib/demo/photographs";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
 import { Textarea } from "@/shared/ui/textarea";
+
+/** Photographs available as stand-ins while no provider key is stored. */
+const PLACEHOLDER_SLOTS = [
+  "gallery-6",
+  "gallery-3",
+  "deck-approach",
+  "gallery-4",
+  "deck-album",
+  "gallery-1",
+];
+
+/**
+ * A stand-in photograph. The prompt picks it, so two different prompts give two
+ * different frames — enough to exercise review without pretending a model ran.
+ */
+function placeholderPhotograph(prompt: string): string | undefined {
+  const text = prompt.trim();
+  let hash = 0;
+  for (let i = 0; i < text.length; i++)
+    hash = (hash * 31 + text.charCodeAt(i)) | 0;
+  const slot =
+    PLACEHOLDER_SLOTS[Math.abs(hash) % PLACEHOLDER_SLOTS.length] ?? "gallery-6";
+  return REAL_PHOTOGRAPHS[`images/${slot}.jpg`];
+}
 
 export function GeneratePanel({
   onGenerated,
@@ -25,6 +50,7 @@ export function GeneratePanel({
     dataUrl: string;
     mime: string;
     title: string;
+    model: string;
   }) => void;
   onVideoGenerated: (video: {
     url: string;
@@ -57,6 +83,7 @@ export function GeneratePanel({
         dataUrl: image.dataUrl,
         mime: image.mime,
         title: prompt.trim().slice(0, 60),
+        model: model.id,
       });
       setPrompt("");
     } catch (cause) {
@@ -196,6 +223,37 @@ export function GeneratePanel({
           <Sparkles className="h-3.5 w-3.5" />
           {busy ? "Generating…" : `Generate — ${model.approxCost}`}
         </Button>
+
+        {storedKey ? null : (
+          <div className="space-y-1.5 rounded-lg border border-border/50 bg-muted/20 p-2">
+            <p className="text-2xs text-muted-foreground">
+              No key yet. Drop in a photograph instead — it enters the library
+              as an artifact and goes through the same revision and review flow,
+              labelled as a stand-in rather than a generation.
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              className="w-full gap-1.5 text-2xs"
+              onClick={() => {
+                const uri = placeholderPhotograph(prompt);
+                if (!uri) return;
+                onGenerated({
+                  dataUrl: uri,
+                  mime: "image/jpeg",
+                  title: `Placeholder — ${prompt.trim() || "wedding photograph"}`,
+                  model: "placeholder — no key set, no model ran",
+                });
+                setPrompt("");
+              }}
+              data-testid="preview-studio-generate-placeholder"
+            >
+              <ImageIcon className="h-3.5 w-3.5" />
+              Add a placeholder photograph
+            </Button>
+          </div>
+        )}
 
         <VideoGenerateSection onGenerated={onVideoGenerated} />
       </div>

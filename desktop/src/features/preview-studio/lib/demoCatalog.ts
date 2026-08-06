@@ -1,5 +1,6 @@
-import { DEMO_BRAND_STILL, DEMO_MOTION_POSTER } from "./demoAssets";
+import { REAL_PHOTOGRAPHS } from "./demo/photographs";
 import { DEMO_DECK } from "./deckSource";
+import { DEMO_FILM } from "./filmSource";
 import { DEMO_WEBSITE } from "./webSource";
 import type { Artifact, ArtifactManifestV1, ArtifactRevision } from "./types";
 
@@ -8,10 +9,9 @@ import type { Artifact, ArtifactManifestV1, ArtifactRevision } from "./types";
  * offline and actually depict what their title says.
  */
 
-const SAMPLE_IMAGE_ALT = DEMO_BRAND_STILL;
-const SAMPLE_VIDEO =
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
-const SAMPLE_VIDEO_POSTER = DEMO_MOTION_POSTER;
+const SAMPLE_IMAGE_ALT = REAL_PHOTOGRAPHS["images/deck-album.jpg"] ?? "";
+const FILM_URI = DEMO_FILM.render?.uri ?? "";
+const FILM_POSTER = "/demo/elena-marsh-film-poster.jpg";
 
 function revision(
   artifactId: string,
@@ -34,7 +34,7 @@ function revision(
     capabilities: ["view", "comment", "inspect", "compare", "approve"],
     securityPolicy: {
       network: "allowlist",
-      allowedOrigins: ["https://commondatastorage.googleapis.com"],
+      allowedOrigins: [],
       clipboard: "deny",
       downloads: "allow",
     },
@@ -44,9 +44,9 @@ function revision(
 }
 
 const imageRevB = revision(
-  "art-brand-still",
-  "rev-brand-1",
-  "Brand key visual",
+  "art-album-still",
+  "rev-album-1",
+  "Album spread — for the print shop",
   "image",
   {
     source: {
@@ -57,7 +57,7 @@ const imageRevB = revision(
       {
         role: "stream",
         uri: SAMPLE_IMAGE_ALT,
-        mime: "image/svg+xml",
+        mime: "image/jpeg",
         width: 1200,
         height: 800,
       },
@@ -66,27 +66,28 @@ const imageRevB = revision(
 );
 
 const videoRev = revision(
-  "art-campaign-cut",
-  "rev-campaign-1",
-  "Campaign motion cut",
+  "art-wedding-film",
+  "rev-film-1",
+  "The film — Lauren & Quentin",
   "video",
   {
     source: {
-      kind: "url",
-      url: SAMPLE_VIDEO,
+      kind: "blob",
+      sha256: "2".repeat(64),
+      mime: "text/html",
+      filename: "elena-marsh-film.composition.html",
     },
+    film: DEMO_FILM,
     renditions: [
-      {
-        role: "stream",
-        uri: SAMPLE_VIDEO,
-        mime: "video/mp4",
-      },
-      {
-        role: "poster",
-        uri: SAMPLE_VIDEO_POSTER,
-        mime: "image/svg+xml",
-      },
+      { role: "stream", uri: FILM_URI, mime: "video/mp4" },
+      { role: "poster", uri: FILM_POSTER, mime: "image/jpeg" },
     ],
+    securityPolicy: {
+      network: "deny",
+      allowedOrigins: [],
+      clipboard: "deny",
+      downloads: "allow",
+    },
   },
 );
 
@@ -146,16 +147,16 @@ export const DEMO_ARTIFACTS: Artifact[] = [
     updatedAt: Date.now() - 1_800_000,
   },
   {
-    id: "art-brand-still",
-    title: "Brand key visual",
+    id: "art-album-still",
+    title: "Album spread — for the print shop",
     artifactType: "image",
     currentRevisionId: imageRevB.id,
     createdAt: Date.now() - 80_000_000,
     updatedAt: Date.now() - 2_000_000,
   },
   {
-    id: "art-campaign-cut",
-    title: "Campaign motion cut",
+    id: "art-wedding-film",
+    title: "The film — Lauren & Quentin",
     artifactType: "video",
     currentRevisionId: videoRev.id,
     createdAt: Date.now() - 172_800_000,

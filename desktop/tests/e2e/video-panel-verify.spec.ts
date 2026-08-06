@@ -18,9 +18,17 @@ test("video generation fails closed without the media tool", async ({ page }) =>
   await page.getByTestId("open-preview-studio-view").click();
   await page.getByTestId("preview-studio-open-generate").click();
 
-  await expect(page.getByText("The Higgsfield tool is not installed on this device.")).toBeVisible({ timeout: 15000 });
+  const unavailable = page.getByTestId("preview-studio-video-unavailable");
+  await expect(unavailable).toBeVisible({ timeout: 15000 });
   await expect(page.getByTestId("preview-studio-video-generate")).toHaveCount(0);
   await expect(page.getByTestId("preview-studio-video-model")).toHaveCount(0);
+
+  // It must say why, and the why must be true: the CLI is usually installed and
+  // it is this build that cannot launch it.
+  const reason = await unavailable.innerText();
+  console.log("reason shown:", reason.replace(/\s+/g, " "));
+  expect(reason).not.toContain("The Higgsfield tool is not installed on this device.");
+  expect(reason).toMatch(/cannot launch local tools|was not found in/);
 
   await page.screenshot({ path: "test-results/video-panel.png" });
 });

@@ -4,8 +4,10 @@ import type { FallbackPresentation } from "../lib/registry";
 import { resolveDisplayUri, resolveSlides } from "../lib/resolveDisplayUri";
 import type { ArtifactManifestV1, ArtifactType } from "../lib/types";
 import { isDeckDocument } from "../lib/deckSource";
+import { type FilmDocument, isFilmDocument } from "../lib/filmSource";
 import { isWebDocument } from "../lib/webSource";
 import { DeckStage } from "./DeckStage";
+import { FilmStage } from "./FilmStage";
 import { RevealDeckStage } from "./RevealDeckStage";
 import { WebStage } from "./WebStage";
 import { artifactTypeIcon } from "./typeIcons";
@@ -83,6 +85,8 @@ export function PreviewStage({
   onSlideIndexChange,
   onDeckSave,
   onWebSave,
+  onFilmSave,
+  onTimeChange,
   className,
 }: {
   manifest: ArtifactManifestV1 | undefined;
@@ -92,6 +96,8 @@ export function PreviewStage({
   onSlideIndexChange?: (index: number) => void;
   onDeckSave?: (deck: unknown) => void;
   onWebSave?: (web: unknown) => void;
+  onFilmSave?: (film: FilmDocument) => void;
+  onTimeChange?: (seconds: number) => void;
   className?: string;
 }) {
   const [lightboxOpen, setLightboxOpen] = React.useState(false);
@@ -172,6 +178,18 @@ export function PreviewStage({
           src={uri}
         />
       </>
+    );
+  }
+
+  if (isFilmDocument(manifest.film)) {
+    return (
+      <FilmStage
+        title={manifest.title}
+        doc={manifest.film}
+        onSave={(next) => onFilmSave?.(next)}
+        onTimeChange={onTimeChange}
+        className={className}
+      />
     );
   }
 

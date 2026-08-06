@@ -73,14 +73,16 @@ export function useArtifactLibrary() {
       mime: string;
       title: string;
       model: string;
-    }): boolean => {
+    }): { persisted: boolean; artifactId?: string } => {
       let persisted = true;
+      let artifactId: string | undefined;
       setLibrary((prev) => {
         const result = addGeneratedImage(prev, input);
         persisted = result.persisted;
+        artifactId = result.snapshot.artifacts[0]?.id;
         return result.snapshot;
       });
-      return persisted;
+      return { persisted, artifactId };
     },
     [],
   );
@@ -98,6 +100,10 @@ export function useArtifactLibrary() {
     [],
   );
 
+  const saveFilm = React.useCallback((revisionId: string, film: unknown) => {
+    setLibrary((prev) => saveSourceRevision(prev, revisionId, { film }));
+  }, []);
+
   const saveWeb = React.useCallback((revisionId: string, web: unknown) => {
     setLibrary((prev) => saveSourceRevision(prev, revisionId, { web }));
   }, []);
@@ -113,6 +119,7 @@ export function useArtifactLibrary() {
     review,
     decide,
     saveDeck,
+    saveFilm,
     saveWeb,
     addGenerated,
     addGeneratedVid,
