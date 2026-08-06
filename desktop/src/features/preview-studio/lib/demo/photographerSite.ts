@@ -78,6 +78,7 @@ nav {
 .tall { grid-column: span 2; aspect-ratio: 4 / 5; }
 .wide { grid-column: span 4; aspect-ratio: 16 / 9; }
 .half { grid-column: span 3; aspect-ratio: 3 / 2; }
+.full { grid-column: span 6; aspect-ratio: 21 / 9; }
 
 /* ---------- services ---------- */
 .services { background: var(--paper); border-block: 1px solid var(--line); padding: 84px 48px; }
@@ -111,7 +112,7 @@ footer { background: var(--ink); color: #f5f1ea; padding: 76px 48px 56px; }
   .hero .caption { left: 20px; bottom: 28px; }
   .work, .services, footer { padding-left: 20px; padding-right: 20px; }
   .grid { grid-template-columns: repeat(2, 1fr); }
-  .tall, .wide, .half { grid-column: span 2; }
+  .tall, .wide, .half, .full { grid-column: span 2; }
   .cols { grid-template-columns: 1fr; gap: 34px; }
 }
 `;
@@ -140,7 +141,7 @@ const HTML = `<!doctype html>
     <div class="wash"></div>
     <div class="caption">
       <h1>Days worth keeping.</h1>
-      <p>Wedding photography · Somerset &amp; abroad</p>
+      <p>Wedding photography · Lake Como &amp; beyond</p>
     </div>
   </header>
 
@@ -152,12 +153,11 @@ const HTML = `<!doctype html>
   <section class="work" id="work">
     <p class="eyebrow">Selected work</p>
     <div class="grid">
-      <figure class="cell tall" data-place="Portrait"><img src="images/gallery-1.jpg" alt="Bride before the ceremony" /></figure>
-      <figure class="cell wide" data-place="Ceremony"><img src="images/gallery-2.jpg" alt="Ceremony under the trees" /></figure>
-      <figure class="cell half" data-place="Details"><img src="images/gallery-3.jpg" alt="Rings and stationery" /></figure>
-      <figure class="cell half" data-place="Reception"><img src="images/gallery-4.jpg" alt="First dance" /></figure>
-      <figure class="cell wide" data-place="Landscape"><img src="images/gallery-5.jpg" alt="Couple walking at dusk" /></figure>
-      <figure class="cell tall" data-place="Candid"><img src="images/gallery-6.jpg" alt="Guests laughing" /></figure>
+      <figure class="cell wide" data-place="Ceremony"><img src="images/gallery-2.jpg" alt="Ceremony above the lake" /></figure>
+      <figure class="cell tall" data-place="Candid"><img src="images/gallery-6.jpg" alt="Guests at golden hour" /></figure>
+      <figure class="cell half" data-place="Details"><img src="images/gallery-3.jpg" alt="Invitation, rings and flowers" /></figure>
+      <figure class="cell half" data-place="Reception"><img src="images/gallery-4.jpg" alt="First dance under the lights" /></figure>
+      <figure class="cell full" data-place="Dusk"><img src="images/gallery-5.jpg" alt="Walking the terrace at dusk" /></figure>
     </div>
   </section>
 
@@ -177,21 +177,21 @@ const HTML = `<!doctype html>
       <div class="col">
         <h3>Elsewhere</h3>
         <p class="price">On request</p>
-        <p>Weddings abroad, elopements, and anything that needs a passport. Travel included within Europe.</p>
+        <p>Elopements and weddings further afield. Travel within Europe included; anywhere else, ask me.</p>
       </div>
     </div>
   </section>
 
   <section class="quote">
     <blockquote>“We forgot she was there, which is the whole point. Then the photographs arrived and we cried in the kitchen.”</blockquote>
-    <cite>Amelia &amp; Tom — Hestercombe, June</cite>
+    <cite>Lauren &amp; Quentin — Villa del Balbianello, June</cite>
   </section>
 
   <footer id="contact">
     <div class="foot">
       <div>
         <h2>Tell me about your day.</h2>
-        <p>Booking 2027 · hello@elenamarsh.co.uk</p>
+        <p>Booking 2027 · hello@elenamarsh.com</p>
       </div>
       <a class="book" href="#contact">Check availability</a>
     </div>
@@ -221,7 +221,6 @@ function placeholder(tone: string, label: string): string {
 /** Photograph slots. Replace a value with a real image URL or data URI. */
 export const PHOTOGRAPHS: Record<string, string> = {
   "images/hero.jpg": placeholder("#8a7a68", "Hero"),
-  "images/gallery-1.jpg": placeholder("#9a8574", "Portrait"),
   "images/gallery-2.jpg": placeholder("#7d7f70", "Ceremony"),
   "images/gallery-3.jpg": placeholder("#a8968a", "Details"),
   "images/gallery-4.jpg": placeholder("#6f6b66", "Reception"),
