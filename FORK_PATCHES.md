@@ -36,6 +36,7 @@ receive only thin integration seams.
 | `desktop/src/features/sidebar/ui/AppSidebarPinnedHeader.tsx` | Flag-gated nav button |
 | `desktop/src/shared/styles/globals.css` | Import the Studio token sheet |
 | `desktop/src/shared/ui/ViewLoadingFallback.tsx` | `preview-studio` loading kind |
+| `desktop/scripts/check-px-text.mjs` | Allowlist the demo artifacts' own stylesheets (guest content in a sandboxed frame / a fixed-canvas video composition, not app UI) |
 
 ## New fork-owned areas (not patches)
 

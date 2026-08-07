@@ -1,24 +1,24 @@
 /**
- * Studio visual profile — material tokens for the futuristic OS layer.
+ * Studio visual profile — the material the review workspace is made of.
  * Activate with data-visual-profile="studio" on a subtree or document root.
  *
- * Hierarchy (from research):
- * 1. Atmosphere — gradient/grain field
- * 2. System chrome glass — nav, command, overlays
- * 3. Workspace lens — high-contrast stage
- * 4. Inspector material — translucent panels
- * 5. Content surfaces — opaque when text-dense
+ * The rule the profile follows: the studio is a proofing room, not a dashboard.
+ * Every surface is a neutral, slightly cool dark; nothing in the chrome carries
+ * saturated colour, because the only colour in the room should be the work on
+ * the wall. Depth comes from elevation and a vignette, not from decoration.
+ *
+ * Hierarchy:
+ * 1. Atmosphere — the room: a deep field with a vignette
+ * 2. Chrome — rails and header, glass over the room
+ * 3. Lens — the stage: the lit wall the work hangs on
+ * 4. Cards — library thumbnails, quiet until hovered or chosen
  */
 
 [data-visual-profile="studio"] {
-  --studio-glass-tint: 220 30% 50%;
-  --studio-glass-opacity: 0.55;
-  --studio-blur: 20px;
-  --studio-border-luminosity: 0.14;
-  --studio-depth-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
-  --studio-accent-bloom: 0 0 40px hsl(var(--primary) / 0.25);
+  --studio-blur: 22px;
+  --studio-depth-shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
+  --studio-lens-ring: inset 0 0 0 1px rgb(255 255 255 / 0.07);
   --studio-focus-halo: 0 0 0 2px hsl(var(--primary) / 0.45);
-  --studio-panel-elevation: 8;
   --studio-transition-fast: 120ms;
   --studio-transition-ui: 200ms;
   --studio-spring: cubic-bezier(0.22, 1, 0.36, 1);
@@ -32,29 +32,61 @@
   isolation: isolate;
 }
 
+/* 1 · The room. A cool deep field, darkest at the edges so the stage reads as lit. */
 [data-visual-profile="studio"] .preview-studio__atmosphere {
   background:
     radial-gradient(
-      120% 80% at 10% 0%,
-      hsl(var(--primary) / 0.12),
-      transparent 55%
+      120% 90% at 50% -10%,
+      hsl(var(--foreground) / 0.06),
+      transparent 60%
     ),
-    radial-gradient(90% 70% at 90% 20%, hsl(200 80% 60% / 0.1), transparent 50%),
     radial-gradient(
-      70% 50% at 50% 100%,
-      hsl(40 80% 55% / 0.06),
-      transparent 45%
+      100% 100% at 50% 45%,
+      transparent 32%,
+      rgb(0 0 0 / 0.38) 100%
     );
 }
 
+/* 3 · The lit wall. One ring, one deep shadow, no bloom. */
 [data-visual-profile="studio"] .preview-studio__lens {
-  box-shadow: var(--studio-depth-shadow), var(--studio-accent-bloom);
+  box-shadow: var(--studio-depth-shadow), var(--studio-lens-ring);
 }
 
+/* 2 · Chrome glass. */
 [data-visual-profile="studio"] .preview-studio__rail,
 [data-visual-profile="studio"] .preview-studio__inspector {
-  backdrop-filter: blur(var(--studio-blur)) saturate(1.2);
-  -webkit-backdrop-filter: blur(var(--studio-blur)) saturate(1.2);
+  backdrop-filter: blur(var(--studio-blur)) saturate(1.15);
+  -webkit-backdrop-filter: blur(var(--studio-blur)) saturate(1.15);
+}
+
+/* 4 · Library cards. Lift on approach; the chosen one stays lifted. */
+[data-visual-profile="studio"] .preview-studio__card {
+  transition:
+    transform var(--studio-transition-ui) var(--studio-spring),
+    border-color var(--studio-transition-ui) ease,
+    box-shadow var(--studio-transition-ui) ease;
+}
+[data-visual-profile="studio"] .preview-studio__card:hover {
+  transform: translateY(-2px);
+}
+[data-visual-profile="studio"] .preview-studio__card:focus-visible {
+  outline: none;
+  box-shadow: var(--studio-focus-halo);
+}
+
+/* Switching artifacts should feel like a cut, not a repaint. */
+[data-visual-profile="studio"] .preview-studio__enter {
+  animation: preview-studio-enter 320ms var(--studio-spring) both;
+}
+@keyframes preview-studio-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-transparency: reduce) {
@@ -70,5 +102,11 @@
 @media (prefers-reduced-motion: reduce) {
   [data-visual-profile="studio"] * {
     transition-duration: 0.01ms !important;
+  }
+  [data-visual-profile="studio"] .preview-studio__enter {
+    animation: none;
+  }
+  [data-visual-profile="studio"] .preview-studio__card:hover {
+    transform: none;
   }
 }

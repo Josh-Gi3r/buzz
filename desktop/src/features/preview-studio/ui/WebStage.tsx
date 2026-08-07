@@ -262,7 +262,7 @@ export function WebStage({
             <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
           </span>
           <div className="mx-auto flex min-w-0 max-w-md flex-1 items-center rounded-md bg-black/40 px-2.5 py-1">
-            <span className="truncate font-mono text-[0.65rem] text-white/45">
+            <span className="truncate font-mono text-2xs text-white/45">
               {host}
               {doc.entry}
             </span>

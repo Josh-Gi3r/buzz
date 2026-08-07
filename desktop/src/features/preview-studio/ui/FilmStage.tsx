@@ -145,19 +145,24 @@ export function FilmStage({
   );
 
   // The composition boots paused; nothing is on screen until it is seeked, so
-  // wait for its ready handshake before driving it.
-  const [frameReady, setFrameReady] = React.useState(false);
+  // wait for its ready handshake before driving it. Readiness is tracked
+  // against the exact composition that announced it — an edit swaps the
+  // document, and seeking the old one would drive a frame that is gone.
+  const [readySrc, setReadySrc] = React.useState<string | null>(null);
+  const srcDocRef = React.useRef(srcDoc);
+  srcDocRef.current = srcDoc;
+  const frameReady = readySrc !== null && readySrc === srcDoc;
+
   React.useEffect(() => {
     if (mode !== "cut") return;
-    setFrameReady(false);
     function onMessage(event: MessageEvent) {
       if ((event.data as { type?: string } | null)?.type === "hf-ready") {
-        setFrameReady(true);
+        setReadySrc(srcDocRef.current);
       }
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [mode, srcDoc]);
+  }, [mode]);
 
   // The cut preview is a paused timeline: seeking it is the only playback.
   React.useEffect(() => {

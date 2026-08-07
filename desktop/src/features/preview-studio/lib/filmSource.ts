@@ -303,13 +303,13 @@ export const DEMO_FILM: FilmDocument = {
       motion: "pull-back",
     },
   ],
-  render: {
-    uri: "/demo/elena-marsh-film.mp4",
-    duration: 25.4,
-    renderedAt: "2026-08-07T06:48:33.000Z",
-    cutId: "",
-  },
 };
 
-// The shipped render was produced from exactly this cut.
-DEMO_FILM.render!.cutId = cutId(DEMO_FILM);
+// The shipped render was produced from exactly this cut, so it carries that
+// cut's id and only reads as stale once someone edits.
+DEMO_FILM.render = {
+  uri: "/demo/elena-marsh-film.mp4",
+  duration: 25.4,
+  renderedAt: "2026-08-07T06:48:33.000Z",
+  cutId: cutId(DEMO_FILM),
+};

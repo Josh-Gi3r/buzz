@@ -96,17 +96,17 @@ export function RevisionRail({
                   <span className="flex items-baseline gap-1.5">
                     <span className="text-2xs font-medium">v{version}</span>
                     {isCurrent ? (
-                      <span className="rounded-full bg-primary/20 px-1.5 text-[0.6rem] text-primary">
+                      <span className="rounded-full bg-primary/20 px-1.5 text-3xs text-primary">
                         current
                       </span>
                     ) : null}
                   </span>
-                  <span className="block truncate text-[0.6rem] text-muted-foreground">
+                  <span className="block truncate text-3xs text-muted-foreground">
                     {relativeTime(revision.createdAt)}
                   </span>
                 </span>
                 {comments > 0 ? (
-                  <span className="flex items-center gap-0.5 text-[0.6rem] text-muted-foreground">
+                  <span className="flex items-center gap-0.5 text-3xs text-muted-foreground">
                     <MessageSquare className="h-2.5 w-2.5" />
                     {comments}
                   </span>
@@ -118,7 +118,7 @@ export function RevisionRail({
       </ol>
 
       {selectedRevisionId && selectedRevisionId !== currentRevisionId ? (
-        <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1.5 text-[0.6rem] leading-relaxed text-amber-600 dark:text-amber-400">
+        <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1.5 text-3xs leading-relaxed text-amber-600 dark:text-amber-400">
           Viewing an earlier revision. Its comments and decision are shown
           below; new comments still attach to this revision.
         </p>
