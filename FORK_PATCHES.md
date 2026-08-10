@@ -41,6 +41,7 @@ The aim is a narrow integration boundary: Preview Studio owns its feature direct
 | `desktop/src/shared/ui/ViewLoadingFallback.tsx` | Add the Studio loading-view kind. |
 | `desktop/src/features/agents/lib/personaCatalogRelay.test.mjs` | Template-literal lint correction; upstream candidate. |
 | `desktop/src/features/onboarding/communityOnboarding.tsx` | Explicit browser timer typing; upstream candidate. |
+| `docs/nips/NIP-{AE,AM,AP,ER,RS}.md` | Replace repository-relative references to external Nostr NIPs with canonical upstream URLs so the inherited drafts render correctly in this standalone fork. |
 
 ## Added fork-owned paths
 
