@@ -2,11 +2,20 @@
 
 No full exact-commit release qualification is claimed by this documentation pass.
 
+The PM verification commands below were run immediately before DCO-signed local release
+candidate `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`. That candidate contains the exact tested
+changes. It has not been pushed or publicly tagged, and the commands were not rerun from a
+fresh checkout of the commit.
+
 ## PM-verified showcase reproduction
 
-The PM ran the deterministic mocked showcase command twice:
+The PM ran the deterministic mocked showcase command twice from the repository's `desktop/`
+directory, with Hermit activated from `../bin/activate-hermit`. From the repository root,
+the equivalent runnable sequence is:
 
 ```bash
+cd desktop
+. ../bin/activate-hermit
 pnpm build:e2e && pnpm exec playwright test preview-studio-showcase --project=smoke
 ```
 
@@ -42,7 +51,7 @@ This establishes a passing `desktop-check` after those local corrections. It is 
 
 ## PM-verified desktop unit tests
 
-On the uncommitted release-candidate worktree, the PM ran:
+Immediately before the local candidate commit, the PM ran:
 
 ```bash
 . ./bin/activate-hermit && just desktop-test
@@ -60,12 +69,12 @@ The run passed:
 
 This is desktop Node unit coverage only. It does not establish a passing full `just ci`,
 Rust or native/Tauri coverage, mobile or web coverage, deployment behavior, or successful
-external-provider integration. Because the worktree is uncommitted, repeat the command at
-the final exact release-candidate commit before treating it as immutable release evidence.
+external-provider integration. Repeat the command at the pushed/tagged release ref from a
+fresh checkout before treating it as immutable public release evidence.
 
 ## PM-verified desktop frontend build
 
-On the uncommitted release-candidate worktree, the PM ran:
+Immediately before the local candidate commit, the PM ran:
 
 ```bash
 . ./bin/activate-hermit && just desktop-build
@@ -82,8 +91,8 @@ The build retained two non-fatal Vite warnings:
 
 This establishes the desktop frontend TypeScript/Vite production build only. It does not
 verify a Tauri native build, packaged application, signing or notarization, installer,
-update channel, or releasable binary. Repeat it at the final exact commit for immutable
-evidence.
+update channel, or releasable binary. Repeat it at the pushed/tagged release ref from a
+fresh checkout for immutable public release evidence.
 
 ## Required release record
 

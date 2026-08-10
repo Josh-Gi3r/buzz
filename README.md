@@ -47,12 +47,12 @@ Preview Studio state is local to this device. It does not yet synchronize artifa
 
 ## Run from source
 
-This documentation describes product code at `d36f39336b05036f90ba20e273746374c25aaf3e`, inherited from upstream `desktop-v0.5.8` (`f3de860574bb3119018b4592353e9761635aeb07`). The editorial rewrite is currently uncommitted; `887d6da441684abda30a7284d004f6d4dd52a767` is its source documentation/showcase snapshot, not the final documentation ref. No immutable public documentation release tag exists yet.
+This documentation audits product code at `d36f39336b05036f90ba20e273746374c25aaf3e`, inherited from upstream `desktop-v0.5.8` (`f3de860574bb3119018b4592353e9761635aeb07`). Source documentation/showcase work began at `887d6da441684abda30a7284d004f6d4dd52a767`; the integrated, DCO-signed local release candidate is `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`. It is not pushed or publicly tagged.
 
 ```bash
 git clone https://github.com/Josh-Gi3r/buzz.git
 cd buzz
-git checkout d36f39336b05036f90ba20e273746374c25aaf3e
+git checkout 5d0b11f864bb142ae5ec94de3c083eebbc99e1dc
 . ./bin/activate-hermit
 cp .env.example .env
 just setup

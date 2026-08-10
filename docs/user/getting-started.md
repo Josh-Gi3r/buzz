@@ -7,16 +7,17 @@ This fork is currently documented as a source checkout. There is no independentl
 ```bash
 git clone https://github.com/Josh-Gi3r/buzz.git
 cd buzz
-git checkout d36f39336b05036f90ba20e273746374c25aaf3e
+git checkout 5d0b11f864bb142ae5ec94de3c083eebbc99e1dc
 . ./bin/activate-hermit
 cp .env.example .env
 just setup
 ```
 
-That is the product-code baseline inherited from upstream `desktop-v0.5.8`. The current
-editorial rewrite is not committed yet; its source documentation/showcase snapshot is
-`887d6da441684abda30a7284d004f6d4dd52a767`. A later test or screenshot cannot be
-attributed to the earlier product commit.
+The checked-out local release candidate contains product code audited separately at
+`d36f39336b05036f90ba20e273746374c25aaf3e`, inherited from upstream `desktop-v0.5.8`.
+Its source documentation/showcase snapshot is
+`887d6da441684abda30a7284d004f6d4dd52a767`. The candidate commit is not pushed or
+publicly tagged, so a fresh public clone cannot resolve it until publication.
 
 Review `.env.example` before connecting to a non-development relay. It describes relay, database, Redis, media, and optional service configuration; copying it is not the same as configuring production infrastructure.
 

@@ -1,6 +1,6 @@
 # Feature truth matrix
 
-This matrix describes fork product code at `d36f39336b05036f90ba20e273746374c25aaf3e`, inherited from `desktop-v0.5.8` at `f3de860574bb3119018b4592353e9761635aeb07`. Documentation and showcase material were assembled separately at `887d6da441684abda30a7284d004f6d4dd52a767`.
+This matrix describes fork product code audited at `d36f39336b05036f90ba20e273746374c25aaf3e`, inherited from `desktop-v0.5.8` at `f3de860574bb3119018b4592353e9761635aeb07`. Source documentation/showcase material was assembled at `887d6da441684abda30a7284d004f6d4dd52a767` and integrated into local release candidate `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`.
 
 Statuses mean:
 

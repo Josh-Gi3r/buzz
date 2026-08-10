@@ -4,9 +4,12 @@ The five showcase images under `docs/assets/showcase/` come from deterministic, 
 
 ## PM reproduction record
 
-The PM ran:
+The PM ran from the repository's `desktop/` directory, with Hermit activated from
+`../bin/activate-hermit`. From the repository root, use:
 
 ```bash
+cd desktop
+. ../bin/activate-hermit
 pnpm build:e2e && pnpm exec playwright test preview-studio-showcase --project=smoke
 ```
 
@@ -22,4 +25,7 @@ The first verification passed `2/2`. A second complete showcase run also passed 
 
 Matching hashes across the repeated runs demonstrate deterministic output for this mocked E2E story. They do not expand the product truth matrix or verify OpenAI, Gemini, Higgsfield, HyperFrames, a live agent, or any external integration.
 
-The final documentation commit is still pending. Once committed, add that exact ref to this record and verify these hashes again from the committed checkout before tagging a release.
+The repeated runs occurred immediately before DCO-signed local release candidate
+`5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`, which contains the exact tested showcase and
+image changes. The candidate is not pushed or publicly tagged; repeat clean-clone
+verification after publication before tagging a release.

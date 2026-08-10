@@ -1,6 +1,6 @@
 # Fork patch ledger
 
-This ledger classifies the fork delta from Block Buzz `desktop-v0.5.8` at `f3de860574bb3119018b4592353e9761635aeb07` to the fork product baseline `d36f39336b05036f90ba20e273746374c25aaf3e`. Documentation and showcase changes assembled later at `887d6da441684abda30a7284d004f6d4dd52a767` are tracked by Git, not misrepresented as product code at `d36f3933`.
+This ledger classifies the fork delta from Block Buzz `desktop-v0.5.8` at `f3de860574bb3119018b4592353e9761635aeb07` to the fork product baseline `d36f39336b05036f90ba20e273746374c25aaf3e`. Documentation and showcase work assembled from `887d6da441684abda30a7284d004f6d4dd52a767` and integrated in local release candidate `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc` is not misrepresented as product code at `d36f3933`.
 
 The aim is a narrow integration boundary: Preview Studio owns its feature directory and assets; inherited files carry only routing, navigation, native-command, CSP, test, package, or distribution seams.
 
@@ -80,9 +80,10 @@ The broader open-source documentation tree and showcase screenshots were added o
 
 ## Post-product-baseline release-candidate changes
 
-The following release-maintenance files are present as uncommitted release-candidate work in
-the current branch. They did **not** exist at product baseline `d36f3933` and are not evidence
-that automation is already live:
+The following release-maintenance files are present in DCO-signed local release candidate
+`5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`. They did **not** exist at product baseline
+`d36f3933`. Because the candidate is not pushed or merged to the public default branch, they
+are not evidence that automation is already live:
 
 | Path | Release-candidate purpose |
 |---|---|

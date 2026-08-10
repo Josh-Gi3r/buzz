@@ -20,9 +20,10 @@
 - Optional services require deployment-specific verification.
 - The fork still needs independent identity/signing/update/branding for public binaries.
 - No immutable public documentation/release tag or clean-clone release proof exists yet.
-- Upstream desktop release detection and PR preparation exist only as unmerged branch
-  changes at this documentation pass. They are not proven scheduled automation until merged
-  to the default branch, enabled, and observed in a successful run.
+- Upstream desktop release detection and PR preparation exist in local candidate
+  `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`, which is not pushed or merged to the public
+  default branch. They are not proven scheduled automation until published, enabled, and
+  observed in a successful run.
 - Without an `UPSTREAM_SYNC_TOKEN`, the `GITHUB_TOKEN` fallback may prevent the generated
   branch or pull request from triggering every expected recursive CI workflow.
 - A supplied `UPSTREAM_SYNC_TOKEN` also needs Issues write access for the conflict-reporting

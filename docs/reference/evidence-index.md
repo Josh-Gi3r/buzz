@@ -1,6 +1,6 @@
 # Source evidence index
 
-Product source is pinned to fork `d36f39336b05036f90ba20e273746374c25aaf3e` and inherited upstream `desktop-v0.5.8` at `f3de860574bb3119018b4592353e9761635aeb07`. Documentation/showcase source is separately pinned to `887d6da441684abda30a7284d004f6d4dd52a767`.
+Product source is audited at fork `d36f39336b05036f90ba20e273746374c25aaf3e` and inherited upstream `desktop-v0.5.8` at `f3de860574bb3119018b4592353e9761635aeb07`. Documentation/showcase source is separately pinned to `887d6da441684abda30a7284d004f6d4dd52a767`; the integrated local release candidate is `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`.
 
 ## Buzz
 
