@@ -3,7 +3,7 @@
 **Status:** proposal only — **not registered** in `crates/buzz-core/src/kind.rs`  
 **Relay integration:** kind constants + ingest scopes land in a future relay PR after this allocation is accepted  
 **Depends on:** [artifact-manifest-v1.md](./artifact-manifest-v1.md), [artifact-review-v1.md](./artifact-review-v1.md)  
-**Historical collision audit refs:** fork product `d36f39336b05036f90ba20e273746374c25aaf3e` and official upstream observed at `07a3c768d619db31fee3f0590f9433cdd1213e8f`. Repeat the audit before registration.
+**Collision audit refs:** fork product `d36f39336b05036f90ba20e273746374c25aaf3e` and official upstream observed at `3f2f32641f4093d087fd9506bfac1fa0329e8b2e`. Repeat the audit before registration.
 
 ## Goal
 
@@ -149,4 +149,5 @@ Custom relay advertises `preview_artifacts_v1` (NIP-11 / relay info). Clients on
 
 | Date | Note |
 |------|------|
+| 2026-08-11 | Rechecked proposed ranges against official upstream `3f2f3264`; no collisions found. |
 | 2026-08-01 | v0 proposal from full `kind.rs` audit; no registry edits. |
