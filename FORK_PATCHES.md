@@ -1,6 +1,6 @@
 # Fork patch ledger
 
-This ledger classifies the fork delta from Block Buzz `desktop-v0.5.8` at `f3de860574bb3119018b4592353e9761635aeb07` to the fork product baseline `d36f39336b05036f90ba20e273746374c25aaf3e`. Documentation and showcase work assembled from `887d6da441684abda30a7284d004f6d4dd52a767` and integrated in local release candidate `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc` is not misrepresented as product code at `d36f3933`.
+This ledger classifies the fork delta from Block Buzz `desktop-v0.5.8` at `f3de860574bb3119018b4592353e9761635aeb07` to the fork product baseline `d36f39336b05036f90ba20e273746374c25aaf3e`. Documentation and showcase work assembled from `887d6da441684abda30a7284d004f6d4dd52a767`, integrated at `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`, and clean-worktree verified at `712fe36a088bf320d663a857bbd4d1b0eba159e4` is not misrepresented as product code at `d36f3933`.
 
 The aim is a narrow integration boundary: Preview Studio owns its feature directory and assets; inherited files carry only routing, navigation, native-command, CSP, test, package, or distribution seams.
 
@@ -80,10 +80,11 @@ The broader open-source documentation tree and showcase screenshots were added o
 
 ## Post-product-baseline release-candidate changes
 
-The following release-maintenance files are present in DCO-signed local release candidate
-`5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`. They did **not** exist at product baseline
-`d36f3933`. Because the candidate is not pushed or merged to the public default branch, they
-are not evidence that automation is already live:
+The following release-maintenance files were integrated at `5d0b11f8` and verified in the
+clean detached worktree at DCO-signed candidate
+`712fe36a088bf320d663a857bbd4d1b0eba159e4`. They did **not** exist at product baseline
+`d36f3933`. Because the verification candidate is not pushed or merged to the public default
+branch, they are not evidence that automation is already live:
 
 | Path | Release-candidate purpose |
 |---|---|
@@ -97,6 +98,12 @@ are not evidence that automation is already live:
 These paths need a committed default-branch revision and successful GitHub Actions evidence
 before documentation may call the weekly detector operational. See
 [`docs/development/fork-and-upgrades.md`](docs/development/fork-and-upgrades.md).
+
+After `712fe36a`, the first full `just ci` run required one formatting-only adjustment to an
+already listed integration seam: `pub mod media_tools;` in
+`desktop/src-tauri/src/commands/mod.rs` moved into alphabetical order. The subsequent full
+CI run exited 0. This changes no runtime behavior and remains uncommitted at this evidence
+snapshot.
 
 ## Deliberately unchanged product layers
 

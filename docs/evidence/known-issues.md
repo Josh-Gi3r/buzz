@@ -19,11 +19,14 @@
 - Generic workflow actions remain incomplete.
 - Optional services require deployment-specific verification.
 - The fork still needs independent identity/signing/update/branding for public binaries.
-- No immutable public documentation/release tag or clean-clone release proof exists yet.
+- Clean detached-worktree verification exists for local candidate `712fe36a`, but no pushed
+  public ref, public clean-clone proof, or immutable documentation/release tag exists yet.
+- Full `just ci` passes on the post-`712fe36a` worktree after an ordering-only rustfmt fix,
+  but the fix and final evidence are not yet committed together.
 - Upstream desktop release detection and PR preparation exist in local candidate
-  `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`, which is not pushed or merged to the public
-  default branch. They are not proven scheduled automation until published, enabled, and
-  observed in a successful run.
+  `712fe36a088bf320d663a857bbd4d1b0eba159e4`. Its static contract passed, but the candidate
+  is not pushed or merged to the public default branch. Scheduled automation remains
+  unproven until published, enabled, and observed in a successful run.
 - Without an `UPSTREAM_SYNC_TOKEN`, the `GITHUB_TOKEN` fallback may prevent the generated
   branch or pull request from triggering every expected recursive CI workflow.
 - A supplied `UPSTREAM_SYNC_TOKEN` also needs Issues write access for the conflict-reporting
@@ -40,4 +43,8 @@ The PM-verified `just desktop-check` rerun passes, but reports three non-fatal w
 - inherited `terminal.css` uses `!important`; and
 - the Studio reduced-motion override uses `!important`.
 
-These warnings do not turn the scoped desktop check into full release qualification.
+These warnings remain release-quality debt even though the full CI worktree rerun passes.
+
+Full CI also reports the two known desktop Vite warnings and one web output chunk over 500
+kB. PostgreSQL-gated, voice fixture/model, OS-keychain, and release-performance ignored
+tests remain unexecuted; see [QA evidence](qa-evidence.md).

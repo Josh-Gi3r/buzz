@@ -4,8 +4,8 @@ The five showcase images under `docs/assets/showcase/` come from deterministic, 
 
 ## PM reproduction record
 
-The PM ran from the repository's `desktop/` directory, with Hermit activated from
-`../bin/activate-hermit`. From the repository root, use:
+The PM regenerated the showcase from a clean detached worktree at exact commit
+`712fe36a088bf320d663a857bbd4d1b0eba159e4`. From the repository root:
 
 ```bash
 cd desktop
@@ -13,7 +13,8 @@ cd desktop
 pnpm build:e2e && pnpm exec playwright test preview-studio-showcase --project=smoke
 ```
 
-The first verification passed `2/2`. A second complete showcase run also passed `2/2` and produced byte-identical SHA-256 hashes for all five outputs. The Playwright viewport and screenshot outputs were `1600x1000`.
+The smoke project passed `2/2` in 15.4 s. The Playwright viewport and screenshot outputs
+were `1600x1000`. Regeneration produced zero Git diff and the exact SHA-256 hashes below.
 
 | Image | SHA-256 | What it demonstrates | What it does not prove |
 |---|---|---|---|
@@ -23,9 +24,10 @@ The first verification passed `2/2`. A second complete showcase run also passed 
 | `04-pricing-deck-review.png` | `d38fcc912905b8a9af8a7f1bbc2768befe277aa5e8f191eef7db1a680fdc1b09` | Fixture deck engine and slide review | General production deck import/create. |
 | `05-wedding-film-review.png` | `1f40c43e8cd9b1884baa7fbed317542c4d2200c79dd56eb1cd25a7b45ba2957f` | Fixture film engine and time review | General production film import or in-app rerendering. |
 
-Matching hashes across the repeated runs demonstrate deterministic output for this mocked E2E story. They do not expand the product truth matrix or verify OpenAI, Gemini, Higgsfield, HyperFrames, a live agent, or any external integration.
+The hashes also match the earlier repeated `2/2` PM runs, demonstrating deterministic output
+for this mocked E2E story. They do not expand the product truth matrix or verify OpenAI,
+Gemini, Higgsfield, HyperFrames, a live agent, or any external integration.
 
-The repeated runs occurred immediately before DCO-signed local release candidate
-`5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`, which contains the exact tested showcase and
-image changes. The candidate is not pushed or publicly tagged; repeat clean-clone
-verification after publication before tagging a release.
+The final clean detached worktree had an empty status. Candidate `712fe36a` is not pushed or
+publicly tagged; repeat a public clean-clone check after publication before tagging a
+release.

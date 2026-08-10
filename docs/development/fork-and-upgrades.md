@@ -2,16 +2,19 @@
 
 The current product baseline inherits official `block/buzz` `desktop-v0.5.8`. Newer upstream `main` is not automatically part of this fork. Upgrades target stable published desktop release tags, not arbitrary movement on `main`.
 
-## Release detector on this branch
+## Release detector in the local candidate
 
-This branch adds an upstream-release preparation contract in:
+Clean-verification candidate `712fe36a088bf320d663a857bbd4d1b0eba159e4` contains an
+upstream-release preparation contract in:
 
 - `.github/workflows/upstream-desktop-sync.yml`;
 - `.github/upstream-desktop-baseline`;
 - `scripts/latest-upstream-desktop-tag.sh`; and
 - `scripts/test-upstream-desktop-sync-contract.sh`.
 
-It is **not yet proven live**: the workflow and support files must first be merged into the repository's default branch, GitHub Actions must be enabled, and the scheduled or manual run must complete successfully.
+Its contract test passed in a clean detached worktree. It is **not yet proven live**: the
+candidate must first be pushed and merged into the repository's default branch, GitHub
+Actions must be enabled, and a scheduled or manual run must complete successfully.
 
 When active, the workflow is designed to run every Monday at 07:17 UTC and through manual `workflow_dispatch`. A manual run may request a particular stable tag such as `desktop-v0.5.9`; otherwise the resolver reads official Block Buzz tag refs, accepts only `desktop-vMAJOR.MINOR.PATCH`, sorts them by version, and chooses the latest.
 

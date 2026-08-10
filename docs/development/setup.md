@@ -5,7 +5,7 @@ Use the repository's pinned Hermit environment and tasks rather than installing 
 ```bash
 git clone https://github.com/Josh-Gi3r/buzz.git
 cd buzz
-git checkout 5d0b11f864bb142ae5ec94de3c083eebbc99e1dc
+git checkout 712fe36a088bf320d663a857bbd4d1b0eba159e4
 . ./bin/activate-hermit
 cp .env.example .env
 just setup

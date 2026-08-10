@@ -1,109 +1,93 @@
 # QA evidence
 
-No full exact-commit release qualification is claimed by this documentation pass.
+## Evidence authorities
 
-The PM verification commands below were run immediately before DCO-signed local release
-candidate `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`. That candidate contains the exact tested
-changes. It has not been pushed or publicly tagged, and the commands were not rerun from a
-fresh checkout of the commit.
+Exact DCO-signed commit `712fe36a088bf320d663a857bbd4d1b0eba159e4` passed the clean
+detached-worktree verification below. A later full-CI rerun used that candidate plus one
+uncommitted, mechanical rustfmt correction in `desktop/src-tauri/src/commands/mod.rs`:
+`pub mod media_tools;` was moved into alphabetical order. No behavior changed. The full-CI
+result therefore remains worktree evidence until that ordering fix and this evidence are
+committed together.
 
-## PM-verified showcase reproduction
+## Clean detached-worktree verification at `712fe36a`
 
-The PM ran the deterministic mocked showcase command twice from the repository's `desktop/`
-directory, with Hermit activated from `../bin/activate-hermit`. From the repository root,
-the equivalent runnable sequence is:
+The worktree was clean before verification and `git status --short` was empty at the end.
 
-```bash
-cd desktop
-. ../bin/activate-hermit
-pnpm build:e2e && pnpm exec playwright test preview-studio-showcase --project=smoke
-```
+- `just desktop-install-ci` passed with a frozen lockfile and 654 packages.
+- `node scripts/audit-public-docs.mjs` passed: 76 Markdown files, 139 local links.
+- `scripts/test-upstream-desktop-sync-contract.sh` passed. This does not make the unmerged
+  scheduled workflow live.
+- `just desktop-check` passed with the three warnings listed below.
+- `just desktop-test` passed 4,556 tests across 69 suites, with zero failed, cancelled,
+  skipped, or todo; duration 116755.851375 ms.
+- `just desktop-build` passed: 4,779 modules in 2.48 s, with the two Vite warnings below.
+- The deterministic mocked showcase passed `2/2` in 15.4 s from `desktop/`; regeneration
+  produced zero Git diff and the exact hashes in
+  [Screenshot provenance](screenshot-provenance.md).
 
-- First verification: `2/2` tests passed.
-- Second showcase run: `2/2` tests passed.
-- Viewport and screenshot output: `1600x1000`.
-- All five SHA-256 output hashes were identical between runs.
-
-The exact file hashes and claim boundaries are recorded in [Screenshot provenance](screenshot-provenance.md). This verifies reproducible fixture rendering and the scripted showcase assertions. It does not verify a live agent build, live OpenAI/Gemini/Higgsfield use, HyperFrames rendering, remote-agent infrastructure, huddle transport, deployment, or other external-provider integration.
-
-Earlier focused runs reported 21 Preview Studio Node tests passing. That number remains historical context until accompanied by a final exact-checkout run artifact with command, environment, skips, and output.
-
-## PM-verified desktop check
+## Full CI worktree verification
 
 The PM ran:
 
 ```bash
-just desktop-check
+. ./bin/activate-hermit && just ci
 ```
 
-The first run exposed nine pre-existing Preview Studio formatting/lint errors. The PM
-mechanically formatted eight files and added one narrowly scoped Biome suppression for
-`RevealDeckStage`'s intentional slide-change dependency. The rerun passed.
+The first run exposed only rustfmt module ordering in
+`desktop/src-tauri/src/commands/mod.rs`. After the mechanical alphabetical move described
+above, the rerun exited `0`.
 
-The passing rerun retained three non-fatal warnings:
+### Passed gates
 
-- `photographs.ts` is approximately 2.4 MiB and exceeds Biome's configured file-size limit;
+- Workspace `cargo fmt` and `cargo clippy --all-targets` passed.
+- Desktop check passed with the same three warnings.
+- Tauri formatting and clippy passed; Tauri `cargo check` passed.
+- Web check passed.
+- Mobile Dart formatting checked 371 files with 0 changed; Flutter analyze reported no
+  issues.
+- The Rust unit runner completed 8 suites in 143 s:
+  - core: 249 passed;
+  - auth: 45 passed;
+  - voice: 9 passed, 5 fixture/model tests ignored;
+  - CLI: 341 passed;
+  - database: 94 passed, 154 PostgreSQL tests ignored;
+  - conformance: 22 passed across its targets;
+  - push: 15 passed, 6 PostgreSQL tests ignored; and
+  - Kubernetes: 158 passed across its targets.
+- Desktop Node tests passed 4,556 tests across 69 suites, with zero failed, cancelled,
+  skipped, or todo, as recorded by the exact focused run.
+- Desktop frontend build passed: 4,779 modules, with the two known Vite warnings.
+- Native Tauri tests passed:
+  - `buzz_lib`: 2,272 passed, 14 ignored;
+  - CSP: 8 passed;
+  - rodio: 3 passed; and
+  - terminal library: 27 passed, with its integration suites also passing.
+- Web build passed: 2,299 modules in 507 ms, with one output-chunk warning over 500 kB.
+- Mobile Flutter tests passed all 1,261 tests.
+
+## Non-fatal warnings
+
+Desktop check:
+
+- `photographs.ts` is approximately 2.4 MiB and exceeds Biome's file-size limit;
 - inherited `terminal.css` contains `!important`; and
 - the Studio reduced-motion rule contains `!important`.
 
-This establishes a passing `desktop-check` after those local corrections. It is not a full
-`just ci` result, runtime acceptance test, external-provider test, or release qualification.
-
-## PM-verified desktop unit tests
-
-Immediately before the local candidate commit, the PM ran:
-
-```bash
-. ./bin/activate-hermit && just desktop-test
-```
-
-The run passed:
-
-- 4,556 tests;
-- 69 suites;
-- 0 failed;
-- 0 cancelled;
-- 0 skipped;
-- 0 todo; and
-- 104421 ms reported duration.
-
-This is desktop Node unit coverage only. It does not establish a passing full `just ci`,
-Rust or native/Tauri coverage, mobile or web coverage, deployment behavior, or successful
-external-provider integration. Repeat the command at the pushed/tagged release ref from a
-fresh checkout before treating it as immutable public release evidence.
-
-## PM-verified desktop frontend build
-
-Immediately before the local candidate commit, the PM ran:
-
-```bash
-. ./bin/activate-hermit && just desktop-build
-```
-
-The `tsc && vite build` command passed. Vite transformed 4,779 modules and reported a 2.02 s
-build duration.
-
-The build retained two non-fatal Vite warnings:
+Desktop Vite build:
 
 - `ChannelManagementSheet` is both dynamically and statically imported, so the dynamic
-  import does not move it into a separate chunk; and
+  import does not create a separate chunk; and
 - one or more output chunks exceed 500 kB after minification.
 
-This establishes the desktop frontend TypeScript/Vite production build only. It does not
-verify a Tauri native build, packaged application, signing or notarization, installer,
-update channel, or releasable binary. Repeat it at the pushed/tagged release ref from a
-fresh checkout for immutable public release evidence.
+Web Vite build reported one output chunk over 500 kB.
 
-## Required release record
+## Scope and exclusions
 
-For each release command, record:
+The full `just ci` rerun passed, but ignored tests did not execute. This evidence does not
+cover the 154 database and 6 push tests requiring PostgreSQL, the 5 voice fixture/model
+tests, ignored OS-keychain tests, ignored release-mode performance tests, or other
+infrastructure-gated paths.
 
-- product and documentation commits;
-- operating system/toolchain;
-- command exactly as run;
-- passed, failed, and skipped totals;
-- configured Postgres/Redis/object/external services;
-- fixture/mock/live-provider classification; and
-- artifact/log location.
-
-Minimum release gates are `just ci`, relevant integration suites, desktop Preview Studio unit/E2E, mobile/web/admin checks where claimed, documentation link/image audit, exact screenshot reproduction, and clean-clone quick start.
+It also does not verify packaging, signing/notarization, installers, update delivery, a live
+deployment, paid/external providers, or desktop E2E beyond the deterministic showcase. No
+public tag or pushed clean-clone verification exists yet.
