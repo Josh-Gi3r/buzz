@@ -47,12 +47,13 @@ Preview Studio state is local to this device. It does not yet synchronize artifa
 
 ## Run from source
 
-This documentation audits product code at `d36f39336b05036f90ba20e273746374c25aaf3e`, inherited from upstream `desktop-v0.5.8` (`f3de860574bb3119018b4592353e9761635aeb07`). Source documentation/showcase work began at `887d6da441684abda30a7284d004f6d4dd52a767`; `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc` is the integrated pre-evidence candidate. The clean, DCO-signed local verification candidate is `712fe36a088bf320d663a857bbd4d1b0eba159e4`. It is not pushed or publicly tagged.
+This fork currently inherits Buzz Desktop `v0.5.8`. It does not yet publish independently
+signed binaries, so the supported path is a source checkout. Exact upstream, product, and
+verification refs are recorded in the [evidence baseline](docs/evidence/baseline.md).
 
 ```bash
 git clone https://github.com/Josh-Gi3r/buzz.git
 cd buzz
-git checkout 712fe36a088bf320d663a857bbd4d1b0eba159e4
 . ./bin/activate-hermit
 cp .env.example .env
 just setup
