@@ -48,6 +48,51 @@ function seedSnapshot(): ArtifactLibrarySnapshot {
   };
 }
 
+function initialSnapshot(): ArtifactLibrarySnapshot {
+  // Keep the visual fixture catalog available to Playwright without shipping
+  // it as a user's real Preview Studio library.
+  return import.meta.env?.MODE === "e2e" ? seedSnapshot() : emptySnapshot();
+}
+
+const LEGACY_DEMO_ARTIFACT_IDS = new Set(
+  DEMO_ARTIFACTS.map((artifact) => artifact.id),
+);
+
+/** Remove demo rows persisted by older fork builds while preserving every
+ * imported, generated, or agent-created artifact. */
+function removeLegacyDemoArtifacts(
+  snapshot: ArtifactLibrarySnapshot,
+): ArtifactLibrarySnapshot {
+  const removedRevisionIds = new Set(
+    snapshot.revisions
+      .filter((revision) => LEGACY_DEMO_ARTIFACT_IDS.has(revision.artifactId))
+      .map((revision) => revision.id),
+  );
+  if (
+    !snapshot.artifacts.some((artifact) =>
+      LEGACY_DEMO_ARTIFACT_IDS.has(artifact.id),
+    ) &&
+    removedRevisionIds.size === 0
+  ) {
+    return snapshot;
+  }
+  return {
+    ...snapshot,
+    artifacts: snapshot.artifacts.filter(
+      (artifact) => !LEGACY_DEMO_ARTIFACT_IDS.has(artifact.id),
+    ),
+    revisions: snapshot.revisions.filter(
+      (revision) => !LEGACY_DEMO_ARTIFACT_IDS.has(revision.artifactId),
+    ),
+    reviews: snapshot.reviews.filter(
+      (review) => !removedRevisionIds.has(review.revisionId),
+    ),
+    decisions: snapshot.decisions.filter(
+      (decision) => !removedRevisionIds.has(decision.revisionId),
+    ),
+  };
+}
+
 function canUseStorage(): boolean {
   return typeof localStorage !== "undefined";
 }
@@ -85,34 +130,38 @@ function pruneDeadObjectUrls(
 }
 
 export function loadLibrary(): ArtifactLibrarySnapshot {
-  if (!canUseStorage()) return seedSnapshot();
+  if (!canUseStorage()) return initialSnapshot();
   let raw: string | null = null;
   try {
     raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      const seeded = seedSnapshot();
-      saveLibrary(seeded);
-      return seeded;
+      const initial = initialSnapshot();
+      saveLibrary(initial);
+      return initial;
     }
     const parsed = JSON.parse(raw) as ArtifactLibrarySnapshot;
     if (parsed?.version !== 1 || !Array.isArray(parsed.artifacts)) {
       backupUnreadablePayload(raw);
-      const seeded = seedSnapshot();
-      saveLibrary(seeded);
-      return seeded;
+      const initial = initialSnapshot();
+      saveLibrary(initial);
+      return initial;
     }
-    return pruneDeadObjectUrls({
+    const loaded = pruneDeadObjectUrls({
       version: 1,
       artifacts: parsed.artifacts ?? [],
       revisions: parsed.revisions ?? [],
       reviews: parsed.reviews ?? [],
       decisions: parsed.decisions ?? [],
     });
+    if (import.meta.env?.MODE === "e2e") return loaded;
+    const migrated = removeLegacyDemoArtifacts(loaded);
+    if (migrated !== loaded) saveLibrary(migrated);
+    return migrated;
   } catch {
     backupUnreadablePayload(raw);
-    const seeded = seedSnapshot();
-    saveLibrary(seeded);
-    return seeded;
+    const initial = initialSnapshot();
+    saveLibrary(initial);
+    return initial;
   }
 }
 
@@ -127,10 +176,10 @@ export function saveLibrary(snapshot: ArtifactLibrarySnapshot): boolean {
   }
 }
 
-export function resetLibraryToSeed(): ArtifactLibrarySnapshot {
-  const seeded = seedSnapshot();
-  saveLibrary(seeded);
-  return seeded;
+export function resetLibrary(): ArtifactLibrarySnapshot {
+  const initial = initialSnapshot();
+  saveLibrary(initial);
+  return initial;
 }
 
 export function getRevision(

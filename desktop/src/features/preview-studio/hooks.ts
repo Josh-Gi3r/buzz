@@ -8,7 +8,7 @@ import {
   importLocalFile,
   isImportableType,
   loadLibrary,
-  resetLibraryToSeed,
+  resetLibrary,
   saveSourceRevision,
   setDecision,
   type ArtifactLibrarySnapshot,
@@ -109,7 +109,7 @@ export function useArtifactLibrary() {
   }, []);
 
   const reset = React.useCallback(() => {
-    setLibrary(resetLibraryToSeed());
+    setLibrary(resetLibrary());
   }, []);
 
   return {

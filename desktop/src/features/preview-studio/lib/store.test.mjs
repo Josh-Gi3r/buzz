@@ -93,17 +93,17 @@ describe("artifact library store", () => {
     assert.equal(snap.reviews.length, 0);
   });
 
-  it("seeds demo artifacts on first load", () => {
+  it("starts with an empty production library", () => {
     const snap = loadLibrary();
     assert.equal(snap.version, 1);
-    assert.equal(snap.artifacts.length, 4);
+    assert.equal(snap.artifacts.length, 0);
     assert.ok(localStorage.getItem(STORAGE_KEY));
   });
 
   it("recovers from a corrupt payload and backs it up", () => {
     localStorage.setItem(STORAGE_KEY, "{corrupt");
     const snap = loadLibrary();
-    assert.equal(snap.artifacts.length, 4);
+    assert.equal(snap.artifacts.length, 0);
     assert.equal(localStorage.getItem(`${STORAGE_KEY}.unreadable`), "{corrupt");
   });
 
@@ -111,8 +111,77 @@ describe("artifact library store", () => {
     const bogus = JSON.stringify({ version: 99, artifacts: "nope" });
     localStorage.setItem(STORAGE_KEY, bogus);
     const snap = loadLibrary();
-    assert.equal(snap.artifacts.length, 4);
+    assert.equal(snap.artifacts.length, 0);
     assert.equal(localStorage.getItem(`${STORAGE_KEY}.unreadable`), bogus);
+  });
+
+  it("removes persisted demo rows without touching real previews", () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        artifacts: [
+          {
+            id: "art-wedding-film",
+            title: "Demo wedding",
+            artifactType: "video",
+            currentRevisionId: "rev-film-1",
+            createdAt: 1,
+            updatedAt: 1,
+          },
+          {
+            id: "agent_preview_real",
+            title: "Current project",
+            artifactType: "website",
+            currentRevisionId: "rev-real",
+            createdAt: 2,
+            updatedAt: 2,
+          },
+        ],
+        revisions: [
+          {
+            id: "rev-film-1",
+            artifactId: "art-wedding-film",
+            createdAt: 1,
+            manifest: {
+              source: { kind: "url", url: "https://example.invalid/demo" },
+            },
+          },
+          {
+            id: "rev-real",
+            artifactId: "agent_preview_real",
+            createdAt: 2,
+            manifest: { source: { kind: "url", url: "http://localhost:3000" } },
+          },
+        ],
+        reviews: [
+          { id: "review-demo", revisionId: "rev-film-1" },
+          { id: "review-real", revisionId: "rev-real" },
+        ],
+        decisions: [
+          { revisionId: "rev-film-1", reviewerPubkey: "local" },
+          { revisionId: "rev-real", reviewerPubkey: "local" },
+        ],
+      }),
+    );
+
+    const snap = loadLibrary();
+    assert.deepEqual(
+      snap.artifacts.map((artifact) => artifact.id),
+      ["agent_preview_real"],
+    );
+    assert.deepEqual(
+      snap.revisions.map((revision) => revision.id),
+      ["rev-real"],
+    );
+    assert.deepEqual(
+      snap.reviews.map((review) => review.id),
+      ["review-real"],
+    );
+    assert.deepEqual(
+      snap.decisions.map((decision) => decision.revisionId),
+      ["rev-real"],
+    );
   });
 
   it("marks oversized imports ephemeral with an object URL", async () => {

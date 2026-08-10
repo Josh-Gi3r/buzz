@@ -91,6 +91,7 @@ export function PreviewStudioScreen() {
     setSelectedId(library.artifacts[0]?.id ?? "");
   }, [library.artifacts, selectedId]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: changing artifacts must reset artifact-scoped navigation state.
   React.useEffect(() => {
     setSlideIndex(0);
     setPlayheadSeconds(0);
@@ -215,7 +216,7 @@ export function PreviewStudioScreen() {
               onClick={() => {
                 if (
                   window.confirm(
-                    "Reset library to demo seeds? Your imported artifacts will be removed from this device store.",
+                    "Clear the Preview Studio library? Imported and agent previews will be removed from this device store.",
                   )
                 ) {
                   reset();
@@ -223,7 +224,7 @@ export function PreviewStudioScreen() {
               }}
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              Reset demos
+              Clear library
             </Button>
             <Button
               type="button"
@@ -267,9 +268,9 @@ export function PreviewStudioScreen() {
           <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 pb-4">
             {library.artifacts.length === 0 ? (
               <li className="rounded-xl border border-dashed border-border/60 px-3 py-8 text-center text-2xs leading-relaxed text-muted-foreground">
-                Nothing here yet.
+                No live preview yet.
                 <br />
-                Import an image, video or PDF.
+                Open a URL shared by an agent, or import a file.
               </li>
             ) : (
               library.artifacts.map((artifact) => {
