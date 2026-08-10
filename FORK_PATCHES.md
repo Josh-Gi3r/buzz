@@ -44,12 +44,19 @@ receive only thin integration seams.
 ## New fork-owned areas (not patches)
 
 - `desktop/src/features/preview-studio/**`
+- `desktop/tests/e2e/preview-studio-*.spec.ts`
 - `desktop/src-tauri/src/commands/media_tools.rs`
 - `desktop/src/app/routes/preview-studio.tsx`
 - `desktop/src/shared/theme/studio/**`
+- `docs/README.md`
+- `docs/architecture/**`
+- `docs/assets/showcase/**`
 - `docs/design/**`
+- `docs/product/**`
 - `docs/preview-studio/**`
+- `docs/reference/**`
 - `docs/spec/artifact-*.md`
+- `docs/user/**`
 - `scripts/run-studio-sandbox.sh`
 - `FORK_PATCHES.md`
 

@@ -1,28 +1,29 @@
 # Preview Studio Architecture
 
-**Upstream baseline:** `block/buzz` commit `c104eecfb38620de2c35c7e20a716f8658b5a6b1`
-(an ancestor of the fork's build baseline `19d57b0`)
+**Current fork baseline:** published upstream tag `desktop-v0.5.8`
 **Scope:** the architectural foundation for an additive Preview Studio product layer on Buzz,
 preserving a working stock Buzz build and the ability to merge upstream changes.
 
 ## Status
 
-**Implemented in v0** (shipping today, feature-flagged, local-only):
+**Implemented in the current fork** (enabled by default, local-only):
 
-- Sidebar entry and `/preview-studio` route, gated behind the `preview-studio` feature flag
-  (default off).
+- Sidebar entry and `/preview-studio` route, controlled by the `preview-studio`
+  feature flag and enabled by default.
 - Local artifact library persisted in `localStorage` (`buzz.previewStudio.library.v1`);
   nothing is published to the relay.
-- Import of image and video files; image stage with lightbox; video stage reusing Buzz's
-  `VideoPlayer`; inline PDF preview in an embedded frame.
-- Review comments (the review model carries optional video time anchors) and per-revision
-  approve/request-changes decisions.
-- Renderer registry, demo seed artifacts, and Studio CSS tokens scoped to the Studio screen.
+- Agent-authored live URL handoff with desktop, tablet, and mobile frames.
+- Image, video, and PDF import; editable static websites and HTML decks; film
+  composition preview/editing.
+- Revision history, comments with slide/time anchors, and per-revision decisions.
+- Renderer registry and Studio CSS tokens scoped to the Studio screen. Production
+  starts empty; showcase artifacts are E2E fixtures only.
 
-**Design blueprint** (everything else in this document): the relay event kinds, capability
-negotiation, storage and processing architecture, sandboxed execution for web and native
-formats, the client experience split, and the Studio global shell are designed here but not
-implemented. The event kind proposal is collision-audited in
+**Design blueprint** (the future-looking sections below): relay event kinds,
+capability negotiation, collaborative storage/processing, native preview
+sessions, broader client coverage, and the Studio global shell are designed but
+not implemented. Some web, deck, and film renderer work described as planned in
+the original blueprint has since shipped locally. The event kind proposal is collision-audited in
 [../spec/artifact-kinds-v0.md](../spec/artifact-kinds-v0.md) and deliberately unregistered.
 
 ---
@@ -38,7 +39,7 @@ Build the custom product as an **additive product layer over Buzz**:
 2. Maintain a product branch that regularly merges that mirror.
 3. Keep stock Buzz available as an unmodified build/profile.
 4. Add the new interface as a second presentation profile, not a second data model.
-5. Add Preview Studio as a disabled-by-default feature vertical.
+5. Keep Preview Studio behind an independently controllable feature vertical.
 6. Keep the relay as the source of truth.
 7. Store source bytes and derived renditions in the existing content-addressed media/object
    layer where possible.
@@ -269,9 +270,11 @@ interface ArtifactRenderer {
 }
 ```
 
-Planned adapters: image; video; PDF; deck/slides; website URL; static web application;
-Android session; iOS session; motion composition; mixed-media slideshow; generic file
-fallback.
+The original renderer taxonomy covered image, video, PDF, deck/slides, website
+URL, static web application, Android and iOS sessions, motion composition,
+mixed-media slideshow, and generic files. Several now have local
+implementations; consult the [current capability matrix](../product/capabilities.md)
+instead of treating this blueprint list as runtime evidence.
 
 A renderer receives capability-scoped data. It never receives the user's signing key,
 unrestricted relay token, native filesystem or Tauri command surface.

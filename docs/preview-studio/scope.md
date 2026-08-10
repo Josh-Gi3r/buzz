@@ -1,40 +1,31 @@
-# Preview Studio v0 — Scope
+# Preview Studio scope
 
-## Product thesis
+This file originally defined the first local-only Preview Studio milestone. That
+milestone has been surpassed. For the current product surface, use the
+[capability matrix](../product/capabilities.md) and
+[user guide](user-guide.md).
 
-Deliver a usable artifact workspace inside stock Buzz (feature-flagged, default off) where
-you can:
+## Current implemented scope
 
-1. Browse a library of artifacts.
-2. Import local images and videos.
-3. Preview them for real (not placeholders).
-4. Leave reviews and approve / request changes on a revision.
-5. Keep the stock Buzz experience untouched when the flag is off.
+Preview Studio is enabled by default in this fork and provides:
 
-## Explicitly out of scope in v0
+1. A device-local artifact library with imports for images, videos, and PDFs.
+2. Agent-authored URL handoff into a live, responsive website preview.
+3. Static website, HTML deck, and film-composition preview/editing paths.
+4. Revision-specific comments, slide/time anchors, and decisions.
+5. Optional image and video generation through configured external tools.
 
-- Relay kind registration / multi-user sync.
-- iOS/Android emulator sessions.
-- Sandboxed static-web / website previews.
-- Infinite canvas board.
-- Full creative editing tools.
-- A global Studio app-shell restyle (Studio is Studio-scoped).
-- A separate distribution identity / dual-install packaging.
+The production library starts empty. Wedding, deck, film, and image examples
+used for documentation are deterministic E2E fixtures only.
 
-These are roadmap items, not silent gaps; see the README roadmap and
-[../design/architecture.md](../design/architecture.md) for the designs behind them.
+## Still outside the implemented scope
 
-## Architecture
+- Relay kind registration and multi-user review sync.
+- Automatic delivery of Preview Studio feedback to an agent conversation.
+- iOS or Android emulator/simulator sessions.
+- Hosting or lifecycle management for an agent's development server.
+- A separate public distribution identity and update channel.
 
-```text
-localStorage  →  ArtifactLibrary store
-       ↓
-PreviewStudioScreen
-  ├─ Library rail (list + import + delete)
-  ├─ PreviewStage (image / video / PDF / fallback)
-  ├─ Review panel (comments)
-  └─ Decision strip
-```
-
-No new relay kinds are registered. The specs in [../spec/](../spec/) stay ready for a future
-relay integration.
+No artifact event kinds are registered in `buzz-core`, and Preview Studio adds
+no relay or database migration in the current fork. The proposals under
+[`docs/spec`](../spec/) remain designs for a future collaborative protocol.

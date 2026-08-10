@@ -1,21 +1,25 @@
 import { expect, test } from "@playwright/test";
 
+import { PHOTOGRAPHER_SITE_FILES } from "../../src/features/preview-studio/lib/demo/photographerSite";
 import { waitForAnimations } from "../helpers/animations";
-import { installMockBridge } from "../helpers/bridge";
+import { installMockBridge, TEST_IDENTITIES } from "../helpers/bridge";
 
 /**
- * Captures the Preview Studio screenshots used by the README
- * (docs/assets/preview-studio-*.png). The library is seeded with a
- * fictional anime-streaming iOS app ("AniStream") so the stage, review
- * rail, and decisions are populated with realistic product content.
+ * Captures two deterministic Preview Studio screenshot sets: the original
+ * AniStream stage fixtures and the public documentation story that moves from
+ * an agent conversation into a live site, responsive review, deck, and film.
  *
  * Regenerate assets with:
  *   pnpm build:e2e && pnpm exec playwright test preview-studio-showcase --project=smoke
+ * Copy accepted documentation captures from
+ * test-results/documentation-showcase into docs/assets/showcase.
  */
 
 const SHOTS = "test-results/preview-studio-showcase";
 const FEATURE_OVERRIDES_KEY = "buzz-feature-overrides-v1";
 const LIBRARY_KEY = "buzz.previewStudio.library.v1";
+const DOCUMENTATION_SHOTS = "test-results/documentation-showcase";
+const WEDDING_PREVIEW_URL = "http://agent-preview.test/wedding";
 
 type Screen = {
   id: string;
@@ -309,6 +313,35 @@ function buildLibrary() {
   };
 }
 
+function liveWeddingSite(): string {
+  return PHOTOGRAPHER_SITE_FILES["/index.html"]
+    .replace(
+      '<link rel="stylesheet" href="styles.css" />',
+      `<style>${PHOTOGRAPHER_SITE_FILES["/styles.css"]}</style>`,
+    )
+    .replace(
+      '<script src="motion.js"></script>',
+      `<script>${PHOTOGRAPHER_SITE_FILES["/motion.js"]}</script>`,
+    );
+}
+
+async function waitForLiveSubscription(
+  page: import("@playwright/test").Page,
+  channelName: string,
+) {
+  await expect
+    .poll(() =>
+      page.evaluate(
+        (name) =>
+          window.__BUZZ_E2E_HAS_MOCK_LIVE_SUBSCRIPTION__?.({
+            channelName: name,
+          }) ?? false,
+        channelName,
+      ),
+    )
+    .toBe(true);
+}
+
 test.describe("preview studio showcase", () => {
   test.use({ viewport: { width: 1440, height: 840 }, deviceScaleFactor: 2 });
 
@@ -374,5 +407,165 @@ test.describe("preview studio showcase", () => {
     await expect(page.getByTestId("preview-studio-stage")).toBeVisible();
     await waitForAnimations(page);
     await page.screenshot({ path: `${SHOTS}/05-ios-artifact.png` });
+  });
+});
+
+test.describe("documentation story", () => {
+  test.use({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 1 });
+
+  test("captures chat, live preview, deck, and film review", async ({
+    page,
+  }) => {
+    test.setTimeout(60_000);
+    await page.route(`${WEDDING_PREVIEW_URL}**`, async (route) => {
+      await route.fulfill({
+        contentType: "text/html",
+        body: liveWeddingSite(),
+      });
+    });
+    await installMockBridge(page, {
+      searchProfiles: [
+        {
+          pubkey: TEST_IDENTITIES.tyler.pubkey,
+          displayName: "Josh",
+          isAgent: false,
+        },
+        {
+          pubkey: TEST_IDENTITIES.alice.pubkey,
+          displayName: "Fizz",
+          isAgent: true,
+          about: "Product design and frontend agent",
+        },
+      ],
+    });
+
+    await page.goto("/");
+    await page.getByRole("button", { name: "Browse channels" }).click();
+    await page
+      .getByTestId("browse-channel-design")
+      .getByRole("button", { name: "Join" })
+      .click();
+    await expect(page.getByTestId("chat-title")).toHaveText("design");
+    await waitForLiveSubscription(page, "design");
+    await page.evaluate(
+      ({ fizz, josh, previewUrl }) => {
+        const emit = window.__BUZZ_E2E_EMIT_MOCK_MESSAGE__;
+        const now = Math.floor(Date.now() / 1_000);
+        emit?.({
+          channelName: "design",
+          content:
+            "Fizz, build a quiet editorial wedding-photography site. It should feel cinematic, not like a template—and it must work beautifully on mobile.",
+          createdAt: now - 180,
+          id: "1".repeat(64),
+          pubkey: josh,
+        });
+        emit?.({
+          channelName: "design",
+          content:
+            "I’m on it. I’m building the visual system, real responsive sections, and a matching collections deck so the whole client journey feels coherent.",
+          createdAt: now - 120,
+          id: "2".repeat(64),
+          pubkey: fizz,
+        });
+        emit?.({
+          channelName: "design",
+          content:
+            "Keep the photography full-bleed, make the typography restrained, and give me something I can review live inside Buzz.",
+          createdAt: now - 60,
+          id: "3".repeat(64),
+          pubkey: josh,
+        });
+        emit?.({
+          channelName: "design",
+          content: `The first complete pass is running now. I connected the portfolio, collections, enquiry flow, and responsive states. Live preview: ${previewUrl}`,
+          createdAt: now,
+          id: "4".repeat(64),
+          pubkey: fizz,
+        });
+      },
+      {
+        fizz: TEST_IDENTITIES.alice.pubkey,
+        josh: TEST_IDENTITIES.tyler.pubkey,
+        previewUrl: WEDDING_PREVIEW_URL,
+      },
+    );
+
+    const handoff = page.getByTestId("agent-preview-open");
+    await expect(handoff).toBeVisible();
+    await handoff.scrollIntoViewIfNeeded();
+    await page.mouse.move(1_000, 40);
+    await waitForAnimations(page);
+    await page.screenshot({
+      path: `${DOCUMENTATION_SHOTS}/01-agent-build-chat.png`,
+    });
+
+    await handoff.click();
+    await expect(page).toHaveURL(/\/preview-studio$/);
+    await expect(
+      page
+        .frameLocator('[data-testid="preview-studio-url-frame"]')
+        .getByRole("heading", { name: "Days worth keeping." }),
+    ).toBeVisible();
+    await expect(page.getByTestId("preview-studio-inspector")).toHaveCount(0);
+    await waitForAnimations(page);
+    await page.screenshot({
+      path: `${DOCUMENTATION_SHOTS}/02-live-wedding-desktop.png`,
+    });
+
+    await page.getByTestId("preview-studio-url-viewport-mobile").click();
+    await page.getByTestId("preview-studio-inspector-toggle").click();
+    await expect(page.getByTestId("preview-studio-inspector")).toBeVisible();
+    await page
+      .getByTestId("preview-studio-review-input")
+      .fill(
+        "The mobile hero is ready. Keep this image crop for the final pass.",
+      );
+    await page.getByTestId("preview-studio-review-submit").click();
+    await expect(page.getByText("The mobile hero is ready.")).toBeVisible();
+    await waitForAnimations(page);
+    await page.screenshot({
+      path: `${DOCUMENTATION_SHOTS}/03-live-wedding-mobile-review.png`,
+    });
+
+    await page.getByTestId("preview-studio-artifact-art-pricing-deck").click();
+    await expect(page.getByTestId("preview-studio-deck")).toBeVisible();
+    await page.getByTestId("preview-studio-slide-next").click();
+    await page.getByTestId("preview-studio-slide-next").click();
+    await page
+      .getByTestId("preview-studio-review-input")
+      .fill("Lead with The Full Day collection on this slide.");
+    await page.getByTestId("preview-studio-review-submit").click();
+    await expect(page.getByText("Slide 3 ·", { exact: false })).toBeVisible();
+    await waitForAnimations(page);
+    await page.screenshot({
+      path: `${DOCUMENTATION_SHOTS}/04-pricing-deck-review.png`,
+    });
+
+    await page.getByTestId("preview-studio-artifact-art-wedding-film").click();
+    await expect(page.getByTestId("preview-studio-film-video")).toBeVisible();
+    await page.getByRole("button", { name: "Cut", exact: true }).click();
+    await page.getByTestId("preview-studio-film-scrub").evaluate((element) => {
+      const input = element as HTMLInputElement;
+      const setValue = Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        "value",
+      )?.set;
+      setValue?.call(input, "4.2");
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await expect(
+      page.getByTestId("preview-studio-film-timecode"),
+    ).toContainText("00:04.2");
+    await page
+      .getByTestId("preview-studio-review-input")
+      .fill("Hold this closing beat for another half-second.");
+    await page.getByTestId("preview-studio-review-submit").click();
+    await expect(page.getByText("4.2s ·", { exact: false })).toBeVisible();
+    await page.getByRole("button", { name: "Film", exact: true }).click();
+    await expect(page.getByTestId("preview-studio-film-video")).toBeVisible();
+    await waitForAnimations(page);
+    await page.screenshot({
+      path: `${DOCUMENTATION_SHOTS}/05-wedding-film-review.png`,
+    });
   });
 });

@@ -1,144 +1,97 @@
-> **This is an independent community fork of [block/buzz](https://github.com/block/buzz).**
-> It adds Preview Studio (an experimental artifact preview & review workspace) and the Studio
-> visual system on top of upstream Buzz. It is not affiliated with, endorsed by, or supported
-> by Block, Inc. The official Buzz app and releases live upstream. Every modification to an
-> upstream-owned file is tracked in [FORK_PATCHES.md](FORK_PATCHES.md).
+> [!IMPORTANT]
+> This is an independent community fork of [Block's Buzz](https://github.com/block/buzz). It is not affiliated with, endorsed by, or supported by Block, Inc. The official project and releases live upstream.
 
 # Buzz Preview Studio
 
-An experimental artifact preview & review workspace built on [block/buzz](https://github.com/block/buzz).
+**Talk with your agents. See what they build. Review it without leaving Buzz.**
 
-![Preview Studio](docs/assets/preview-studio-hero.png)
+This fork turns Buzz into a shared workspace for both the conversation and the work it produces. An agent can post a running website, you can open it inside Preview Studio, test the real responsive layout, leave revision-specific feedback, and keep the build discussion in the channel where it began.
 
-## What is this?
+![An agent hands a live wedding website from a Buzz channel into Preview Studio](docs/assets/showcase/02-live-wedding-desktop.png)
 
-Buzz is a self-hostable workspace where humans and AI agents share the same rooms, backed by
-a Nostr relay that treats every message, review, and workflow step as a signed event. This
-fork adds Preview Studio: a feature-flagged workspace inside the Buzz desktop app for
-collecting media artifacts (images, video, PDFs), previewing them on a dedicated stage, and
-attaching review comments and approve/request-changes decisions. It also introduces the Studio visual layer, a
-set of material CSS tokens that give the Studio screen its own visual identity without
-touching the rest of the app.
+## From conversation to working artifact
 
-## Relationship to upstream
+1. Direct an agent in a channel or direct message.
+2. The agent builds the project and posts its reachable `http://` or `https://` URL.
+3. Select **Open live preview** beneath the agent's message.
+4. Test the live site at desktop, tablet, and mobile widths.
+5. Review the exact revision—or move into a deck, film, image, video, or PDF in the same local library.
 
-This fork follows an **additive-only** policy:
+| Build together in chat | Check the real mobile layout |
+|---|---|
+| ![A human and Fizz collaborating in a Buzz design channel](docs/assets/showcase/01-agent-build-chat.png) | ![A live wedding website at mobile width with the review inspector open](docs/assets/showcase/03-live-wedding-mobile-review.png) |
 
-- New functionality lives in new files and directories (`desktop/src/features/preview-studio/`,
-  `desktop/src/shared/theme/studio/`, `docs/spec/`, `docs/design/`).
-- The small set of upstream-owned files this fork touches — route registration, sidebar
-  wiring, the feature manifest — is listed with rationale in [FORK_PATCHES.md](FORK_PATCHES.md).
-- Upstream `main` is merged in periodically through a tested merge lane; published fork
-  history is never rewritten.
-- The fork is built on upstream commit `19d57b0`.
+| Review a deck | Review a film cut |
+|---|---|
+| ![A pricing deck with slide-specific review feedback](docs/assets/showcase/04-pricing-deck-review.png) | ![A wedding film composition with time-specific review feedback](docs/assets/showcase/05-wedding-film-review.png) |
 
-## Features today
+The screenshots above are generated from deterministic test fixtures. They contain no private community or chat data.
 
-Preview Studio is off by default and fully local. When enabled it provides:
+## What works today
 
-- A **Preview Studio** sidebar entry and `/preview-studio` route (flag-gated; the app is
-  unchanged when the flag is off).
-- A **local artifact library** persisted in browser `localStorage`
-  (key `buzz.previewStudio.library.v1`). Nothing is published to the relay.
-- **Import** of image, video, and PDF files from disk. Files under ~2.5 MB persist across
-  reloads as data URLs; larger files use session object URLs and must be re-imported after
-  a reload.
-- An **image stage** with click-to-expand lightbox.
-- A **video stage** that reuses Buzz's existing `VideoPlayer`.
-- An **inline PDF preview** rendered in a sandboxed frame restricted to local
-  `data:`/`blob:` sources — remote URLs are never framed.
-- **Review comments** on the selected revision. The review model carries optional video time
-  anchors, which are displayed when present.
-- **Decisions** per revision: pending, approved, or changes requested.
-- A **renderer registry** mapping artifact types to display capabilities and fallback cards.
-- **Demo seed artifacts** on first run, with a one-click reset.
-- **Studio CSS tokens** scoped to the Studio screen.
+Preview Studio is enabled by default in this fork. A fresh production library is empty.
 
-### Not yet
+- Agent-authored URL handoff into a persistent local website artifact.
+- Interactive live previews with desktop, tablet, and mobile viewport controls.
+- Automatic Inspector collapse so a desktop site gets the full stage width.
+- Imports for images, videos, and local PDFs.
+- Editable static websites and HTML decks with save-as-new-revision behavior.
+- Film composition preview and cut controls.
+- Comments, slide/time anchors, revision history, and pending/approve/request-changes decisions.
+- Optional image generation through OpenAI or Gemini and video generation through an installed Higgsfield CLI.
 
-The following are designed but not implemented:
+Reviews, decisions, and artifacts are device-local today. Relay-backed collaboration, automatic feedback delivery to agents, and native iOS/Android preview sessions are proposed—not shipped. See the [complete capability matrix](docs/product/capabilities.md) for the evidence-backed status of every surface.
 
-- Relay event kinds for artifacts (proposal in
-  [docs/spec/artifact-kinds-v0.md](docs/spec/artifact-kinds-v0.md) — collision-audited but
-  not registered; nothing is published to any relay).
-- Multi-user review sync.
-- Sandboxed previews for web apps and native app builds.
-- Deck/slide conversion.
-- The Studio visual layer applied to the global app shell (Studio is Studio-scoped).
+## The Buzz foundation
 
-## See it in action
+Upstream Buzz is a self-hostable collaboration system where people and AI agents participate through signed Nostr events. This fork retains its channels, direct messages, threads, reactions, agents, personas, teams, projects, workflows, Pulse, forums, media, desktop/mobile/web clients, relay, and CLI.
 
-![Preview Studio demo](docs/assets/preview-studio-demo.gif)
+Preview Studio is an additive desktop layer. At the documented snapshot, it adds no event kinds, database migrations, or relay changes. The fork is based on the published upstream `desktop-v0.5.8` tag; it does not claim features from newer upstream `main` that have not been merged here.
 
-## Quickstart
+## Quick start
 
-You'll need [Docker](https://docs.docker.com/get-docker/) and
-[Hermit](https://cashapp.github.io/hermit/) (or Rust 1.88+, Node 24+, pnpm 10+, `just`).
+Use the repository's pinned Hermit toolchain and Docker environment:
 
 ```bash
-. ./bin/activate-hermit   # pinned toolchain
-cp .env.example .env      # local configuration
-just setup                # deps, Docker services, migrations
-just desktop-dev          # web-only dev server (fast iteration)
+. ./bin/activate-hermit
+cp .env.example .env
+just setup
+just desktop-dev  # frontend development
 # or
-just dev                  # full Tauri desktop app + relay
+just dev          # Tauri desktop app and development services
 ```
 
-To run an isolated sandbox instance that never shares state with a production Buzz install
-(separate bundle ID, app-data directory, keyring, and nest):
+For a Preview Studio development instance isolated from an existing Buzz installation:
 
 ```bash
 ./scripts/run-studio-sandbox.sh
 ```
 
-### Enable Preview Studio
+Native-only features such as local agent processes and media tools require the Tauri app. The browser-only development server cannot provide them.
 
-1. Open **Settings**.
-2. Find the **Experiments** card.
-3. Enable **Preview Studio**.
-4. A **Preview Studio** entry appears in the sidebar.
+## Documentation
 
-The flag is off by default. With the flag off, the app behaves exactly like upstream Buzz.
+- [Documentation home](docs/README.md)
+- [Getting started](docs/user/getting-started.md)
+- [Working with agents](docs/user/working-with-agents.md)
+- [Preview Studio user guide](docs/preview-studio/user-guide.md)
+- [Product capabilities](docs/product/capabilities.md)
+- [Product architecture](docs/architecture/product-system.md)
+- [Source and test evidence](docs/reference/evidence-index.md)
+- [Contributing](CONTRIBUTING.md) and [testing](TESTING.md)
 
-## Architecture & specs
+## Local data and trust boundaries
 
-- [docs/design/architecture.md](docs/design/architecture.md) — product model, event model,
-  security boundary, and the upstream-safe fork strategy.
-- [docs/design/](docs/design/) — design principles and decision records.
-- [docs/spec/](docs/spec/) — artifact manifest, review anchor, and event kind specifications.
-- [docs/preview-studio/user-guide.md](docs/preview-studio/user-guide.md) — using the Studio.
+The Preview Studio library is stored by the desktop renderer under `buzz.previewStudio.library.v1`; clearing it does not delete Buzz messages or relay data. Imports up to 2.5 MB can persist as data URLs, while larger imports last only for the current session.
 
-## Roadmap
+Live sites run in a sandboxed frame and do not receive Buzz signing keys or unrestricted Tauri access, but they can still execute their own code and network requests. Some sites refuse embedding through CSP or `X-Frame-Options`; use **Open in browser** for those. Generation prompts go to the chosen external provider, and provider keys entered in Preview Studio currently use renderer-local storage rather than the operating-system keychain.
 
-- Relay event kinds for artifact pointers, revisions, reviews, and decisions, per
-  [docs/spec/artifact-kinds-v0.md](docs/spec/artifact-kinds-v0.md).
-- Multi-user review sync over the relay, gated on a `preview_artifacts_v1` capability
-  advertisement.
-- Sandboxed preview sessions for static web builds and native app builds, isolated from the
-  privileged main renderer.
-- Studio as an opt-in visual profile for the whole shell.
-- A distribution identity of the fork's own (app ID, icons, update channel) separate from
-  upstream Buzz.
+## Fork maintenance and distribution
 
-## Contributing
+Fork-specific integration seams are recorded in [FORK_PATCHES.md](FORK_PATCHES.md) so upstream updates can be merged deliberately. Generic fixes should go upstream first when appropriate.
 
-- **Generic fixes belong upstream first.** If your change makes sense for stock Buzz, open it
-  against [block/buzz](https://github.com/block/buzz) — this fork picks it up on the next
-  merge.
-- Fork-specific changes must follow the additive-only policy: new files and directories where
-  possible, and any edit to an upstream-owned file recorded in
-  [FORK_PATCHES.md](FORK_PATCHES.md).
-- Upstream's [CONTRIBUTING.md](CONTRIBUTING.md) covers setup, code style, and the PR process;
-  it applies here too.
+This source tree still inherits upstream application identity in places. Give public builds a distinct bundle identifier, icons, signing identity, and update channel before distributing them as an independent product.
 
-## License & trademarks
+## License and trademarks
 
-This repository is licensed under [Apache-2.0](LICENSE). The upstream Buzz codebase is
-© Block, Inc. The "Buzz" name and branding belong to Block, Inc.; the Apache license does not
-grant trademark rights. The name "Buzz Preview Studio" is used only to identify this as a
-fork of the Buzz project — this is an independent community project, not endorsed by Block,
-and no builds are distributed under Block's identifiers.
-
-Please do not report bugs in unmodified upstream code here — file those at
-[block/buzz issues](https://github.com/block/buzz/issues). This repository's tracker is for
-Preview Studio and the Studio visual layer only.
+Licensed under [Apache-2.0](LICENSE). Upstream Buzz code is © Block, Inc. The Buzz name and branding belong to Block, Inc.; the license does not grant trademark rights.
