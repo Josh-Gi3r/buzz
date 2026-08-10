@@ -22,6 +22,7 @@ export default defineConfig({
       name: "smoke",
       testMatch: [
         "**/smoke.spec.ts",
+        "**/agent-preview-handoff.spec.ts",
         "**/studio-playground.spec.ts",
         "**/deck-verify.spec.ts",
         "**/web-verify.spec.ts",

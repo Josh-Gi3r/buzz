@@ -34,7 +34,7 @@
     {
       "id": "preview-studio",
       "name": "Preview Studio",
-      "description": "Local artifact library with image, video, and PDF preview, review comments, and approval decisions (experimental)",
+      "description": "Live website and web-app previews from agent messages, plus a local artifact review library (experimental)",
       "platforms": ["desktop"]
     }
   ]

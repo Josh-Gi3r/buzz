@@ -8,6 +8,7 @@ import { type FilmDocument, isFilmDocument } from "../lib/filmSource";
 import { isWebDocument } from "../lib/webSource";
 import { DeckStage } from "./DeckStage";
 import { FilmStage } from "./FilmStage";
+import { LiveUrlStage } from "./LiveUrlStage";
 import { RevealDeckStage } from "./RevealDeckStage";
 import { WebStage } from "./WebStage";
 import { artifactTypeIcon } from "./typeIcons";
@@ -225,6 +226,21 @@ export function PreviewStage({
         doc={manifest.web}
         title={manifest.title}
         onSave={(next) => onWebSave?.(next)}
+        className={className}
+      />
+    );
+  }
+
+  if (
+    manifest.artifactType === "website" &&
+    manifest.source.kind === "url" &&
+    uri
+  ) {
+    return (
+      <LiveUrlStage
+        key={uri}
+        title={manifest.title}
+        url={uri}
         className={className}
       />
     );

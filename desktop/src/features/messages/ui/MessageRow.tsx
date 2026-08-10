@@ -46,9 +46,13 @@ import { MessageAuthorText, MessageHeaderRow } from "./MessageHeader";
 import { MessageTimestamp } from "./MessageTimestamp";
 import { WaveMessageAttachment } from "./WaveMessageAttachment";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
+import { FeatureGate } from "@/shared/features";
 
 const DiffMessage = React.lazy(() => import("./DiffMessage"));
 const DiffMessageExpanded = React.lazy(() => import("./DiffMessageExpanded"));
+const AgentPreviewHandoff = React.lazy(
+  () => import("@/features/preview-studio/ui/AgentPreviewHandoff"),
+);
 
 export type ThreadDepthGuideAction = {
   active?: boolean;
@@ -209,6 +213,7 @@ export const MessageRow = React.memo(
       (message.pubkey && isKnownAgentPubkey(message.pubkey))
         ? "bot"
         : message.role;
+    const isAgentAuthored = profilePopoverRole === "bot";
     const agentMentionPubkeysByName = React.useMemo(() => {
       if (!mentionPubkeysByName) {
         return undefined;
@@ -589,6 +594,19 @@ export const MessageRow = React.memo(
     const messageBodyNode = (
       <>
         {renderBody()}
+        {isAgentAuthored ? (
+          <FeatureGate feature="preview-studio">
+            <React.Suspense fallback={null}>
+              <AgentPreviewHandoff
+                author={message.author}
+                authorPubkey={message.pubkey}
+                body={message.body}
+                channelId={channelId}
+                messageId={message.id}
+              />
+            </React.Suspense>
+          </FeatureGate>
+        ) : null}
         {continuationMetadataNode}
         <MessageReactions
           messageId={message.id}

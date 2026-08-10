@@ -22,7 +22,7 @@ receive only thin integration seams.
 | `.github/workflows/push-gateway-helm-chart.yml` | Repo guards on validate/publish jobs |
 | `preview-features.json` | Registered the `preview-studio` feature gate (default off) |
 | `desktop/src/features/agents/lib/personaCatalogRelay.test.mjs` | Lint fix (template literals); upstream PR candidate |
-| `desktop/playwright.config.ts` | E2E preview port reads `BUZZ_E2E_PORT`; upstream PR candidate |
+| `desktop/playwright.config.ts` | E2E preview port reads `BUZZ_E2E_PORT`; register fork Preview Studio smoke coverage |
 | `desktop/src/features/onboarding/communityOnboarding.tsx` | Type the browser timer explicitly so ambient Node types cannot redefine it; upstream PR candidate |
 | `package.json` | pnpm `ignoredBuiltDependencies` (es5-ext) + single `@types/node` override |
 | `desktop/src-tauri/src/commands/mod.rs` | Register the `media_tools` module |
@@ -34,6 +34,7 @@ receive only thin integration seams.
 | `desktop/src/app/navigation/useAppNavigation.ts` | `goPreviewStudio` navigation helper |
 | `desktop/src/features/sidebar/ui/AppSidebar.tsx` | Pass the Preview Studio select handler |
 | `desktop/src/features/sidebar/ui/AppSidebarPinnedHeader.tsx` | Flag-gated nav button |
+| `desktop/src/features/messages/ui/MessageRow.tsx` | Flag-gated handoff from agent preview URLs into Preview Studio |
 | `desktop/src/shared/styles/globals.css` | Import the Studio token sheet |
 | `desktop/src/shared/ui/ViewLoadingFallback.tsx` | `preview-studio` loading kind |
 | `desktop/scripts/check-px-text.mjs` | Allowlist the demo artifacts' own stylesheets (guest content in a sandboxed frame / a fixed-canvas video composition, not app UI) |
