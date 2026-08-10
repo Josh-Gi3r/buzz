@@ -20,6 +20,6 @@
 | `cargo audit` runs in current CI | Unsupported | No verified workflow step at audit baseline. |
 | Every crate denies all unsafe Rust | Unsupported | Platform-specific unsafe allowances exist. |
 | The fork automatically installs upstream desktop releases | Unsupported | Branch automation detects stable release tags and prepares a reviewed PR; it never auto-merges. |
-| Upstream release detection is currently live | Unverified | Its contract passed at clean local candidate `712fe36a`, but the workflow still needs publication and an enabled successful default-branch run. |
+| Upstream release detection is currently live | Unverified | Its contract passed at local candidate `4e2e785d`, but the workflow still needs publication and an enabled successful default-branch run. |
 | The detector protects against moved release tags | Implemented in branch contract | Baseline stores tag+SHA and the workflow fails if the recorded tag resolves to another SHA. |
-| Full `just ci` passes | Verified source tree, integrated at `d57783c5` | Rerun exited 0 after an ordering-only rustfmt fix; PostgreSQL, fixture/model, OS-keychain, and release-performance ignored tests remain outside the run. |
+| Full `just ci` passes | Verified at exact candidate `4e2e785d` | Exit 0 on the final pre-publication source candidate; PostgreSQL, fixture/model, OS-keychain, and release-performance ignored tests remain outside the run. |

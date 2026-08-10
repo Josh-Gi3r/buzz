@@ -2,12 +2,39 @@
 
 ## Evidence authorities
 
-Exact DCO-signed commit `712fe36a088bf320d663a857bbd4d1b0eba159e4` passed the clean
+Exact DCO-signed commit `4e2e785d39126e064f67483f4f2ec95e92dd95f6` passed the repository's
+complete local `just ci` gate from a clean worktree after the documentation, showcase,
+upstream-sync, and fork publishing-guard work was integrated. This file is the
+documentation-only evidence update that follows that tested commit. The run remains local
+evidence until a pushed GitHub workflow reproduces it.
+
+Earlier exact commit `712fe36a088bf320d663a857bbd4d1b0eba159e4` passed the clean
 detached-worktree verification below. A later full-CI rerun used that candidate plus one
 mechanical rustfmt correction in `desktop/src-tauri/src/commands/mod.rs`: `pub mod
-media_tools;` was moved into alphabetical order. No behavior changed. DCO-signed commit
-`d57783c5` integrates that exact source change with this evidence; the CI run itself remains
-local evidence until a pushed workflow reproduces it.
+media_tools;` was moved into alphabetical order. No behavior changed.
+
+## Exact release-candidate full CI at `4e2e785d`
+
+The PM ran this command from the repository root on 2026-08-11:
+
+```bash
+. ./bin/activate-hermit && just ci
+```
+
+It exited `0`. The worktree was clean before the run and remained clean afterward.
+
+- Workspace and Tauri Rust formatting and clippy passed.
+- Desktop checks passed with the same three documented non-fatal warnings.
+- Desktop Node tests passed 4,556 tests across 69 suites with zero failures, cancellations,
+  skips, or todo entries; duration 131476.287125 ms.
+- Desktop production build passed with 4,779 modules.
+- Tauri `buzz_lib` passed 2,272 tests with 14 ignored OS-bound tests; CSP passed 8, rodio
+  passed 3, terminal library passed 27, and the terminal integration suites passed.
+- Web checks and the 2,299-module production build passed.
+- Mobile formatting and analysis passed; all 1,261 Flutter tests passed.
+
+The Rust no-infrastructure unit runner and all other commands composed by `just ci` also
+passed. The exclusions at the end of this document still apply.
 
 ## Clean detached-worktree verification at `712fe36a`
 
