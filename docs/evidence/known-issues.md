@@ -19,6 +19,9 @@
 - Generic workflow actions remain incomplete.
 - Optional services require deployment-specific verification.
 - The fork still needs independent identity/signing/update/branding for public binaries.
+- GitHub settings observed on 2026-08-11 had Actions enabled, Issues disabled, and no branch
+  protection on `main`. Source publication must enable Issues and establish reviewed,
+  status-checked branch protection; no setting was changed during the local audit.
 - Clean detached-worktree verification exists for local candidate `712fe36a`, but no pushed
   public ref, public clean-clone proof, or immutable documentation/release tag exists yet.
 - Full `just ci` passes on the post-`712fe36a` source tree after an ordering-only rustfmt
