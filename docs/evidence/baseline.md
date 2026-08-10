@@ -9,12 +9,13 @@
 | Clean-verification candidate | `712fe36a088bf320d663a857bbd4d1b0eba159e4` | Exact DCO-signed commit verified from a clean detached worktree. Not pushed or tagged. |
 | Full-CI integration candidate | `d57783c5` | DCO-signed integration of the alphabetical `media_tools` module-order fix and full-CI evidence; not pushed or tagged. |
 | Upstream release detector | Local candidate `712fe36a` | Weekly/manual stable-tag detector and integration-PR preparation; contract passed locally, but workflow is not merged to the public default branch or proven live. |
-| Official upstream main observed during final audit | `3f2f32641f4093d087fd9506bfac1fa0329e8b2e` | Context only; not claimed as merged product behavior. Latest stable desktop release remained `desktop-v0.5.8`. |
+| Official upstream main observed during final audit | `f8f2ef0440e7a074223ec04dc3b32d817b8b9d9b` | Context only; not claimed as merged product behavior. Latest stable desktop release remained `desktop-v0.5.8`. |
 | Fork/upstream-main merge base during audit | `6a17d035f79ad582ca3f4f3cdc38d376f2c4087f` | Divergence reference, not a release baseline. |
 
-At the final audit, public `origin/main` was 27 commits ahead and 29 behind official
-upstream `main`; the local candidate was 29 ahead and 31 behind. The merge base remained
-`6a17d035`. Moving branch names are not durable evidence; always repeat the hashes.
+At the final audit, public `origin/main` was 27 commits ahead and 30 behind official
+upstream `main`; immediately before this audit-only documentation refresh, the local
+candidate was 36 ahead and 30 behind. The merge base remained `6a17d035`. Moving branch
+names are not durable evidence; always repeat the hashes.
 
 The verification candidate is exact and passed a clean detached-worktree check, but it is
 not publicly reachable. Full CI also passes on the immediately following source tree after
