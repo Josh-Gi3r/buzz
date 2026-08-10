@@ -102,8 +102,8 @@ before documentation may call the weekly detector operational. See
 After `712fe36a`, the first full `just ci` run required one formatting-only adjustment to an
 already listed integration seam: `pub mod media_tools;` in
 `desktop/src-tauri/src/commands/mod.rs` moved into alphabetical order. The subsequent full
-CI run exited 0. This changes no runtime behavior and remains uncommitted at this evidence
-snapshot.
+CI run exited 0. This changes no runtime behavior and was integrated with the evidence at
+DCO-signed commit `d57783c5`.
 
 ## Deliberately unchanged product layers
 

@@ -4,10 +4,10 @@
 
 Exact DCO-signed commit `712fe36a088bf320d663a857bbd4d1b0eba159e4` passed the clean
 detached-worktree verification below. A later full-CI rerun used that candidate plus one
-uncommitted, mechanical rustfmt correction in `desktop/src-tauri/src/commands/mod.rs`:
-`pub mod media_tools;` was moved into alphabetical order. No behavior changed. The full-CI
-result therefore remains worktree evidence until that ordering fix and this evidence are
-committed together.
+mechanical rustfmt correction in `desktop/src-tauri/src/commands/mod.rs`: `pub mod
+media_tools;` was moved into alphabetical order. No behavior changed. DCO-signed commit
+`d57783c5` integrates that exact source change with this evidence; the CI run itself remains
+local evidence until a pushed workflow reproduces it.
 
 ## Clean detached-worktree verification at `712fe36a`
 

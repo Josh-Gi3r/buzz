@@ -20,7 +20,7 @@ Product source is audited at fork `d36f39336b05036f90ba20e273746374c25aaf3e` and
 | Projects/git | project features, git/project kinds, relay git modules | Project commit/issue/PR/branch/tag E2E suites. |
 | Workflows | `crates/buzz-workflow/`, relay workflow paths, desktop workflows | `workflows.spec.ts`; executor TODO/placeholder paths constrain status. |
 | Upstream desktop release preparation | `.github/workflows/upstream-desktop-sync.yml`, `.github/upstream-desktop-baseline`, `scripts/latest-upstream-desktop-tag.sh` | `scripts/test-upstream-desktop-sync-contract.sh` statically checks the branch contract; no live default-branch run is claimed. |
-| Full local quality gate | Root `Justfile`, component test/build configuration | Post-`712fe36a` worktree `just ci` exited 0 after an ordering-only rustfmt fix; exact suite counts and ignored boundaries are in QA evidence. |
+| Full local quality gate | Root `Justfile`, component test/build configuration | The source tree integrated at `d57783c5` passed `just ci` after an ordering-only rustfmt fix; exact suite counts and ignored boundaries are in QA evidence. |
 
 ## Preview Studio
 
