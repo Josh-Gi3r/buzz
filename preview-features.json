@@ -35,6 +35,7 @@
       "id": "preview-studio",
       "name": "Preview Studio",
       "description": "Live website and web-app previews from agent messages, plus a local artifact review library (experimental)",
+      "defaultEnabled": true,
       "platforms": ["desktop"]
     }
   ]

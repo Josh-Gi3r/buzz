@@ -20,7 +20,7 @@ receive only thin integration seams.
 | `.github/workflows/sprig.yml` | Repo guards on build/publish jobs |
 | `.github/workflows/helm-chart.yml` | Repo guards on lint/install/publish jobs |
 | `.github/workflows/push-gateway-helm-chart.yml` | Repo guards on validate/publish jobs |
-| `preview-features.json` | Registered the `preview-studio` feature gate (default off) |
+| `preview-features.json` | Registered the `preview-studio` feature gate (default on for this fork) |
 | `desktop/src/features/agents/lib/personaCatalogRelay.test.mjs` | Lint fix (template literals); upstream PR candidate |
 | `desktop/playwright.config.ts` | E2E preview port reads `BUZZ_E2E_PORT`; register fork Preview Studio smoke coverage |
 | `desktop/src/features/onboarding/communityOnboarding.tsx` | Type the browser timer explicitly so ambient Node types cannot redefine it; upstream PR candidate |
