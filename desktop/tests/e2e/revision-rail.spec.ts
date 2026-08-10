@@ -3,19 +3,28 @@ import { installMockBridge } from "../helpers/bridge";
 
 test.use({ viewport: { width: 1600, height: 1000 } });
 
-test("editing keeps the old revision and its comment reachable", async ({ page }) => {
+test("editing keeps the old revision and its comment reachable", async ({
+  page,
+}) => {
   await page.addInitScript(() => {
-    window.localStorage.setItem("buzz-feature-overrides-v1", JSON.stringify({ "preview-studio": true }));
+    window.localStorage.setItem(
+      "buzz-feature-overrides-v1",
+      JSON.stringify({ "preview-studio": true }),
+    );
     window.localStorage.setItem("buzz-theme", "houston");
   });
   await installMockBridge(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("open-preview-studio-view").click();
   await page.getByTestId("preview-studio-artifact-art-pricing-deck").click();
-  await expect(page.getByTestId("preview-studio-deck")).toBeVisible({ timeout: 15000 });
+  await expect(page.getByTestId("preview-studio-deck")).toBeVisible({
+    timeout: 15000,
+  });
 
   // comment on v1
-  await page.getByTestId("preview-studio-review-input").fill("Tighten the opening line.");
+  await page
+    .getByTestId("preview-studio-review-input")
+    .fill("Tighten the opening line.");
   await page.getByTestId("preview-studio-review-submit").click();
   await expect(page.getByText("Tighten the opening line.")).toBeVisible();
 
@@ -29,7 +38,9 @@ test("editing keeps the old revision and its comment reachable", async ({ page }
   await page.keyboard.press("ControlOrMeta+a");
   await page.keyboard.type("Elena Marsh 2027");
   await page.getByTestId("preview-studio-deck-save").click();
-  await expect(page.getByRole("heading", { name: "Elena Marsh 2027" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Elena Marsh 2027" }),
+  ).toBeVisible();
 
   // the rail appears, and the old comment is NOT lost — it is on v1
   const rail = page.getByTestId("preview-studio-revision-rail");

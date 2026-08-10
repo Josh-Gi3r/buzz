@@ -1,75 +1,41 @@
-# Evidence index
+# Source evidence index
 
-This index pins documentation claims to fork commit
-`d36f39336b05036f90ba20e273746374c25aaf3e`, based on the published
-`desktop-v0.5.8` tag at `f3de860574bb3119018b4592353e9761635aeb07`.
-Newer upstream `main` behavior is intentionally outside this documentation
-snapshot.
+Product source is pinned to fork `d36f39336b05036f90ba20e273746374c25aaf3e` and inherited upstream `desktop-v0.5.8` at `f3de860574bb3119018b4592353e9761635aeb07`. Documentation/showcase source is separately pinned to `887d6da441684abda30a7284d004f6d4dd52a767`.
 
-## Product and protocol
+## Buzz
 
 | Subject | Canonical source | Focused evidence |
 |---|---|---|
-| Event kinds and delivery classifications | `crates/buzz-core/src/kind.rs` | `crates/buzz-core/src/**` tests and relay conformance/integration suites |
-| Relay admission and fan-out | `crates/buzz-relay/src/handlers/ingest.rs`, `event.rs`, `req.rs`, `subscription.rs` | `crates/buzz-test-client/tests/e2e_relay.rs` |
-| HTTP routes | `crates/buzz-relay/src/router.rs` | Router/admin tests under `crates/buzz-relay/src/` |
-| Durable schema | `migrations/0001_initial_schema.sql` through `0028_long_reaction_payloads.sql` | Database lint/conformance and relay integration tests |
-| CLI product surface | `crates/buzz-cli/src/lib.rs`, `crates/buzz-cli/src/commands/` | `crates/buzz-cli/TESTING.md` and CLI tests |
-| Desktop navigation | `desktop/src/app/routes.ts`, `AppShell.helpers.ts` | `desktop/tests/e2e/navigation.spec.ts`, feature-specific E2E specs |
-| Mobile coverage | `mobile/lib/features/` | `mobile/test/` |
-| Public web coverage | `web/src/features/invite/`, `web/src/features/repos/` | `web` checks and E2E tasks in `Justfile` |
-| Admin surface | `admin-web/src/App.tsx`, `admin-web/src/api.ts`, relay `/api/admin/v1` router | `just admin-check` |
-
-## Agents, projects and workflows
-
-| Subject | Canonical source | Focused evidence |
-|---|---|---|
-| ACP harness and trigger gates | `crates/buzz-acp/src/` | crate tests and live agent E2E where configured |
-| Bundled agent runtime | `crates/buzz-agent/src/` | ACP/runtime tests |
-| Managed-agent desktop lifecycle | `desktop/src-tauri/src/managed_agents/`, `desktop/src/features/agents/` | `desktop/tests/e2e/agents.spec.ts`, `agent-lifecycle-feedback.spec.ts`, `onboarding-agent-defaults.spec.ts` |
-| Personas, teams and access policy | `crates/buzz-persona/`, agent feature modules | `team-snapshot.spec.ts`, `persona-sync.spec.ts`, `agent-access-warning.spec.ts` |
-| Projects and git collaboration | `desktop/src/features/projects/`, git/project kinds in `kind.rs`, relay git modules | `project-commit-detail.spec.ts`, `project-issue-comments.spec.ts`, `project-pr-review.spec.ts` |
-| Workflows and approvals | `crates/buzz-workflow/`, relay workflow command paths, `desktop/src/features/workflows/` | `desktop/tests/e2e/workflows.spec.ts`; TODO/placeholder paths remain in `crates/buzz-workflow/src/executor.rs` |
+| Event kinds/classification | `crates/buzz-core/src/kind.rs` | Core tests and relay conformance/integration suites. |
+| Relay admission/delivery | `crates/buzz-relay/src/handlers/ingest.rs`, `event.rs`, `req.rs`, `side_effects.rs` | `crates/buzz-test-client/tests/e2e_relay.rs` and relay tests. |
+| HTTP routes | `crates/buzz-relay/src/router.rs` and nested routers | Router/admin/operator tests. |
+| Durable schema | `migrations/0001_initial_schema.sql` through `0028_long_reaction_payloads.sql` | DB/relay integration suites. |
+| Audit configuration | `crates/buzz-relay/src/config.rs`, `main.rs`, `state.rs` | Config and audit tests; audit state is optional. |
+| Desktop routes/features | `desktop/src/app/routes.ts`, `desktop/src/features/` | Navigation and feature-specific E2E. |
+| Mobile | `mobile/lib/features/` | `mobile/test/`. |
+| Public web | web home/invite/repository routes | Web checks/tasks in `Justfile`. |
+| Admin | admin app and relay `/api/admin/v1` routes | `just admin-check` and route tests. |
+| CLI | `crates/buzz-cli/src/commands/` | CLI unit/live runbook in `crates/buzz-cli/TESTING.md`. |
+| ACP/agents | `crates/buzz-acp/`, `crates/buzz-agent/`, desktop managed-agent code | Crate tests and agent desktop E2E. |
+| Projects/git | project features, git/project kinds, relay git modules | Project commit/issue/PR/branch/tag E2E suites. |
+| Workflows | `crates/buzz-workflow/`, relay workflow paths, desktop workflows | `workflows.spec.ts`; executor TODO/placeholder paths constrain status. |
+| Upstream desktop release preparation | `.github/workflows/upstream-desktop-sync.yml`, `.github/upstream-desktop-baseline`, `scripts/latest-upstream-desktop-tag.sh` | `scripts/test-upstream-desktop-sync-contract.sh` statically checks the branch contract; no live default-branch run is claimed. |
 
 ## Preview Studio
 
-| Claim | Canonical source | Acceptance evidence |
+| Claim | Canonical source | Focused evidence and limit |
 |---|---|---|
-| Feature enabled by default | `preview-features.json` | Default resolution in `desktop/src/shared/features/resolveEnabled.ts` and `useFeatureEnabled.ts` |
-| Agent URL extraction and persistent handoff | `desktop/src/features/preview-studio/lib/agentPreviewBridge.ts`, `ui/AgentPreviewHandoff.tsx` | `lib/agentPreviewBridge.test.mjs`, `desktop/tests/e2e/agent-preview-handoff.spec.ts` |
-| Empty production library and legacy-demo removal | `lib/store.ts` | `lib/store.test.mjs` |
-| Imports, size boundary, reviews and decisions | `lib/store.ts`, `lib/types.ts` | `lib/store.test.mjs` |
-| Renderer support classification | `lib/registry.ts` | `lib/registry.test.mjs` |
-| Display URI priority | `lib/resolveDisplayUri.ts` | `lib/resolveDisplayUri.test.mjs` |
-| Image/video/PDF dispatch | `ui/PreviewStage.tsx` | Store/registry tests plus desktop stage E2E |
-| Editable website source | `lib/webSource.ts`, `lib/webBundle.ts`, `ui/WebStage.tsx` | `desktop/tests/e2e/web-verify.spec.ts` |
-| Live responsive website | `ui/LiveUrlStage.tsx`, `ui/PreviewStudioScreen.tsx` | `desktop/tests/e2e/agent-preview-handoff.spec.ts` |
-| Editable decks and revisions | `lib/deckSource.ts`, `ui/RevealDeckStage.tsx`, `ui/RevisionRail.tsx` | `deck-editable.spec.ts`, `deck-verify.spec.ts`, `revision-rail.spec.ts` |
-| Film composition editing | `lib/filmSource.ts`, `ui/FilmStage.tsx` | `film-verify.spec.ts` |
-| Image generation | `lib/generation/generateImage.ts`, `providers.ts`, `ui/GeneratePanel.tsx` | `generate-verify.spec.ts` covers model-state UI; live provider calls require external accounts |
-| Higgsfield video generation | `lib/generation/higgsfield.ts`, `ui/VideoGenerateSection.tsx`, `desktop/src-tauri/src/commands/media_tools.rs` | `lib/generation/higgsfield.test.mjs`, `video-panel-verify.spec.ts`; successful paid generation requires the external CLI/account |
-| CSP/frame policy | `desktop/src-tauri/tauri.conf.json` | `desktop/src-tauri/tests/csp.rs` |
-| Fork integration boundary | `FORK_PATCHES.md`, diff from `desktop-v0.5.8` | No fork diff under `crates/buzz-core`, `crates/buzz-relay`, `crates/buzz-db` or `migrations` at this snapshot |
+| Default route/library | `preview-features.json`, routes, `lib/store.ts` | Store tests; production starts empty. |
+| Agent URL handoff | `lib/agentPreviewBridge.ts`, `ui/AgentPreviewHandoff.tsx`, `MessageRow.tsx` | Unit test and `agent-preview-handoff.spec.ts`; production journey. |
+| Responsive live frame | `ui/LiveUrlStage.tsx`, `PreviewStudioScreen.tsx` | Handoff E2E; URL content is not snapshotted. |
+| Imports/reviews/decisions | `lib/store.ts`, `lib/types.ts`, Studio UI | Store tests; local-only and partial anchor/state UI. |
+| Image/video/PDF dispatch | `ui/PreviewStage.tsx` | Registry/store and stage E2E. |
+| Static website engine | `lib/webSource.ts`, `lib/webBundle.ts`, `ui/WebStage.tsx` | `web-verify.spec.ts`; deterministic fixture ingress only. |
+| Deck engines | `lib/deckSource.ts`, `RevealDeckStage.tsx`, `DeckStage.tsx` | Deck/revision specs; fixture ingress and distinct edit/export engines. |
+| Film engine | `lib/filmSource.ts`, `FilmStage.tsx` | `film-verify.spec.ts`; fixture media and no in-app rerender. |
+| Image generation wiring | `lib/generation/generateImage.ts`, `providers.ts`, generation UI | Generation UI tests; no recorded live-provider success. |
+| Video generation wiring | `lib/generation/higgsfield.ts`, `media_tools.rs` | Unit/panel fail-closed tests; no recorded paid live success. |
+| Frame/CSP policy | `desktop/src-tauri/tauri.conf.json`, frame components | `desktop/src-tauri/tests/csp.rs`; manifest origin list not fully enforced. |
+| Fork boundary | `FORK_PATCHES.md`, diff from inherited tag | No product-baseline delta in core, relay, DB, or migrations. |
 
-## Validation recorded for this documentation pass
-
-The focused Preview Studio Node suites were run from the Hermit environment:
-
-```text
-21 tests passed, 0 failed
-```
-
-The run covered agent URL handoff, renderer registration, display URI
-resolution, artifact storage/migration/reviews/decisions and Higgsfield audio
-policy. The deterministic documentation story in
-`desktop/tests/e2e/preview-studio-showcase.spec.ts` was also built and run: one
-Playwright smoke test passed, exercising channel-to-preview handoff, live
-desktop/mobile rendering, Inspector behavior, deck navigation, and film review.
-
-## Evidence rules for future updates
-
-1. Pin the fork commit and its published upstream desktop baseline.
-2. Use source and focused tests before prose or design documents.
-3. Label feature-flagged, configuration-dependent and partial paths explicitly.
-4. Treat `docs/spec/` artifact kinds as proposed until registered and enforced by `buzz-core` and the relay.
-5. Update this index whenever a documented capability changes.
+Test results belong in [QA evidence](../evidence/qa-evidence.md), where exact command, commit, environment, skips, and external dependencies can be audited.

@@ -1,81 +1,43 @@
-# Artifact Manifest v1 (draft)
+# Artifact Manifest v1 proposal
 
-**Status:** draft — implement domain types against this; relay kinds TBD  
-**Schema version:** 1  
+**Status:** proposed relay-neutral contract; not the shipped local runtime schema.
 
-## Principles
+The current implementation is defined by `desktop/src/features/preview-studio/lib/types.ts`
+and `store.ts`. It includes local sources, URI/page rendition fields, and embedded web, deck,
+and film document data that the original proposal did not model. Unsupported local schema
+versions may be quarantined or reset rather than becoming a generic downloadable card. The
+renderer registry is not the sole dispatch authority, and `securityPolicy.allowedOrigins` is
+not a complete enforced network gate.
 
-- Logical **Artifact** is stable; **Revision** is immutable.
-- **Rendition** is derived display/delivery form with provenance to a revision.
-- **Session** is ephemeral interactive runtime; not source of truth.
-- **Review** attaches to revision + optional anchor.
-- **Collection** is ordered references (slideshows, reels, playlists).
-- Unknown additive fields ignored; unsupported versions → generic card + download.
-- Unsupported renderer never executes.
-- Manifest never declares tenant/community — host/relay does.
+Any future protocol revision must first reconcile those differences.
 
-## Types (logical)
+## Proposed principles
 
-### ArtifactType
+- A logical artifact is stable; a revision is immutable.
+- A rendition is derived display/delivery output with provenance.
+- A session is ephemeral and not durable truth.
+- Reviews attach to a revision and optional anchor.
+- Tenant/community authority comes from the relay, never the manifest.
+- Unsupported versions and renderers fail closed through behavior proven by conformance tests.
 
-`image | video | pdf | deck | website | web_app | android | ios | motion | slideshow | collection | generic_file`
-
-### Source
+## Illustrative source union
 
 ```ts
-type ArtifactSource =
+type ProposedArtifactSource =
   | { kind: "blob"; sha256: string; mime: string; filename?: string }
   | { kind: "url"; url: string; capturedAt?: string }
   | { kind: "project_ref"; projectId: string; commit?: string; path?: string };
 ```
 
-### Manifest (revision payload)
+This union is illustrative and intentionally does not claim parity with current local types.
 
-```ts
-interface ArtifactManifestV1 {
-  schemaVersion: 1;
-  artifactId: string;
-  revisionId: string;
-  title: string;
-  artifactType: ArtifactType;
-  source: ArtifactSource;
-  entrypoint?: string;
-  provenance?: {
-    project?: string;
-    commit?: string;
-    workflowRun?: string;
-    createdBy?: string; // pubkey
-    createdAt?: string; // ISO
-  };
-  renditions?: Array<{
-    role: string; // poster | thumbnail | interactive | pdf | page | stream ...
-    sha256?: string;
-    mime?: string;
-    width?: number;
-    height?: number;
-    runtime?: string; // isolated_web_v1 | appetize_v1 | ...
-  }>;
-  capabilities?: Array<
-    "view" | "interact" | "comment" | "inspect" | "compare" | "approve"
-  >;
-  securityPolicy?: {
-    network: "deny" | "allowlist";
-    allowedOrigins?: string[];
-    clipboard?: "deny" | "allow";
-    downloads?: "deny" | "allow";
-  };
-}
-```
+## Proposed manifest
 
-## Relay kinds
+A future v1 may include schema/artifact/revision identifiers, title, artifact type, source,
+entrypoint, provenance, renditions, declared capabilities, and a security policy. Exact field
+names and compatibility rules must be generated from one accepted schema rather than copied
+between prose and TypeScript.
 
-Kind numbers for the artifact pointer, revision, review, decision, session, and rendition
-events are allocated (collision-audited, not yet registered) in
-[artifact-kinds-v0.md](./artifact-kinds-v0.md).
-
-Do **not** accept arbitrary custom kinds. Register explicitly in `buzz-core`.
-
-## Capability advertisement
-
-Custom relay: `preview_artifacts_v1` in NIP-11 / relay info.  
-Client on stock upstream relay: hide network publish; local/demo mode only until kinds land.
+Proposed kind numbers are in [artifact-kinds-v0.md](artifact-kinds-v0.md). They are not
+registered. Do not accept arbitrary custom kinds or advertise `preview_artifacts_v1` until
+relay admission, storage, delivery, clients, and conformance ship together.

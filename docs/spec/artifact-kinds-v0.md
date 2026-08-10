@@ -3,7 +3,7 @@
 **Status:** proposal only — **not registered** in `crates/buzz-core/src/kind.rs`  
 **Relay integration:** kind constants + ingest scopes land in a future relay PR after this allocation is accepted  
 **Depends on:** [artifact-manifest-v1.md](./artifact-manifest-v1.md), [artifact-review-v1.md](./artifact-review-v1.md)  
-**Source of truth for collisions:** `crates/buzz-core/src/kind.rs` (`ALL_KINDS` + every `KIND_*` / admin constant)
+**Historical collision audit refs:** fork product `d36f39336b05036f90ba20e273746374c25aaf3e` and official upstream observed at `07a3c768d619db31fee3f0590f9433cdd1213e8f`. Repeat the audit before registration.
 
 ## Goal
 
@@ -19,7 +19,7 @@ Reserve kind numbers for Preview Studio durable and session events without colli
 
 **Do not** put the current pointer or per-reviewer decision in `4xxxx` — those numbers are regular events and will not replace correctly under NIP-33.
 
-## Collision audit (2026-08-01, against the fork's main branch)
+## Historical collision audit
 
 ### Occupied Buzz `4xxxx` product blocks
 
@@ -54,7 +54,8 @@ Reserve kind numbers for Preview Studio durable and session events without colli
 
 ### Conflicts found
 
-**None** for the numbers below against every `KIND_*` / admin constant in `kind.rs` as of this audit.
+**None were found** for the numbers below at the pinned historical refs. This is not a
+reservation and may become stale as upstream evolves.
 
 `47000–47999` was considered and **rejected** for first allocation: the file already reserves that band for user groups. `4011x` (near canvas) was considered and deferred so stream/canvas churn does not share a tight band with artifact protocol kinds.
 

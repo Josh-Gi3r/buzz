@@ -1,0 +1,160 @@
+name: Upstream Desktop Release
+
+on:
+  schedule:
+    - cron: "17 7 * * 1"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Optional stable upstream desktop tag (for example desktop-v0.5.9)
+        required: false
+        type: string
+
+concurrency:
+  group: upstream-desktop-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  prepare-upgrade:
+    if: github.repository == 'Josh-Gi3r/buzz'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # A fine-grained token with Contents and Pull requests write access makes
+      # the resulting branch/PR trigger normal CI. GITHUB_TOKEN is a safe
+      # fallback, but GitHub suppresses some recursively-created workflow runs.
+      GH_TOKEN: ${{ secrets.UPSTREAM_SYNC_TOKEN || github.token }}
+      UPSTREAM_URL: https://github.com/block/buzz.git
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.UPSTREAM_SYNC_TOKEN || github.token }}
+
+      - uses: cashapp/activate-hermit@cea9af7913204a965fd488637a8d1811bba2e616 # v1
+
+      - name: Resolve released upstream baseline
+        id: release
+        env:
+          REQUESTED_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          read -r current current_sha < .github/upstream-desktop-baseline
+          target=${REQUESTED_TAG:-$(scripts/latest-upstream-desktop-tag.sh "$UPSTREAM_URL")}
+          [[ "$current" =~ ^desktop-v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo "::error::invalid current baseline: $current"
+            exit 1
+          }
+          [[ "$target" =~ ^desktop-v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo "::error::invalid target release: $target"
+            exit 1
+          }
+          [[ "$current_sha" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "::error::invalid current baseline SHA: $current_sha"
+            exit 1
+          }
+          target_sha=$(git ls-remote --tags --refs "$UPSTREAM_URL" "refs/tags/$target" | awk 'NR == 1 { print $1 }')
+          [[ "$target_sha" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "::error::could not resolve immutable SHA for $target"
+            exit 1
+          }
+          if [[ "$current" == "$target" && "$current_sha" != "$target_sha" ]]; then
+            echo "::error::upstream moved the existing $current tag from $current_sha to $target_sha"
+            exit 1
+          fi
+          if [[ "$(printf '%s\n%s\n' "$current" "$target" | sort -V | tail -n 1)" != "$target" ]]; then
+            echo "::error::refusing to downgrade from $current to $target"
+            exit 1
+          }
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "current_sha=$current_sha" >> "$GITHUB_OUTPUT"
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+          echo "target_sha=$target_sha" >> "$GITHUB_OUTPUT"
+          if [[ "$current" == "$target" ]]; then
+            echo "upgrade=false" >> "$GITHUB_OUTPUT"
+            echo "Already tracking $target" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "upgrade=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare integration branch
+        id: integration
+        if: steps.release.outputs.upgrade == 'true'
+        env:
+          CURRENT: ${{ steps.release.outputs.current }}
+          TARGET: ${{ steps.release.outputs.target }}
+          TARGET_SHA: ${{ steps.release.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          branch="automation/upstream-${TARGET}"
+          git config user.name "buzz-upstream-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add block-upstream "$UPSTREAM_URL"
+          git fetch --no-tags block-upstream "refs/tags/${TARGET}:refs/tags/${TARGET}"
+          [[ "$(git rev-parse "$TARGET")" == "$TARGET_SHA" ]] || {
+            echo "::error::$TARGET resolved to an unexpected object"
+            exit 1
+          }
+          git switch -C "$branch" origin/main
+          if ! git merge --no-ff --no-edit --signoff "$TARGET"; then
+            git merge --abort
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf '%s %s\n' "$TARGET" "$TARGET_SHA" > .github/upstream-desktop-baseline
+          git add .github/upstream-desktop-baseline
+          if ! git diff --cached --quiet; then
+            git commit --signoff -m "chore: record upstream ${TARGET} baseline"
+          fi
+          git push --force-with-lease origin "HEAD:refs/heads/${branch}"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          echo "conflict=false" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update upgrade pull request
+        if: steps.integration.outputs.conflict == 'false'
+        env:
+          CURRENT: ${{ steps.release.outputs.current }}
+          TARGET: ${{ steps.release.outputs.target }}
+          BRANCH: ${{ steps.integration.outputs.branch }}
+        run: |
+          set -euo pipefail
+          existing=$(gh pr list --base main --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [[ -n "$existing" ]]; then
+            echo "Upgrade PR #$existing already tracks $TARGET" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          body=$(mktemp)
+          {
+            echo "## Upstream Buzz desktop upgrade"
+            echo
+            echo "Automated integration of Block Buzz \`$TARGET\` over this fork's \`$CURRENT\` baseline."
+            echo
+            echo "This PR is intentionally **not auto-merged**. Review fork patches, Preview Studio behavior, desktop/mobile builds, packaging identity, and migration compatibility before merging."
+          } > "$body"
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "chore: integrate upstream $TARGET" \
+            --body-file "$body"
+
+      - name: Report merge conflicts
+        if: steps.integration.outputs.conflict == 'true'
+        env:
+          CURRENT: ${{ steps.release.outputs.current }}
+          TARGET: ${{ steps.release.outputs.target }}
+        run: |
+          set -euo pipefail
+          title="Upstream $TARGET requires manual integration"
+          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [[ -z "$existing" ]]; then
+            gh issue create \
+              --title "$title" \
+              --body "The scheduled upgrade from \`$CURRENT\` to \`$TARGET\` has merge conflicts. Create a temporary integration branch, resolve it against the fork patch ledger, run the full release gates, and open a reviewed PR."
+          fi
+          echo "::error::$TARGET conflicts with the current fork. An issue records the required manual integration."
+          exit 1

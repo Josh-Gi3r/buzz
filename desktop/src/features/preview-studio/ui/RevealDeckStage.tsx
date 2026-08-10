@@ -50,6 +50,7 @@ export function RevealDeckStage({
 
   // Editability is toggled on the live nodes so the caret and selection
   // survive; re-rendering markup would drop them.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: changing slides replaces the live nodes and requires reapplying contentEditable.
   React.useEffect(() => {
     const host = hostRef.current;
     if (!host) return;

@@ -1,8 +1,10 @@
 # Design Principles
 
 Interaction and visual-system principles for Preview Studio and the Studio visual profile.
-These describe the target experience; see [architecture.md](architecture.md) for what is
-implemented today versus designed.
+Everything in this document is a **proposed target** unless the
+[feature truth matrix](../product/feature-matrix.md) says otherwise. The current local
+Studio does not have an artifact board, automatic agent context, shared review publishing,
+or relay-backed project memory.
 
 ## Interaction model
 
@@ -24,18 +26,18 @@ Buzz community
     └── Decisions, approvals and handoffs
 ```
 
-The artifact board does not create a second isolated chat. It reads the current
-channel/thread context and publishes important decisions, revisions and handoffs back into
-Buzz.
+**Proposed:** the artifact board would read current channel/thread context and publish
+important decisions, revisions, and handoffs back into Buzz. The shipped local Studio does
+not do this.
 
 ### Selection is the most important AI input
 
 The user should be able to select a button in a live web preview, a layer in an image, a
 video time range, a slide, a PDF region, a device viewport, a set of board objects, or a
 review comment cluster — and then issue an instruction scoped to that selection ("make this
-more premium," "fix only the mobile layout," "apply the accepted comments"). An AI request
-automatically carries the selected object identifiers, revision, surrounding context, design
-tokens and permission scope.
+more premium," "fix only the mobile layout," "apply the accepted comments"). **Proposed:** a
+future AI request would carry selected object identifiers, revision, surrounding context,
+design tokens, and permission scope. No automatic selection-to-agent context path ships today.
 
 ### AI changes are proposed as operations, not magic replacement
 

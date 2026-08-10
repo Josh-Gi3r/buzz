@@ -1,5 +1,11 @@
 # Preview Studio Architecture
 
+> [!CAUTION]
+> This is a future architecture blueprint. Current behavior is defined by the
+> [feature truth matrix](../product/feature-matrix.md) and
+> [implemented Preview Studio architecture](../architecture/preview-studio.md). Current
+> artifacts and reviews are localStorage state, not signed relay events.
+
 **Current fork baseline:** published upstream tag `desktop-v0.5.8`
 **Scope:** the architectural foundation for an additive Preview Studio product layer on Buzz,
 preserving a working stock Buzz build and the ability to merge upstream changes.
@@ -13,8 +19,8 @@ preserving a working stock Buzz build and the ability to merge upstream changes.
 - Local artifact library persisted in `localStorage` (`buzz.previewStudio.library.v1`);
   nothing is published to the relay.
 - Agent-authored live URL handoff with desktop, tablet, and mobile frames.
-- Image, video, and PDF import; editable static websites and HTML decks; film
-  composition preview/editing.
+- Image, video, and PDF production import. Static website, deck, and film engines are
+  exercised through deterministic E2E fixture ingress only.
 - Revision history, comments with slide/time anchors, and per-revision decisions.
 - Renderer registry and Studio CSS tokens scoped to the Studio screen. Production
   starts empty; showcase artifacts are E2E fixtures only.
@@ -22,8 +28,9 @@ preserving a working stock Buzz build and the ability to merge upstream changes.
 **Design blueprint** (the future-looking sections below): relay event kinds,
 capability negotiation, collaborative storage/processing, native preview
 sessions, broader client coverage, and the Studio global shell are designed but
-not implemented. Some web, deck, and film renderer work described as planned in
-the original blueprint has since shipped locally. The event kind proposal is collision-audited in
+not implemented. Some web, deck, and film renderer engines described as planned in
+the original blueprint are now fixture-demonstrated locally, without general production
+ingress. The event kind proposal has a historical collision audit in
 [../spec/artifact-kinds-v0.md](../spec/artifact-kinds-v0.md) and deliberately unregistered.
 
 ---
@@ -66,11 +73,14 @@ workflows; and agent runtimes, ACP harnesses, and MCP tools.
 
 ### Architectural law
 
-The relay is authoritative. Clients do not become independent state authorities, and renderer
-workers must not become a second control plane.
+**Target rule for a future collaborative artifact system:** the relay would be authoritative
+for shared artifact state and renderer workers would not become a second control plane.
+Current Preview Studio state is explicitly device-local.
 
-Every durable collaboration action is expressed as a signed event with a numeric `kind`. The
-relay authenticates, validates, stores, fans out, indexes, audits and triggers workflows.
+Shared durable collaboration normally uses signed events with numeric `kind` values, with
+kind- and configuration-specific admission, storage, delivery, indexing, audit, and workflow
+behavior. Not every event traverses every subsystem, and local/private product state remains
+an explicit exception.
 Unknown event kinds are rejected, which means Preview Studio's first-class event model
 requires a deliberately small relay/core extension.
 
@@ -161,8 +171,8 @@ and uses typed unions rather than making every field optional.
 ### Compatibility rules
 
 - Unknown additive fields are ignored.
-- Unsupported schema versions fall back to a generic artifact card and download.
-- Unsupported renderer types never execute.
+- A future relay/client contract should define safe version and renderer fallbacks. Current
+  local store behavior may quarantine or reset unsupported versions instead.
 - Every revision is immutable; the artifact's current revision is a pointer, not mutable bytes.
 - Checksums remain authoritative for stored bytes.
 - Old Buzz clients continue showing ordinary links/files/messages.
@@ -273,11 +283,12 @@ interface ArtifactRenderer {
 The original renderer taxonomy covered image, video, PDF, deck/slides, website
 URL, static web application, Android and iOS sessions, motion composition,
 mixed-media slideshow, and generic files. Several now have local
-implementations; consult the [current capability matrix](../product/capabilities.md)
+implementations; consult the [feature truth matrix](../product/feature-matrix.md)
 instead of treating this blueprint list as runtime evidence.
 
-A renderer receives capability-scoped data. It never receives the user's signing key,
-unrestricted relay token, native filesystem or Tauri command surface.
+**Target rule:** a renderer receives capability-scoped data and no signing key or unrestricted
+relay/filesystem/Tauri capability. The current live frame receives no such secrets, but the
+TypeScript registry is not itself a universal runtime capability-enforcement boundary.
 
 ---
 
@@ -516,21 +527,12 @@ project/Git event semantics; Tauri's main capability set.
 
 ---
 
-## 15. Relationship to active upstream work
+## 15. Relationship to upstream
 
-- **Generic link unfurling.** An open upstream proposal covers Open Graph/oEmbed metadata,
-  SSRF protection, ranged fetching, image proxying and caching. This fork does not build a
-  competing unfurl system; Preview Studio consumes upstream link cards and adds the deeper
-  interactive session/review layer.
-- **Structured agent artifacts.** An open upstream proposal defines structured job handoffs
-  with typed artifact references. Preview Studio uses that vocabulary where possible and adds
-  what it intentionally does not: logical artifact identity, revisions, renditions, renderer
-  capabilities, live sessions, universal review anchors, decisions, and collections.
-- **Native renderer proposal.** There is an open upstream proposal to migrate the desktop
-  renderer to a native SDK. It is not the current architecture and is not the basis of this
-  fork: the current application and tests already exist on React/Tauri, Preview Studio needs
-  web/document/media rendering, and a renderer migration would multiply risk and merge
-  surface.
+This fork inherits the exact published `desktop-v0.5.8` baseline. Moving upstream proposals
+are not product dependencies unless cited by exact issue or commit and merged. The current
+agent URL handoff uses its own bridge and must not be described as consuming an upstream
+link-card contract without source evidence.
 
 ---
 
@@ -539,7 +541,8 @@ project/Git event semantics; Tauri's main capability set.
 1. No full rewrite.
 2. No arbitrary HTML/JS inside the main authenticated Tauri renderer.
 3. No user signing key or general relay token in preview content.
-4. No new source of truth outside signed events and immutable content hashes.
+4. Future shared artifact truth belongs in signed events and immutable content hashes;
+   current local-only Studio state remains clearly labelled until that migration exists.
 5. No destructive changes to existing event meanings.
 6. No edits to historical upstream migrations.
 7. No second copy of the desktop application.
