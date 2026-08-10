@@ -10,13 +10,5 @@
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19"
-  },
-  "pnpm": {
-    "overrides": {
-      "@types/node": "25.6.0"
-    },
-    "ignoredBuiltDependencies": [
-      "es5-ext"
-    ]
   }
 }

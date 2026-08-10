@@ -5,7 +5,7 @@ Apache-2.0 §4(b) requirement to state changes and this fork's additive-only
 policy: substantial work lives in new files and directories; upstream files
 receive only thin integration seams.
 
-**Upstream baseline:** `block/buzz` @ `desktop-v0.5.4`
+**Upstream baseline:** `block/buzz` @ `desktop-v0.5.8`
 
 ## Modified upstream files
 
@@ -24,9 +24,11 @@ receive only thin integration seams.
 | `desktop/src/features/agents/lib/personaCatalogRelay.test.mjs` | Lint fix (template literals); upstream PR candidate |
 | `desktop/playwright.config.ts` | E2E preview port reads `BUZZ_E2E_PORT`; register fork Preview Studio smoke coverage |
 | `desktop/src/features/onboarding/communityOnboarding.tsx` | Type the browser timer explicitly so ambient Node types cannot redefine it; upstream PR candidate |
-| `package.json` | pnpm `ignoredBuiltDependencies` (es5-ext) + single `@types/node` override |
+| `pnpm-workspace.yaml` | Deny the optional `es5-ext` build script + force a single `@types/node` version |
 | `desktop/src-tauri/src/commands/mod.rs` | Register the `media_tools` module |
 | `desktop/src-tauri/src/lib.rs` | Register `media_tool_available` / `run_media_tool` commands |
+| `desktop/src-tauri/tauri.conf.json` | Permit explicit HTTP(S) Preview Studio frames in packaged builds |
+| `desktop/src-tauri/tests/csp.rs` | Pin the packaged-app Preview Studio frame policy |
 | `desktop/src/app/routes.ts` | Registered the `/preview-studio` route |
 | `desktop/src/app/routeTree.gen.ts` | Regenerated for the `/preview-studio` route |
 | `desktop/src/app/AppShell.helpers.ts` | `preview-studio` AppView + shell-route derivation |

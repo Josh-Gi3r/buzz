@@ -3,9 +3,10 @@ packages:
   - "web"
   - "admin-web"
 allowBuilds:
-  es5-ext: set this to true or false
+  es5-ext: false
   esbuild: true
 overrides:
+  "@types/node": 25.6.0
   # Force a single copy of the dismissable-layer. Radix packages otherwise
   # resolve different versions (react-menu pulled 1.1.11, react-dialog 1.1.15),
   # and each copy keeps its own module-level saved <body> pointer-events style —
