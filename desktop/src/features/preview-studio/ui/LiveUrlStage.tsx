@@ -40,7 +40,10 @@ export function LiveUrlStage({
 
   return (
     <div
-      className={cn("flex w-full max-w-6xl flex-col gap-2.5", className)}
+      className={cn(
+        "flex h-full min-h-[30rem] w-full flex-col gap-2.5",
+        className,
+      )}
       data-testid="preview-studio-stage"
       data-stage-kind="website-url"
     >
@@ -69,7 +72,7 @@ export function LiveUrlStage({
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border/60 bg-[#1f1f23] shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-[#1f1f23] shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
         <div className="flex items-center gap-2 border-b border-black/40 px-3 py-2">
           <span className="flex gap-1.5" aria-hidden>
             <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
@@ -100,13 +103,13 @@ export function LiveUrlStage({
           </button>
         </div>
 
-        <div className="flex justify-center bg-[#2b2b30]">
+        <div className="flex min-h-0 flex-1 justify-center bg-[#2b2b30]">
           <div
-            className="max-w-full transition-[width] duration-200"
+            className="h-full max-w-full transition-[width] duration-200"
             style={{ width }}
           >
             {isParentOrigin ? (
-              <div className="flex h-[min(72vh,720px)] items-center justify-center px-8 text-center text-sm text-white/50">
+              <div className="flex h-full min-h-96 items-center justify-center px-8 text-center text-sm text-white/50">
                 Buzz cannot safely embed its own app origin as agent content.
               </div>
             ) : (
@@ -117,7 +120,7 @@ export function LiveUrlStage({
                 sandbox="allow-scripts allow-forms allow-modals allow-same-origin"
                 referrerPolicy="no-referrer"
                 allow="clipboard-read 'none'; clipboard-write 'none'"
-                className="h-[min(72vh,720px)] w-full border-0 bg-white"
+                className="h-full min-h-96 w-full border-0 bg-white"
                 data-testid="preview-studio-url-frame"
               />
             )}

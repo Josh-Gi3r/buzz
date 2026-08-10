@@ -124,6 +124,17 @@ export function PreviewStudioScreen() {
   const decision = revision
     ? decisionForRevision(library, revision.id)
     : undefined;
+  const livePreviewSelectionKey =
+    revision?.manifest.artifactType === "website" &&
+    revision.manifest.source.kind === "url"
+      ? selectedId
+      : null;
+
+  // Live websites need the whole desktop-width canvas. Collapse review once
+  // when the selected live preview changes; the header toggle can reopen it.
+  React.useEffect(() => {
+    if (livePreviewSelectionKey) setInspectorOpen(false);
+  }, [livePreviewSelectionKey]);
 
   async function handleFiles(files: FileList | null) {
     if (!files?.length) return;
@@ -232,6 +243,12 @@ export function PreviewStudioScreen() {
               size="sm"
               className="h-8 gap-1.5"
               onClick={() => setInspectorOpen((v) => !v)}
+              aria-label={
+                inspectorOpen
+                  ? "Hide review inspector"
+                  : "Show review inspector"
+              }
+              data-testid="preview-studio-inspector-toggle"
             >
               <PanelRight className="h-3.5 w-3.5" />
               Inspector
@@ -368,7 +385,12 @@ export function PreviewStudioScreen() {
               would drop you out of whatever mode you were working in. */}
           <div
             key={selectedId || "empty"}
-            className="preview-studio__enter flex min-h-0 flex-1 items-center justify-center overflow-auto p-6"
+            className={cn(
+              "preview-studio__enter flex min-h-0 flex-1",
+              livePreviewSelectionKey
+                ? "items-stretch justify-stretch overflow-hidden p-3"
+                : "items-center justify-center overflow-auto p-6",
+            )}
           >
             <PreviewStage
               manifest={revision?.manifest}
@@ -453,7 +475,10 @@ export function PreviewStudioScreen() {
         ) : null}
 
         {inspectorOpen ? (
-          <aside className="preview-studio__inspector flex w-80 shrink-0 flex-col border-l border-border/50 bg-background/55 backdrop-blur-xl">
+          <aside
+            className="preview-studio__inspector flex w-80 shrink-0 flex-col border-l border-border/50 bg-background/55 backdrop-blur-xl"
+            data-testid="preview-studio-inspector"
+          >
             <div className="px-4 pb-2 pt-3 text-2xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
               Review
             </div>

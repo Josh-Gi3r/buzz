@@ -7,6 +7,7 @@ const PREVIEW_URL = "http://agent-preview.test/";
 test("an agent live URL opens in Preview Studio and survives reload", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 2048, height: 1024 });
   await installMockBridge(
     page,
     {
@@ -49,16 +50,25 @@ test("an agent live URL opens in Preview Studio and survives reload", async ({
   await handoff.click();
 
   await expect(page).toHaveURL(/\/preview-studio$/);
+  await expect(page.getByTestId("preview-studio-inspector")).toHaveCount(0);
   const frame = page.getByTestId("preview-studio-url-frame");
   await expect(frame).toHaveAttribute(
     "sandbox",
     "allow-scripts allow-forms allow-modals allow-same-origin",
   );
+  await expect
+    .poll(async () => (await frame.boundingBox())?.width ?? 0)
+    .toBeGreaterThan(1_200);
   await expect(
     page
       .frameLocator('[data-testid="preview-studio-url-frame"]')
       .getByRole("heading", { name: "Agent build is live" }),
   ).toBeVisible();
+
+  await page.getByTestId("preview-studio-inspector-toggle").click();
+  await expect(page.getByTestId("preview-studio-inspector")).toBeVisible();
+  await page.getByTestId("preview-studio-inspector-toggle").click();
+  await expect(page.getByTestId("preview-studio-inspector")).toHaveCount(0);
 
   await page.reload();
   await expect(page.getByTestId("preview-studio-url-frame")).toBeVisible();
