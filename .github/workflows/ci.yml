@@ -78,6 +78,8 @@ jobs:
         run: scripts/test-release-ref-contract.sh
       - name: Upstream desktop sync contract
         run: scripts/test-upstream-desktop-sync-contract.sh
+      - name: Fork publishing guard contract
+        run: scripts/test-fork-publishing-guards.sh
       - name: Public documentation links and privacy
         run: node scripts/audit-public-docs.mjs
       - name: Desktop release candidate contract

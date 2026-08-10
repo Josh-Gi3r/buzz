@@ -14,6 +14,7 @@ The aim is a narrow integration boundary: Preview Studio owns its feature direct
 | `.github/workflows/docker.yml` | Guard upstream-only publication. |
 | `.github/workflows/helm-chart.yml` | Guard upstream-only chart publication. |
 | `.github/workflows/push-gateway-helm-chart.yml` | Guard upstream-only validation/publication. |
+| `.github/workflows/sprig-image.yml` | Guard upstream-only container-image publication. |
 | `.github/workflows/sprig.yml` | Guard upstream-only build/publication. |
 | `README.md` | Explain Buzz, fork status, Preview Studio, and evidence. |
 | `SECURITY.md` | Route fork reports and document fork trust boundaries. |
@@ -93,8 +94,9 @@ branch, they are not evidence that automation is already live:
 | `.github/workflows/upstream-desktop-sync.yml` | Weekly/manual stable-release detection and reviewed integration-PR preparation. |
 | `scripts/latest-upstream-desktop-tag.sh` | Resolve the highest stable `desktop-vMAJOR.MINOR.PATCH` tag. |
 | `scripts/test-upstream-desktop-sync-contract.sh` | Check resolver choice and workflow safety/no-auto-merge contract. |
+| `scripts/test-fork-publishing-guards.sh` | Prevent inherited publishing workflows from running outside `block/buzz`. |
 | `scripts/audit-public-docs.mjs` | Audit public Markdown/HTML links and reject private local paths. |
-| `.github/workflows/ci.yml` | Release-candidate modification that invokes the sync contract and public-doc audit. |
+| `.github/workflows/ci.yml` | Release-candidate modification that invokes the sync, publishing-guard, and public-doc contracts. |
 
 These paths need a committed default-branch revision and successful GitHub Actions evidence
 before documentation may call the weekly detector operational. See
