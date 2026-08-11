@@ -70,7 +70,7 @@ jobs:
           if [[ "$(printf '%s\n%s\n' "$current" "$target" | sort -V | tail -n 1)" != "$target" ]]; then
             echo "::error::refusing to downgrade from $current to $target"
             exit 1
-          }
+          fi
           echo "current=$current" >> "$GITHUB_OUTPUT"
           echo "current_sha=$current_sha" >> "$GITHUB_OUTPUT"
           echo "target=$target" >> "$GITHUB_OUTPUT"
