@@ -19,6 +19,7 @@ The aim is a narrow integration boundary: Preview Studio owns its feature direct
 | `README.md` | Explain Buzz, fork status, Preview Studio, and evidence. |
 | `SECURITY.md` | Route fork reports and document fork trust boundaries. |
 | `Cargo.lock` | Lockfile changes resulting from the fork checkout/tooling. |
+| `deny.toml` | Carry official upstream's narrow `RUSTSEC-2026-0243` exception until Mesh-LLM migrates to `nostr-sdk` 0.45 or newer. |
 | `pnpm-lock.yaml` | JavaScript dependency lockfile changes. |
 | `pnpm-workspace.yaml` | Optional-script and Node type resolution policy. |
 | `preview-features.json` | Register `preview-studio`, enabled by default in this fork. |
