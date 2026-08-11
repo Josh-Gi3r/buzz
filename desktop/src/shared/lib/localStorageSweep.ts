@@ -112,7 +112,7 @@ export function sweepStaleLocalStorage(now = Date.now()): number {
 export function startLocalStorageSweep(): () => void {
   let lastSweepAt = Number.NEGATIVE_INFINITY;
   let listening = false;
-  let intervalId: ReturnType<typeof window.setInterval> | null = null;
+  let intervalId: number | null = null;
   let idleCallbackId: number | null = null;
   let timeoutId: ReturnType<typeof globalThis.setTimeout> | null = null;
   const runIfDue = () => {

@@ -1,0 +1,112 @@
+/**
+ * Studio visual profile — the material the review workspace is made of.
+ * Activate with data-visual-profile="studio" on a subtree or document root.
+ *
+ * The rule the profile follows: the studio is a proofing room, not a dashboard.
+ * Every surface is a neutral, slightly cool dark; nothing in the chrome carries
+ * saturated colour, because the only colour in the room should be the work on
+ * the wall. Depth comes from elevation and a vignette, not from decoration.
+ *
+ * Hierarchy:
+ * 1. Atmosphere — the room: a deep field with a vignette
+ * 2. Chrome — rails and header, glass over the room
+ * 3. Lens — the stage: the lit wall the work hangs on
+ * 4. Cards — library thumbnails, quiet until hovered or chosen
+ */
+
+[data-visual-profile="studio"] {
+  --studio-blur: 22px;
+  --studio-depth-shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
+  --studio-lens-ring: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+  --studio-focus-halo: 0 0 0 2px hsl(var(--primary) / 0.45);
+  --studio-transition-fast: 120ms;
+  --studio-transition-ui: 200ms;
+  --studio-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-visual-profile="studio"].preview-studio {
+  background: transparent;
+}
+
+[data-visual-profile="studio"] .preview-studio__stage {
+  isolation: isolate;
+}
+
+/* 1 · The room. A cool deep field, darkest at the edges so the stage reads as lit. */
+[data-visual-profile="studio"] .preview-studio__atmosphere {
+  background:
+    radial-gradient(
+      120% 90% at 50% -10%,
+      hsl(var(--foreground) / 0.06),
+      transparent 60%
+    ),
+    radial-gradient(
+      100% 100% at 50% 45%,
+      transparent 32%,
+      rgb(0 0 0 / 0.38) 100%
+    );
+}
+
+/* 3 · The lit wall. One ring, one deep shadow, no bloom. */
+[data-visual-profile="studio"] .preview-studio__lens {
+  box-shadow: var(--studio-depth-shadow), var(--studio-lens-ring);
+}
+
+/* 2 · Chrome glass. */
+[data-visual-profile="studio"] .preview-studio__rail,
+[data-visual-profile="studio"] .preview-studio__inspector {
+  backdrop-filter: blur(var(--studio-blur)) saturate(1.15);
+  -webkit-backdrop-filter: blur(var(--studio-blur)) saturate(1.15);
+}
+
+/* 4 · Library cards. Lift on approach; the chosen one stays lifted. */
+[data-visual-profile="studio"] .preview-studio__card {
+  transition:
+    transform var(--studio-transition-ui) var(--studio-spring),
+    border-color var(--studio-transition-ui) ease,
+    box-shadow var(--studio-transition-ui) ease;
+}
+[data-visual-profile="studio"] .preview-studio__card:hover {
+  transform: translateY(-2px);
+}
+[data-visual-profile="studio"] .preview-studio__card:focus-visible {
+  outline: none;
+  box-shadow: var(--studio-focus-halo);
+}
+
+/* Switching artifacts should feel like a cut, not a repaint. */
+[data-visual-profile="studio"] .preview-studio__enter {
+  animation: preview-studio-enter 320ms var(--studio-spring) both;
+}
+@keyframes preview-studio-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  [data-visual-profile="studio"] .preview-studio__rail,
+  [data-visual-profile="studio"] .preview-studio__inspector,
+  [data-visual-profile="studio"] .preview-studio__lens {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: hsl(var(--background) / 0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-visual-profile="studio"] * {
+    transition-duration: 0.01ms !important;
+  }
+  [data-visual-profile="studio"] .preview-studio__enter {
+    animation: none;
+  }
+  [data-visual-profile="studio"] .preview-studio__card:hover {
+    transform: none;
+  }
+}

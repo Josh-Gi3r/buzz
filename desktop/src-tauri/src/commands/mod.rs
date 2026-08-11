@@ -31,6 +31,7 @@ mod media_download;
 mod media_gif;
 mod media_raw;
 mod media_snapshot_png;
+pub mod media_tools;
 mod media_transcode;
 mod media_upload_progress;
 #[cfg(feature = "mesh-llm")]

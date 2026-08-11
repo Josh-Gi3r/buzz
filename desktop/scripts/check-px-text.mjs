@@ -24,6 +24,29 @@ const rules = [
 // message text), so they are exempted from the readable-text px rule. Matching
 // the literal keeps these exceptions stable when unrelated edits move lines.
 const overrides = new Set([
+  // BUZZ — LIVE PREVIEW STUDIO demo artifacts. These strings are the *content* of an
+  // artifact under review — a guest website's stylesheet and a video
+  // composition authored at a fixed pixel canvas — rendered inside a sandboxed
+  // frame or handed to the HyperFrames renderer. They are not app UI, the
+  // webview zoom rule does not reach them, and rewriting them in rem would
+  // misrepresent what a real site or a 1920x1080 composition looks like.
+  ...[
+    "font-size: 10px",
+    "font-size: 11px",
+    "font-size: 12px",
+    "font-size: 14px",
+    "font-size: 15px",
+    "font-size: 16px",
+    "font-size: 18px",
+    "font-size: 25px",
+  ].map((v) => `src/features/preview-studio/lib/demo/photographerSite.ts:${v}`),
+  ...[
+    "font-size: 22px",
+    "font-size: 24px",
+    "font-size: 92px",
+    "font-size: 118px",
+  ].map((v) => `src/features/preview-studio/lib/filmSource.ts:${v}`),
+
   "src/features/settings/ui/ProfileSettingsCard.tsx:text-[6rem]",
   "src/features/onboarding/ui/AvatarStep.tsx:text-[6rem]",
   "src/features/agents/ui/AgentCreationPreview.tsx:text-[4rem]",

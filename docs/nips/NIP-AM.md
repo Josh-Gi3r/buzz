@@ -235,7 +235,7 @@ On receiving a kind 44200 event, a relay MUST:
 4. NOT index the event in any full-text search (the ciphertext is not
    searchable and must not enter search indexes).
 
-Reads MUST be gated: only an authenticated ([NIP-42](42.md)) reader whose
+Reads MUST be gated: only an authenticated ([NIP-42](https://github.com/nostr-protocol/nips/blob/master/42.md)) reader whose
 pubkey equals the `#p` tag value may receive the event. This gate applies to
 **every** read path, including explicit `ids` filters — knowing an event id
 MUST NOT grant access. (Some p-gated kinds exempt id-addressed lookups on the
@@ -268,9 +268,9 @@ queries.
 - [NIP-AO](NIP-AO.md): same agent↔owner encryption and tag scoping, but
   ephemeral and transcript-grade. NIP-AM events MUST NOT carry conversation
   content, tool calls, or protocol frames — usage numbers and identifiers only.
-- [NIP-09](09.md): the authoring agent (or its owner via relay policy) may
+- [NIP-09](https://github.com/nostr-protocol/nips/blob/master/09.md): the authoring agent (or its owner via relay policy) may
   request deletion; relays apply standard deletion semantics.
-- [NIP-40](40.md): publishers MAY set `expiration` to bound retention.
+- [NIP-40](https://github.com/nostr-protocol/nips/blob/master/40.md): publishers MAY set `expiration` to bound retention.
 
 ## Security Considerations
 

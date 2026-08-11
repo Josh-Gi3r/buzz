@@ -103,7 +103,8 @@ type AppSidebarProps = {
     | "agents"
     | "workflows"
     | "pulse"
-    | "projects";
+    | "projects"
+    | "preview-studio";
   unreadChannelCounts: ReadonlyMap<string, number>;
   unreadChannelIds: ReadonlySet<string>;
   previewActivityChannelIds: ReadonlySet<string>;
@@ -143,6 +144,7 @@ type AppSidebarProps = {
   onCreateAgent: () => void;
   onSelectAgents: () => void;
   onSelectProjects: () => void;
+  onSelectPreviewStudio: () => void;
   onSelectPulse: () => void;
   onSelectWorkflows: () => void;
   onSelectHome: () => void;
@@ -215,6 +217,7 @@ export function AppSidebar({
   onCreateAgent,
   onSelectAgents,
   onSelectProjects,
+  onSelectPreviewStudio,
   onSelectPulse,
   onSelectWorkflows,
   onSelectHome,
@@ -611,6 +614,7 @@ export function AppSidebar({
                 onSelectAgents={onSelectAgents}
                 onSelectHome={onSelectHome}
                 onSelectProjects={onSelectProjects}
+                onSelectPreviewStudio={onSelectPreviewStudio}
                 onSelectPulse={onSelectPulse}
                 onSelectWorkflows={onSelectWorkflows}
                 selectedView={selectedView}

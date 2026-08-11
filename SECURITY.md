@@ -1,126 +1,59 @@
-# Security Policy
+# Security policy
 
-## Reporting a Vulnerability
+This repository is an independent fork of [block/buzz](https://github.com/block/buzz). Please report vulnerabilities privately and include the affected commit, impact, and reproduction steps.
 
-**Please do not report security vulnerabilities through public GitHub issues.**
+- For fork-added BUZZ — LIVE PREVIEW STUDIO code, use this repository's [private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability). Do not open a public issue.
+- For unchanged upstream Buzz code, follow upstream's policy and email **buzz@block.xyz**.
 
-If you discover a security vulnerability in Buzz, please report it by emailing
-**buzz@block.xyz**. Include as much detail as possible:
+Fork-owned security-sensitive paths include `desktop/src/features/preview-studio/`, `desktop/src/shared/theme/studio/`, `desktop/src-tauri/src/commands/media_tools.rs`, and `scripts/run-studio-sandbox.sh`. [FORK_PATCHES.md](FORK_PATCHES.md) records the complete fork boundary at the documented baseline.
 
-- A description of the vulnerability and its potential impact
-- Steps to reproduce or a proof-of-concept (if available)
-- The affected version(s) or commit range
-- Any suggested mitigations you've identified
+## Supported versions
 
-You will receive an acknowledgment within **48 hours**. We aim to provide a
-full response — including a timeline for a fix — within **7 days** of initial
-contact. We'll keep you informed as we work toward a resolution.
+This fork is pre-1.0 and does not currently publish a long-term-support branch or immutable public release tag. Security support is therefore best effort on the repository's current maintained branch. Reports should name the exact commit rather than relying on a version label.
 
-We ask that you:
+## Buzz trust model
 
-- Give us reasonable time to address the issue before any public disclosure
-- Avoid accessing or modifying data that does not belong to you
-- Not perform denial-of-service attacks or disrupt production systems
+### Authentication
 
-We will credit reporters in release notes unless you prefer to remain anonymous.
+Relay WebSocket clients authenticate using [NIP-42](https://github.com/nostr-protocol/nips/blob/master/42.md) challenge/response. Authenticated HTTP paths use signed Nostr authorization, including NIP-98 where the route requires it. Possession of a signing key establishes identity; it does not by itself authorize every read or write.
 
----
+### Authorization
 
-## Supported Versions
+Community and channel membership are important gates, but they are not the complete authorization model. Relay paths also enforce kind-specific rules such as author-only, recipient, result, shared-memory, agent owner/allowlist, role, operator, and administrator checks. Delivery is re-authorized after filter matching; a matching subscription alone does not grant access.
 
-| Version | Supported |
-|---------|-----------|
-| `main` (latest) | ✅ Active |
-| Previous releases | ⚠️ Best-effort; upgrade recommended |
+Canonical behavior lives in `crates/buzz-core/src/kind.rs` and relay admission, request, and side-effect handlers. Deployments should validate their policy with the repository's conformance and integration suites.
 
-Buzz is pre-1.0. We do not maintain long-term support branches at this stage.
-All security fixes land on `main` first.
+### Audit logging
 
----
+`buzz-audit` can write a SHA-256 hash-chained, tamper-evident log. It detects accidental corruption or edits that do not recompute the chain; it is not tamper-resistant against an attacker who controls the database. Auditing is configurable through relay settings including `BUZZ_AUDIT_ENABLED`, so operators must confirm it is enabled and retained for their deployment. This project does not claim a compliance certification.
 
-## Security Design Principles
+### Desktop secrets
 
-### Authentication — NIP-42
+Buzz stores human and managed-agent private keys in the operating-system keyring when available. A restricted owner-only file is the fallback on systems without a usable keyring, and `BUZZ_PRIVATE_KEY` may supply an identity to harnessed agents or CI.
 
-Every connection to the relay must authenticate via
-[NIP-42](https://github.com/nostr-protocol/nips/blob/master/42.md)
-challenge/response before writing events. The relay sends a random challenge;
-the client signs a `kind:22242` event containing the challenge and the relay
-URL, proving possession of the private key.
+BUZZ — LIVE PREVIEW STUDIO provider credentials are a separate boundary: keys entered in its generation UI currently use renderer-local storage, not the operating-system keyring. Never place provider keys in chat, fixtures, screenshots, or repository files.
 
-REST endpoints authenticate via
-[NIP-98](https://github.com/nostr-protocol/nips/blob/master/98.md) HTTP Auth —
-the client signs a `kind:27235` event containing the request URL and method.
-The relay verifies the Schnorr signature and extracts the pubkey.
+### BUZZ — LIVE PREVIEW STUDIO
 
-### Authorization — Channel Membership as the Gate
+- Live sites execute in a sandboxed iframe and can still run their own scripts and network requests.
+- The frame receives no Buzz signing key or general relay token. The artifact manifest's origin policy is descriptive today, not a separately enforced allowlist.
+- Packaged builds permit HTTP(S) frames. Sites may refuse embedding through CSP or `X-Frame-Options`.
+- Local PDFs are restricted to `data:application/pdf` and `blob:` sources.
+- Native media execution uses an allowlist in `desktop/src-tauri/src/commands/media_tools.rs`; successful provider/tool use still depends on the local installation and account.
+- Artifacts, comments, and decisions are stored in renderer local storage and are not relay-synchronized.
 
-Channel membership is the **only** access control mechanism. There are no
-separate ACL lists or capability taxonomies. If a principal (human or agent)
-is a member of a channel, they can read and write to it. If they are not a
-member, the relay rejects their requests — even if they are authenticated.
+Treat an unfamiliar preview URL like an unfamiliar website. Use **Open in browser** if framing fails, but understand that doing so leaves the iframe boundary.
 
-Private channels are invisible to non-members: they do not appear in channel
-listings, and subscription filters for private channel events return nothing
-unless the subscriber is a member.
+### Input and network safeguards
 
-### Append-Only Audit Log
+The codebase contains UUID validation at API boundaries, SSRF checks for workflow webhook targets, response-size limits, bounded workflow condition evaluation, and URL encoding. These controls are path-specific; do not infer that every external integration is safe without tracing its actual call path.
 
-All events are written to a tamper-evident audit log (`buzz-audit`). Each
-log entry is chained to the previous one via a SHA-256 hash chain. Because the
-chain is keyless, it is tamper-evident but not tamper-resistant: it detects
-accidental corruption or single-row edits, but an attacker with database write
-access can recompute the entire chain after editing. The audit log is designed
-for SOX-grade compliance and eDiscovery.
+Production deployments should terminate TLS at the relay or an upstream proxy. The relay intentionally supports operation behind load balancers and does not make a blanket TLS guarantee itself.
 
-### Desktop Secret Storage — OS Keyring
+## Dependency and unsafe-code claims
 
-The Buzz desktop app stores nsec private keys in the operating system keyring
-rather than in plaintext files: macOS Keychain, Windows Credential Manager, or
-the Linux Secret Service (`gnome-keyring` / `kwallet` via D-Bus). This covers
-both the human identity key and every managed-agent key.
+Many Rust crates deny unsafe code, and CI runs the checks declared in `.github/workflows/` and the repository tasks. The repository does not currently contain a verified blanket `cargo audit` CI step, and it has platform-specific unsafe allowances. Security documentation must not claim otherwise.
 
-On first launch after upgrading, existing plaintext keys are migrated into the
-keyring: the key is imported, read back to verify the round-trip, and only then
-is the plaintext deleted. Migration runs only when the keyring is reachable —
-if the backend is unavailable that session, the app keeps reading from the
-plaintext file and does **not** migrate, so a transient outage cannot resurrect
-a rotated key from a leftover file.
+## Coordinated disclosure
 
-When no keyring backend is available (headless Linux with no Secret Service, for
-example), keys fall back to a `0o600` owner-only file. The `BUZZ_PRIVATE_KEY`
-environment variable, when set, always takes precedence over both stores — this
-is how harnessed agents and CI receive their identity.
-
-### Input Validation
-
-- All UUIDs (channel IDs, workflow IDs) are validated at API boundaries before
-  use in database queries.
-- Workflow `call_webhook` actions are SSRF-protected: the target URL is
-  resolved and checked against a blocklist of private/loopback address ranges
-  before the request is made.
-- Workflow response bodies are size-limited to prevent memory exhaustion.
-- `evalexpr` condition evaluation is sandboxed and timeout-bounded.
-- Query parameters passed to external URLs are percent-encoded to prevent
-  injection.
-
-### Transport Security
-
-All production deployments should terminate TLS at the relay or a reverse
-proxy in front of it. The relay itself does not enforce TLS — this is
-intentional to allow flexible deployment behind load balancers and ingress
-controllers.
-
-### Dependency Management
-
-We use `cargo audit` in CI to scan for known vulnerabilities in dependencies.
-`#![deny(unsafe_code)]` is enforced across all crates — no unsafe Rust.
-
----
-
-## Disclosure Policy
-
-We follow [coordinated disclosure](https://en.wikipedia.org/wiki/Coordinated_vulnerability_disclosure).
-Once a fix is ready and released, we will publish a security advisory on
-GitHub describing the vulnerability, its impact, and the fix. Reporters will
-be credited unless they request anonymity.
+Give maintainers reasonable time to investigate before disclosure. Do not access data that is not yours, disrupt services, or perform denial-of-service testing. Upstream's response targets and disclosure decisions apply only to reports accepted by upstream; this independent fork does not promise those timelines on Block's behalf.

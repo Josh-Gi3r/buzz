@@ -12,6 +12,10 @@ import { migrateLegacyCommunityStorageBeforeRender } from "@/features/communitie
 import { CommunitiesProvider } from "@/features/communities/useCommunities";
 import { huddleWindowChannelId } from "@/features/huddle/lib/huddleWindow";
 import { CommunityOnboardingProvider } from "@/features/onboarding/communityOnboarding";
+import {
+  isStandaloneStudioRequested,
+  StandaloneStudio,
+} from "@/app/StandaloneStudio";
 import { ThemeProvider } from "@/shared/theme/ThemeProvider";
 import { EmojiBurstProvider } from "@/shared/ui/EmojiBurstProvider";
 import { PoofBurstProvider } from "@/shared/ui/PoofBurstProvider";
@@ -76,7 +80,26 @@ function configureDevE2eBridgeFromUrl() {
 }
 
 function renderApp() {
-  ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  const root = ReactDOM.createRoot(
+    document.getElementById("root") as HTMLElement,
+  );
+
+  // BUZZ — LIVE PREVIEW STUDIO is entirely local, so it can run without a community.
+  if (isStandaloneStudioRequested()) {
+    root.render(
+      <React.StrictMode>
+        <ThemeProvider defaultTheme="buzz">
+          <TooltipProvider delayDuration={300}>
+            <StandaloneStudio />
+            <Toaster />
+          </TooltipProvider>
+        </ThemeProvider>
+      </React.StrictMode>,
+    );
+    return;
+  }
+
+  root.render(
     <React.StrictMode>
       {/* block/buzz#5078 — catch any uncaught render error so a WebKit
           SecurityError from localStorage can't blank the whole window. */}

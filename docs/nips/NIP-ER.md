@@ -6,7 +6,7 @@ Event Reminders
 
 `draft` `optional` `relay`
 
-This NIP defines encrypted, author-only reminders as `kind:30300` addressable events. A pending reminder carries a public `not_before` tag that tells supporting relays when the reminder is due, while the reminder target, note, and state are encrypted to the author with [NIP-44](44.md). A reminder without `not_before` is a bookmark (saved item with no due time) or a terminal state (done/cancelled).
+This NIP defines encrypted, author-only reminders as `kind:30300` addressable events. A pending reminder carries a public `not_before` tag that tells supporting relays when the reminder is due, while the reminder target, note, and state are encrypted to the author with [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md). A reminder without `not_before` is a bookmark (saved item with no due time) or a terminal state (done/cancelled).
 
 The relay learns that an author has a reminder due at a time. It does not learn what the reminder is about.
 
@@ -14,7 +14,7 @@ Delivery is relay-dependent: relays that advertise push-mode support MUST emit a
 
 ## Motivation
 
-Nostr has primitives for private state, deletion, expiration, and relay-authenticated reads, but no standard way to represent an author's private reminder that becomes due in the future. [NIP-40](40.md) `expiration` closes a visibility window; it does not open one. [NIP-51](51.md) private lists can store reminder-like data, but relays cannot discover a due time without decrypting list contents.
+Nostr has primitives for private state, deletion, expiration, and relay-authenticated reads, but no standard way to represent an author's private reminder that becomes due in the future. [NIP-40](https://github.com/nostr-protocol/nips/blob/master/40.md) `expiration` closes a visibility window; it does not open one. [NIP-51](https://github.com/nostr-protocol/nips/blob/master/51.md) private lists can store reminder-like data, but relays cannot discover a due time without decrypting list contents.
 
 This NIP defines the smallest interoperable reminder primitive: encrypted author-owned state plus one public due-time tag. Relays can schedule or surface due reminders without learning the reminder target or note, and clients can recover reminder state across devices.
 
@@ -26,7 +26,7 @@ Relay due-time delivery is not guaranteed notification delivery. Clients remain 
 
 ## Terminology
 
-- **reminder address**: the [NIP-01](01.md) addressable-event coordinate `(pubkey, 30300, d)`.
+- **reminder address**: the [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md) addressable-event coordinate `(pubkey, 30300, d)`.
 - **head**: the winning latest event for a reminder address under NIP-01 replacement ordering.
 - **pending reminder**: a head whose decrypted `status` is `pending` and whose outer event has exactly one valid `not_before`.
 - **due reminder**: a pending reminder whose `not_before` is less than or equal to the client's current time.
@@ -35,15 +35,15 @@ Relay due-time delivery is not guaranteed notification delivery. Clients remain 
 
 ## Relationship to Other NIPs
 
-This NIP uses [NIP-01](01.md) addressable-event replacement semantics, [NIP-09](09.md) deletion requests for hard deletion, [NIP-11](11.md) relay information documents for capability and limitation hints, [NIP-40](40.md) `expiration` for cleanup after terminal states, [NIP-42](42.md) authentication for author-only reads, [NIP-44](44.md) encryption for private content, and [NIP-65](65.md) relay lists for write-relay selection.
+This NIP uses [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md) addressable-event replacement semantics, [NIP-09](https://github.com/nostr-protocol/nips/blob/master/09.md) deletion requests for hard deletion, [NIP-11](https://github.com/nostr-protocol/nips/blob/master/11.md) relay information documents for capability and limitation hints, [NIP-40](https://github.com/nostr-protocol/nips/blob/master/40.md) `expiration` for cleanup after terminal states, [NIP-42](https://github.com/nostr-protocol/nips/blob/master/42.md) authentication for author-only reads, [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md) encryption for private content, and [NIP-65](https://github.com/nostr-protocol/nips/blob/master/65.md) relay lists for write-relay selection.
 
-This NIP intentionally does not use [NIP-59](59.md) gift wrapping. Reminders are self-addressed state: the relay must know which author is allowed to recover and receive due signals, and it must read the public `not_before` tag to schedule them.
+This NIP intentionally does not use [NIP-59](https://github.com/nostr-protocol/nips/blob/master/59.md) gift wrapping. Reminders are self-addressed state: the relay must know which author is allowed to recover and receive due signals, and it must read the public `not_before` tag to schedule them.
 
 If this draft receives an upstream NIP number, implementations SHOULD migrate discovery to `supported_nips` for that number.
 
 ## Event
 
-`kind:30300` is an addressable event keyed by `(pubkey, kind, d)` as defined in [NIP-01](01.md). Each reminder MUST use a fresh random `d` tag.
+`kind:30300` is an addressable event keyed by `(pubkey, kind, d)` as defined in [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md). Each reminder MUST use a fresh random `d` tag.
 
 Required tags for a reminder that may become due:
 
@@ -68,13 +68,13 @@ For bookmarks (saved items) or terminal states (done/cancelled), `not_before` is
 
 `not_before` MUST be a decimal Unix timestamp string. It MUST contain only ASCII digits, with no sign, whitespace, decimal point, or leading zero except `"0"`. It MUST parse exactly as an integer in the range 0 through 9007199254740991 inclusive. Implementations MUST NOT parse it through lossy floating-point conversion, and MUST treat values outside this range or values that overflow their parser as malformed. Events MUST contain at most one `not_before` tag. Supporting relays SHOULD reject events with an invalid or duplicate `not_before` tag using `invalid: malformed not_before`. A pending reminder that may become due MUST include exactly one valid `not_before`. Bookmarks and terminal states (done/cancelled) MUST omit `not_before`. Clients MUST ignore pending reminders without exactly one valid `not_before`.
 
-`alt` is RECOMMENDED for [NIP-31](31.md) fallback text.
+`alt` is RECOMMENDED for [NIP-31](https://github.com/nostr-protocol/nips/blob/master/31.md) fallback text.
 
-`expiration` MAY be used as in [NIP-40](40.md), but SHOULD NOT be used on pending reminders. Completed or cancelled reminders SHOULD set `expiration` to a jittered cleanup time, for example 30-90 days after completion. If `not_before` is present, clients MUST NOT set `expiration` less than or equal to `not_before`.
+`expiration` MAY be used as in [NIP-40](https://github.com/nostr-protocol/nips/blob/master/40.md), but SHOULD NOT be used on pending reminders. Completed or cancelled reminders SHOULD set `expiration` to a jittered cleanup time, for example 30-90 days after completion. If `not_before` is present, clients MUST NOT set `expiration` less than or equal to `not_before`.
 
 ## Content
 
-`.content` MUST be a [NIP-44](44.md) ciphertext encrypted to the author's own public key, using the same self-encryption pattern as [NIP-51](51.md) private lists.
+`.content` MUST be a [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md) ciphertext encrypted to the author's own public key, using the same self-encryption pattern as [NIP-51](https://github.com/nostr-protocol/nips/blob/master/51.md) private lists.
 
 The decrypted plaintext is a UTF-8 JSON object:
 
@@ -113,7 +113,7 @@ For deterministic convergence, clients MUST apply these content-validity rules b
 
 ## State
 
-Reminder updates are normal addressable-event replacements. The winning event for `(pubkey, 30300, d)` is the event with the highest `created_at`; ties are broken by lowest lexicographic `id`, per [NIP-01](01.md).
+Reminder updates are normal addressable-event replacements. The winning event for `(pubkey, 30300, d)` is the event with the highest `created_at`; ties are broken by lowest lexicographic `id`, per [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md).
 
 Common transitions:
 
@@ -126,13 +126,13 @@ Common transitions:
 
 After a reminder becomes `done` or `cancelled`, clients SHOULD create a new reminder with a fresh `d` tag rather than reusing the old address.
 
-For hard deletion, use [NIP-09](09.md) with an `a` tag referencing `30300:<pubkey>:<d>` and a `k` tag of `30300`. A deletion request only deletes versions with `created_at` less than or equal to the deletion event's `created_at`, as defined by NIP-09. To cancel a pending notification, clients SHOULD publish a `cancelled` replacement before any NIP-09 deletion; deletion requests are `kind:5` events and are not guaranteed to reach `kind:30300` notification receive paths before a held reminder fires.
+For hard deletion, use [NIP-09](https://github.com/nostr-protocol/nips/blob/master/09.md) with an `a` tag referencing `30300:<pubkey>:<d>` and a `k` tag of `30300`. A deletion request only deletes versions with `created_at` less than or equal to the deletion event's `created_at`, as defined by NIP-09. To cancel a pending notification, clients SHOULD publish a `cancelled` replacement before any NIP-09 deletion; deletion requests are `kind:5` events and are not guaranteed to reach `kind:30300` notification receive paths before a held reminder fires.
 
 ## Relay behavior
 
-Until this draft has an upstream integer NIP number, relays MUST NOT advertise it in [NIP-11](11.md) `supported_nips`. Relays advertise draft support by adding `"nip-er"` to a NIP-11 `supported_extensions` string array. NIP-11 permits implementation-specific fields; clients that do not understand this field ignore it.
+Until this draft has an upstream integer NIP number, relays MUST NOT advertise it in [NIP-11](https://github.com/nostr-protocol/nips/blob/master/11.md) `supported_nips`. Relays advertise draft support by adding `"nip-er"` to a NIP-11 `supported_extensions` string array. NIP-11 permits implementation-specific fields; clients that do not understand this field ignore it.
 
-Supporting relays MUST enforce [NIP-42](42.md) authentication for all `kind:30300` reads. A relay MUST NOT reveal the existence, count, tags, content, schedule, or search matches of a `kind:30300` event to anyone except the authenticated event author.
+Supporting relays MUST enforce [NIP-42](https://github.com/nostr-protocol/nips/blob/master/42.md) authentication for all `kind:30300` reads. A relay MUST NOT reveal the existence, count, tags, content, schedule, or search matches of a `kind:30300` event to anyone except the authenticated event author.
 
 For unauthenticated single-kind `30300` requests, relays SHOULD close with `auth-required:`. For authenticated requests for another author's reminders, relays SHOULD close with `restricted:`. For mixed-kind filters, unauthorized `30300` matches MUST be omitted while other kinds are handled normally.
 
@@ -150,7 +150,7 @@ Relays MAY implement due-time delivery with a timer, cron, sorted queue, or lazy
 
 ## Client behavior
 
-Clients SHOULD publish reminders to the author's [NIP-65](65.md) write relays whose NIP-11 documents advertise both `supported_extensions: ["nip-er"]` and NIP-42 in `supported_nips`. Clients SHOULD NOT publish reminders to relays that do not advertise both unless the user accepts the metadata and read-access risk.
+Clients SHOULD publish reminders to the author's [NIP-65](https://github.com/nostr-protocol/nips/blob/master/65.md) write relays whose NIP-11 documents advertise both `supported_extensions: ["nip-er"]` and NIP-42 in `supported_nips`. Clients SHOULD NOT publish reminders to relays that do not advertise both unless the user accepts the metadata and read-access risk.
 
 Clients subscribe to their own reminders:
 
