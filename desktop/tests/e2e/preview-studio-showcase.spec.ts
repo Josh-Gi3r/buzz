@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { PHOTOGRAPHER_SITE_FILES } from "../../src/features/preview-studio/lib/demo/photographerSite";
+import { REAL_PHOTOGRAPHS } from "../../src/features/preview-studio/lib/demo/photographs";
 import { waitForAnimations } from "../helpers/animations";
 import { installMockBridge, TEST_IDENTITIES } from "../helpers/bridge";
 
@@ -20,6 +21,128 @@ const FEATURE_OVERRIDES_KEY = "buzz-feature-overrides-v1";
 const LIBRARY_KEY = "buzz.previewStudio.library.v1";
 const DOCUMENTATION_SHOTS = "test-results/documentation-showcase";
 const WEDDING_PREVIEW_URL = "http://agent-preview.test/wedding";
+const WEDDING_THUMBNAIL_URL = "http://agent-preview.test/wedding-thumbnail.jpg";
+const DOCUMENTATION_TIME = new Date("2026-08-11T04:00:00Z");
+
+const DOCUMENTATION_MOBILE_CSS = `
+.hero .frame img {
+  animation: none;
+  transform: none;
+}
+.hero .cue span {
+  animation: none;
+  transform: scaleX(1);
+}
+@media (max-width: 600px) {
+  nav,
+  nav.solid {
+    align-items: center;
+    padding: 20px 22px;
+  }
+  nav.solid {
+    background: rgba(23, 21, 15, 0.82);
+    border-bottom-color: rgba(255, 255, 255, 0.16);
+    color: #fff;
+  }
+  nav::after {
+    content: "Menu";
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 999px;
+    color: #fff;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    padding: 7px 10px 7px 12px;
+    text-transform: uppercase;
+  }
+  .mark {
+    font-size: 14px;
+    letter-spacing: 0.23em;
+    white-space: nowrap;
+  }
+  .links {
+    display: none;
+  }
+  .hero {
+    display: grid;
+    grid-template-rows: 62svh minmax(38svh, auto);
+    height: auto;
+    min-height: 100svh;
+    background: var(--ink);
+  }
+  .hero .frame {
+    grid-row: 1;
+    position: relative;
+  }
+  .hero .frame img {
+    object-position: 72% center;
+  }
+  .hero .wash {
+    background:
+      linear-gradient(180deg, rgba(23, 21, 15, 0.4) 0%, transparent 34%),
+      linear-gradient(0deg, rgba(23, 21, 15, 0.62) 0%, transparent 26%);
+    grid-row: 1;
+    position: absolute;
+  }
+  .hero .caption {
+    align-self: center;
+    bottom: auto;
+    grid-row: 2;
+    left: auto;
+    max-width: none;
+    padding: 32px 22px 58px;
+    position: relative;
+  }
+  .hero .caption h1 {
+    font-size: 52px;
+    line-height: 0.94;
+    margin-bottom: 20px;
+    max-width: 7ch;
+  }
+  .hero .caption p {
+    font-size: 10px;
+    line-height: 1.8;
+    max-width: 24ch;
+  }
+  .hero .cue {
+    bottom: 24px;
+    left: 22px;
+  }
+  .statement {
+    padding: 74px 24px 62px;
+  }
+  .statement p {
+    font-size: 24px;
+  }
+  .work,
+  .services,
+  footer,
+  .film .inner {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .grid {
+    display: block;
+  }
+  .cell {
+    aspect-ratio: 4 / 5;
+    margin-bottom: 12px;
+  }
+  .film {
+    height: 72svh;
+  }
+  .film .frame img {
+    object-position: 58% center;
+  }
+  .services {
+    padding-bottom: 76px;
+    padding-top: 76px;
+  }
+  footer {
+    padding-bottom: 42px;
+    padding-top: 78px;
+  }
+}
+`;
 
 type Screen = {
   id: string;
@@ -317,12 +440,50 @@ function liveWeddingSite(): string {
   return PHOTOGRAPHER_SITE_FILES["/index.html"]
     .replace(
       '<link rel="stylesheet" href="styles.css" />',
-      `<style>${PHOTOGRAPHER_SITE_FILES["/styles.css"]}</style>`,
+      `<style>${PHOTOGRAPHER_SITE_FILES["/styles.css"]}${DOCUMENTATION_MOBILE_CSS}</style>`,
     )
     .replace(
       '<script src="motion.js"></script>',
       `<script>${PHOTOGRAPHER_SITE_FILES["/motion.js"]}</script>`,
     );
+}
+
+function weddingThumbnail(): Buffer {
+  const encoded = REAL_PHOTOGRAPHS["images/hero.jpg"].split(",", 2)[1];
+  if (!encoded) throw new Error("Wedding showcase hero photograph is missing");
+  return Buffer.from(encoded, "base64");
+}
+
+async function attachWeddingThumbnail(page: import("@playwright/test").Page) {
+  await page.evaluate(
+    ([libraryKey, previewUrl, thumbnailUrl]) => {
+      const raw = window.localStorage.getItem(libraryKey);
+      if (!raw) throw new Error("Preview Studio library was not persisted");
+      const library = JSON.parse(raw) as {
+        revisions: Array<{
+          manifest: {
+            source: { kind: string; url?: string };
+            web?: { entry: string; files: Record<string, string> };
+          };
+        }>;
+      };
+      const revision = library.revisions.find(
+        (candidate) =>
+          candidate.manifest.source.kind === "url" &&
+          candidate.manifest.source.url === previewUrl,
+      );
+      if (!revision) throw new Error("Agent preview revision was not created");
+      revision.manifest.web = {
+        entry: "/showcase-thumbnail.html",
+        files: {
+          "/showcase-thumbnail.html": `<img src="${thumbnailUrl}" alt="" />`,
+        },
+      };
+      window.localStorage.setItem(libraryKey, JSON.stringify(library));
+    },
+    [LIBRARY_KEY, WEDDING_PREVIEW_URL, WEDDING_THUMBNAIL_URL] as const,
+  );
+  await page.reload();
 }
 
 async function waitForLiveSubscription(
@@ -417,7 +578,14 @@ test.describe("documentation story", () => {
     page,
   }) => {
     test.setTimeout(60_000);
-    await page.route(`${WEDDING_PREVIEW_URL}**`, async (route) => {
+    await page.clock.setFixedTime(DOCUMENTATION_TIME);
+    await page.route(WEDDING_THUMBNAIL_URL, async (route) => {
+      await route.fulfill({
+        contentType: "image/jpeg",
+        body: weddingThumbnail(),
+      });
+    });
+    await page.route(WEDDING_PREVIEW_URL, async (route) => {
       await route.fulfill({
         contentType: "text/html",
         body: liveWeddingSite(),
@@ -501,6 +669,11 @@ test.describe("documentation story", () => {
 
     await handoff.click();
     await expect(page).toHaveURL(/\/preview-studio$/);
+    await attachWeddingThumbnail(page);
+    const selectedAgentPreview = page.locator(
+      '[data-testid^="preview-studio-artifact-agent_preview_"]',
+    );
+    await expect(selectedAgentPreview.locator("img")).toBeVisible();
     await expect(
       page
         .frameLocator('[data-testid="preview-studio-url-frame"]')
@@ -513,6 +686,33 @@ test.describe("documentation story", () => {
     });
 
     await page.getByTestId("preview-studio-url-viewport-mobile").click();
+    const weddingFrame = page.frameLocator(
+      '[data-testid="preview-studio-url-frame"]',
+    );
+    await expect
+      .poll(() =>
+        weddingFrame.locator(".hero").evaluate((hero) => {
+          const frame = hero.querySelector<HTMLElement>(".frame");
+          const caption = hero.querySelector<HTMLElement>(".caption");
+          const links =
+            hero.ownerDocument.querySelector<HTMLElement>("nav .links");
+          if (!frame || !caption || !links) return null;
+          return {
+            display: getComputedStyle(hero).display,
+            linksDisplay: getComputedStyle(links).display,
+            stacked:
+              Math.abs(
+                frame.getBoundingClientRect().bottom -
+                  caption.getBoundingClientRect().top,
+              ) <= 1,
+          };
+        }),
+      )
+      .toMatchObject({
+        display: "grid",
+        linksDisplay: "none",
+        stacked: true,
+      });
     await page.getByTestId("preview-studio-inspector-toggle").click();
     await expect(page.getByTestId("preview-studio-inspector")).toBeVisible();
     await page

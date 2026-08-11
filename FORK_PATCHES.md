@@ -1,70 +1,133 @@
 # Fork patch ledger
 
-Every modification to an **upstream-owned** file is tracked here, per the
-Apache-2.0 §4(b) requirement to state changes and this fork's additive-only
-policy: substantial work lives in new files and directories; upstream files
-receive only thin integration seams.
+This ledger classifies the fork delta from Block Buzz `desktop-v0.5.8` at `f3de860574bb3119018b4592353e9761635aeb07` to the fork product baseline `d36f39336b05036f90ba20e273746374c25aaf3e`. Documentation and showcase work assembled from `887d6da441684abda30a7284d004f6d4dd52a767`, integrated at `5d0b11f864bb142ae5ec94de3c083eebbc99e1dc`, and clean-worktree verified at `712fe36a088bf320d663a857bbd4d1b0eba159e4` is not misrepresented as product code at `d36f3933`.
 
-**Upstream baseline:** `block/buzz` @ `desktop-v0.5.8`
+The aim is a narrow integration boundary: Preview Studio owns its feature directory and assets; inherited files carry only routing, navigation, native-command, CSP, test, package, or distribution seams.
 
-## Modified upstream files
+## Modified upstream paths
 
-| Upstream file | Change |
-|---------------|--------|
-| `README.md` | Replaced with the fork's own README (fork banner, Preview Studio docs) |
-| `SECURITY.md` | Fork preamble routing fork-code vulnerabilities to this repo |
-| `.github/CODEOWNERS` | Fork maintainer instead of the upstream team |
-| `.github/ISSUE_TEMPLATE/config.yml` | Contact link routing upstream bugs to block/buzz |
-| `.github/workflows/docker.yml` | `github.repository == 'block/buzz'` guards on publish jobs |
-| `.github/workflows/auto-tag-on-release-pr-merge.yml` | Repo guard on auto-tag job |
-| `.github/workflows/sprig.yml` | Repo guards on build/publish jobs |
-| `.github/workflows/helm-chart.yml` | Repo guards on lint/install/publish jobs |
-| `.github/workflows/push-gateway-helm-chart.yml` | Repo guards on validate/publish jobs |
-| `preview-features.json` | Registered the `preview-studio` feature gate (default on for this fork) |
-| `desktop/src/features/agents/lib/personaCatalogRelay.test.mjs` | Lint fix (template literals); upstream PR candidate |
-| `desktop/playwright.config.ts` | E2E preview port reads `BUZZ_E2E_PORT`; register fork Preview Studio smoke coverage |
-| `desktop/src/features/onboarding/communityOnboarding.tsx` | Type the browser timer explicitly so ambient Node types cannot redefine it; upstream PR candidate |
-| `pnpm-workspace.yaml` | Deny the optional `es5-ext` build script + force a single `@types/node` version |
-| `desktop/src-tauri/src/commands/mod.rs` | Register the `media_tools` module |
-| `desktop/src-tauri/src/lib.rs` | Register `media_tool_available` / `run_media_tool` commands |
-| `desktop/src-tauri/tauri.conf.json` | Permit explicit HTTP(S) Preview Studio frames in packaged builds |
-| `desktop/src-tauri/tests/csp.rs` | Pin the packaged-app Preview Studio frame policy |
-| `desktop/src/app/routes.ts` | Registered the `/preview-studio` route |
-| `desktop/src/app/routeTree.gen.ts` | Regenerated for the `/preview-studio` route |
-| `desktop/src/app/AppShell.helpers.ts` | `preview-studio` AppView + shell-route derivation |
-| `desktop/src/app/AppShell.tsx` | Wire `goPreviewStudio` into the sidebar (2 lines) |
-| `desktop/src/app/navigation/useAppNavigation.ts` | `goPreviewStudio` navigation helper |
-| `desktop/src/features/sidebar/ui/AppSidebar.tsx` | Pass the Preview Studio select handler |
-| `desktop/src/features/sidebar/ui/AppSidebarPinnedHeader.tsx` | Flag-gated nav button |
-| `desktop/src/features/messages/ui/MessageRow.tsx` | Flag-gated handoff from agent preview URLs into Preview Studio |
-| `desktop/src/shared/styles/globals.css` | Import the Studio token sheet |
-| `desktop/src/shared/ui/ViewLoadingFallback.tsx` | `preview-studio` loading kind |
-| `desktop/scripts/check-px-text.mjs` | Allowlist the demo artifacts' own stylesheets (guest content in a sandboxed frame / a fixed-canvas video composition, not app UI) |
+| Path | Fork change |
+|---|---|
+| `.github/CODEOWNERS` | Fork maintainer ownership. |
+| `.github/ISSUE_TEMPLATE/config.yml` | Distinguish fork support from upstream support. |
+| `.github/workflows/auto-tag-on-release-pr-merge.yml` | Guard upstream-only release behavior. |
+| `.github/workflows/docker.yml` | Guard upstream-only publication. |
+| `.github/workflows/helm-chart.yml` | Guard upstream-only chart publication. |
+| `.github/workflows/push-gateway-helm-chart.yml` | Guard upstream-only validation/publication. |
+| `.github/workflows/sprig-image.yml` | Guard upstream-only container-image publication. |
+| `.github/workflows/sprig.yml` | Guard upstream-only build/publication. |
+| `README.md` | Explain Buzz, fork status, Preview Studio, and evidence. |
+| `SECURITY.md` | Route fork reports and document fork trust boundaries. |
+| `Cargo.lock` | Lockfile changes resulting from the fork checkout/tooling. |
+| `deny.toml` | Carry official upstream's narrow `RUSTSEC-2026-0243` exception until Mesh-LLM migrates to `nostr-sdk` 0.45 or newer. |
+| `pnpm-lock.yaml` | JavaScript dependency lockfile changes. |
+| `pnpm-workspace.yaml` | Optional-script and Node type resolution policy. |
+| `preview-features.json` | Register `preview-studio`, enabled by default in this fork. |
+| `desktop/package.json` | Preview Studio test/development commands and dependencies. |
+| `desktop/playwright.config.ts` | Configurable E2E port and Preview Studio projects. |
+| `desktop/scripts/check-px-text.mjs` | Allow fixed-canvas guest/demo styles, not application UI text. |
+| `desktop/src-tauri/src/commands/mod.rs` | Register the media-tools command module. |
+| `desktop/src-tauri/src/lib.rs` | Register the media-tool availability/execution commands. |
+| `desktop/src-tauri/tauri.conf.json` | Permit explicit HTTP(S) frames for packaged previews. |
+| `desktop/src-tauri/tests/csp.rs` | Assert the packaged frame policy. |
+| `desktop/src/app/AppShell.helpers.ts` | Add the Preview Studio shell view. |
+| `desktop/src/app/AppShell.tsx` | Connect Preview Studio navigation to the sidebar. |
+| `desktop/src/app/navigation/useAppNavigation.ts` | Add the Preview Studio navigation helper. |
+| `desktop/src/app/routeTree.gen.ts` | Generated Preview Studio route entry. |
+| `desktop/src/app/routes.ts` | Register the Preview Studio route. |
+| `desktop/src/features/messages/ui/MessageRow.tsx` | Show the safe agent-URL handoff. |
+| `desktop/src/features/sidebar/ui/AppSidebar.tsx` | Pass the Preview Studio selection handler. |
+| `desktop/src/features/sidebar/ui/AppSidebarPinnedHeader.tsx` | Show the flag-gated sidebar entry. |
+| `desktop/src/main.tsx` | Support the standalone Studio entry used by development/showcase tooling. |
+| `desktop/src/shared/styles/globals.css` | Import Studio theme tokens. |
+| `desktop/src/shared/ui/ViewLoadingFallback.tsx` | Add the Studio loading-view kind. |
+| `desktop/src/features/agents/lib/personaCatalogRelay.test.mjs` | Template-literal lint correction; upstream candidate. |
+| `desktop/src/features/onboarding/communityOnboarding.tsx` | Explicit browser timer typing; upstream candidate. |
+| `docs/nips/NIP-{AE,AM,AP,ER,RS}.md` | Replace repository-relative references to external Nostr NIPs with canonical upstream URLs so the inherited drafts render correctly in this standalone fork. |
 
-## New fork-owned areas (not patches)
+## Added fork-owned paths
 
-- `desktop/src/features/preview-studio/**`
-- `desktop/tests/e2e/preview-studio-*.spec.ts`
-- `desktop/src-tauri/src/commands/media_tools.rs`
-- `desktop/src/app/routes/preview-studio.tsx`
-- `desktop/src/shared/theme/studio/**`
-- `docs/README.md`
-- `docs/architecture/**`
-- `docs/assets/showcase/**`
-- `docs/design/**`
-- `docs/product/**`
-- `docs/preview-studio/**`
-- `docs/reference/**`
-- `docs/spec/artifact-*.md`
-- `docs/user/**`
-- `scripts/run-studio-sandbox.sh`
-- `FORK_PATCHES.md`
+These glob groups cover every file added at the product baseline:
 
-## Rules
+| Added area | Purpose |
+|---|---|
+| `FORK_PATCHES.md` | This boundary ledger. |
+| `desktop/src/features/preview-studio/**` | Artifact store, URL bridge, renderer engines, local reviews, generation wiring, UI, and focused unit tests. |
+| `desktop/src/app/StandaloneStudio.tsx` | Isolated development/showcase shell. |
+| `desktop/src/app/routes/preview-studio.tsx` | Route component. |
+| `desktop/src/shared/theme/studio/**` | Studio-specific tokens and styling. |
+| `desktop/src-tauri/src/commands/media_tools.rs` | Allowlisted native media-tool bridge. |
+| `desktop/tests/e2e/agent-preview-handoff.spec.ts` | Production URL-handoff acceptance path. |
+| `desktop/tests/e2e/deck-*.spec.ts` | Fixture-backed deck engine acceptance. |
+| `desktop/tests/e2e/film-verify.spec.ts` | Fixture-backed film engine acceptance. |
+| `desktop/tests/e2e/generate-verify.spec.ts` | Generation UI/configuration acceptance, not live-provider success. |
+| `desktop/tests/e2e/preview-studio-showcase.spec.ts` | Deterministic documentation narrative. |
+| `desktop/tests/e2e/revision-rail.spec.ts` | Local revision UI acceptance. |
+| `desktop/tests/e2e/studio-playground.spec.ts` | Studio development surface. |
+| `desktop/tests/e2e/video-panel-verify.spec.ts` | Video generation panel/fail-closed behavior. |
+| `desktop/tests/e2e/web-verify.spec.ts` | Fixture-backed static web engine acceptance. |
+| `desktop/tests/e2e/what-renders.spec.ts` | Renderer dispatch/fallback acceptance. |
+| `desktop/public/demo/**` | Deterministic film media used by E2E fixtures. |
+| `demo-assets/**` | Deterministic site, deck, photography, and film source assets. |
+| `docs/assets/preview-studio-demo.gif` | Earlier Preview Studio demonstration asset. |
+| `docs/assets/preview-studio-hero.png` | Earlier Preview Studio hero asset. |
+| `docs/design/**` | Target-design documents; proposed behavior must remain labelled. |
+| `docs/preview-studio/**` | Preview Studio user and scope documentation. |
+| `docs/spec/artifact-*.md` | Proposed artifact protocol specifications, not registered relay kinds. |
+| `examples/studio-demo/**` | Standalone demonstration source. |
+| `scripts/run-studio-sandbox.sh` | Isolated local Studio development launcher. |
+| `scripts/studio` | Studio development helper. |
+| `scripts/studio-images` | Studio image helper. |
 
-1. Prefer new files over editing upstream modules.
-2. No edits to `migrations/` history.
-3. No second copy of an upstream feature directory.
-4. After each upstream merge, run the stock desktop checks before accepting.
-5. Distributed builds must use their own identifier namespace, never
-   Block's `xyz.block.buzz` identifiers or branding.
+The broader open-source documentation tree and showcase screenshots were added or revised after the product baseline. Their authority is recorded in `docs/evidence/baseline.md` and `docs/evidence/screenshot-provenance.md`.
+
+## Post-product-baseline release-candidate changes
+
+The following release-maintenance files were integrated at `5d0b11f8` and verified in the
+clean detached worktree at DCO-signed candidate
+`712fe36a088bf320d663a857bbd4d1b0eba159e4`. They did **not** exist at product baseline
+`d36f3933`. Because the verification candidate is not pushed or merged to the public default
+branch, they are not evidence that automation is already live:
+
+| Path | Release-candidate purpose |
+|---|---|
+| `.github/upstream-desktop-baseline` | Record the inherited stable desktop tag and immutable SHA. |
+| `.github/workflows/upstream-desktop-sync.yml` | Weekly/manual stable-release detection and reviewed integration-PR preparation. |
+| `scripts/latest-upstream-desktop-tag.sh` | Resolve the highest stable `desktop-vMAJOR.MINOR.PATCH` tag. |
+| `scripts/test-upstream-desktop-sync-contract.sh` | Check resolver choice and workflow safety/no-auto-merge contract. |
+| `scripts/test-fork-publishing-guards.sh` | Prevent inherited publishing workflows from running outside `block/buzz`. |
+| `scripts/audit-public-docs.mjs` | Audit public Markdown/HTML links and reject private local paths. |
+| `.github/workflows/ci.yml` | Release-candidate modification that invokes the sync, publishing-guard, and public-doc contracts. |
+
+These paths need a committed default-branch revision and successful GitHub Actions evidence
+before documentation may call the weekly detector operational. See
+[`docs/development/fork-and-upgrades.md`](docs/development/fork-and-upgrades.md).
+
+After `712fe36a`, the first full `just ci` run required one formatting-only adjustment to an
+already listed integration seam: `pub mod media_tools;` in
+`desktop/src-tauri/src/commands/mod.rs` moved into alphabetical order. The subsequent full
+CI run exited 0. This changes no runtime behavior and was integrated with the evidence at
+DCO-signed commit `d57783c5`.
+
+## Deliberately unchanged product layers
+
+At `d36f3933`, the fork has no Preview Studio delta under:
+
+- `crates/buzz-core/`;
+- `crates/buzz-relay/`;
+- `crates/buzz-db/`; or
+- `migrations/`.
+
+Preview Studio therefore does not add production Nostr kinds, relay admission rules, shared artifact storage, or database migrations.
+
+## Upgrade procedure
+
+1. Fetch the official `upstream` remote and record the exact candidate tag or commit.
+2. Compare it with the current inherited baseline, not merely with upstream `main`.
+3. Rebuild this ledger from `git diff --name-status <baseline>...<product-commit>`.
+4. Reconcile routing, navigation, message handoff, CSP, native-command registration, feature flags, package manifests, and lockfiles.
+5. Confirm there are still no accidental core, relay, database, or migration changes.
+6. Run the stock upstream quality gates plus Preview Studio unit and E2E suites.
+7. Update the product baseline, documentation baseline, evidence, and known limitations separately.
+
+Generic fixes should be proposed upstream when appropriate. Public builds must use their own identifier namespace, icons, signing identity, update channel, and branding rather than Block's distribution identity.

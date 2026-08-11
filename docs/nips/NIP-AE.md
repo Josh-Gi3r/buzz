@@ -6,11 +6,11 @@ Agent Engrams
 
 `draft` `optional`
 
-This NIP defines a convention for AI agents to store persistent, structured memory — *engrams* — on Nostr. Memory consists of addressable `kind:30174` events ([NIP-01](01.md)) signed by the agent's key and encrypted with [NIP-44](44.md) using the conversation key between the agent and its owner. Because that key is symmetric, both parties decrypt every event; the owner can always read everything the agent remembers.
+This NIP defines a convention for AI agents to store persistent, structured memory — *engrams* — on Nostr. Memory consists of addressable `kind:30174` events ([NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md)) signed by the agent's key and encrypted with [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md) using the conversation key between the agent and its owner. Because that key is symmetric, both parties decrypt every event; the owner can always read everything the agent remembers.
 
 ## Kind
 
-This NIP claims `kind:30174` for agent engrams. It is in the addressable range per [NIP-01](01.md): addressable events store only the latest per `(kind, pubkey, d)`, with relay query and retention behavior governed by NIP-01 (relays SHOULD return only the latest; some may retain older versions).
+This NIP claims `kind:30174` for agent engrams. It is in the addressable range per [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md): addressable events store only the latest per `(kind, pubkey, d)`, with relay query and retention behavior governed by NIP-01 (relays SHOULD return only the latest; some may retain older versions).
 
 A dedicated kind (rather than encoding agent memory as a profile over NIP-78 `kind:30078` "Application-specific Data") is taken for two reasons: (1) it isolates this NIP's address space from any other application that the agent's pubkey also writes — `core` and `mem/…` slugs cannot collide with another app's `d` tag choices, regardless of agent reuse; (2) it lets observers, indexers, and unknown-kind viewers identify these events from the kind alone, without attempting NIP-44 decryption as a namespace demultiplexer.
 
@@ -21,7 +21,7 @@ A dedicated kind (rather than encoding agent memory as a profile over NIP-78 `ki
 
 Memory is scoped to a single `(pubkey_a, pubkey_o)` pair. An agent serving multiple owners holds an independent memory per pair.
 
-The phrase **configured relays** used throughout this NIP is, in order of precedence: (1) the agent's write relays as advertised in its [NIP-65](65.md) `kind:10002` relay list (`pubkey_a` is the author of every record) — entries marked `write` or with no marker, ignoring `read`-only entries and entries whose URL is not a syntactically valid `ws://` or `wss://` URL; (2) the out-of-band agreed list when no `kind:10002` is published, when the published list yields zero usable entries after the filtering above, or for the bootstrap window before owner and agent have observed the agent's first `kind:10002`. URLs are compared *for equality only* after **canonicalizing**: lowercase scheme and host, strip default port (443 for `wss`, 80 for `ws`), strip a trailing slash on an otherwise empty path; the path is otherwise preserved verbatim. After canonicalization, duplicates MUST be deduplicated before querying. Connections SHOULD be made to the advertised URL as written, not the canonical form, so that any relay-side path or host disambiguation is preserved. The owner applies the same comparison rule to locate the agent's memory.
+The phrase **configured relays** used throughout this NIP is, in order of precedence: (1) the agent's write relays as advertised in its [NIP-65](https://github.com/nostr-protocol/nips/blob/master/65.md) `kind:10002` relay list (`pubkey_a` is the author of every record) — entries marked `write` or with no marker, ignoring `read`-only entries and entries whose URL is not a syntactically valid `ws://` or `wss://` URL; (2) the out-of-band agreed list when no `kind:10002` is published, when the published list yields zero usable entries after the filtering above, or for the bootstrap window before owner and agent have observed the agent's first `kind:10002`. URLs are compared *for equality only* after **canonicalizing**: lowercase scheme and host, strip default port (443 for `wss`, 80 for `ws`), strip a trailing slash on an otherwise empty path; the path is otherwise preserved verbatim. After canonicalization, duplicates MUST be deduplicated before querying. Connections SHOULD be made to the advertised URL as written, not the canonical form, so that any relay-side path or host disambiguation is preserved. The owner applies the same comparison rule to locate the agent's memory.
 
 Because persistence rides the agent's configured relay set, the agent SHOULD republish current heads to the new set before decommissioning any relay it is leaving. This NIP defines no automatic migration mechanism; agents that rotate relays without migrating their heads will lose access to memory not also present on retained relays.
 
@@ -32,7 +32,7 @@ Two `kind:30174` record types share the same envelope and differ only by the slu
 - **`core`** — exactly one per `(pubkey_a, pubkey_o)` pair. Holds agent identity, rules, and goals. Bootstrap address.
 - **`memory`** — zero or more per `(pubkey_a, pubkey_o)` pair. Each holds one logical entry.
 
-Both are *addressable* per [NIP-01](01.md): only the newest event per `(kind, pubkey_a, d)` is served, and head selection (below) tolerates relays that surface older versions anyway.
+Both are *addressable* per [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md): only the newest event per `(kind, pubkey_a, d)` is served, and head selection (below) tolerates relays that surface older versions anyway.
 
 ## Slugs
 
@@ -54,7 +54,7 @@ K_c = nip44_conversation_key(seckey_a, pubkey_o)
 d   = lower_hex(HMAC-SHA256(K_c, utf8("agent-memory/v1/d-tag") || 0x00 || utf8(slug)))
 ```
 
-`K_c` is the [NIP-44](44.md) conversation key — the output of `HKDF-extract` over the 32-byte x-coordinate of the ECDH shared point, with `salt = utf8("nip44-v2")` — and is therefore uniformly random, suitable for direct use as an HMAC key. Each party computes it with their own private key and the other party's public key; the result is identical to both. `d` is the full 64-hex-character HMAC output and reveals no information about the slug to passive observers. The domain prefix `"agent-memory/v1/d-tag"` (followed by a single `0x00` byte separating it from the slug bytes) is fixed and version-tagged independently of this NIP's assigned number; future versions MUST change it to avoid colliding with deployed v1 records.
+`K_c` is the [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md) conversation key — the output of `HKDF-extract` over the 32-byte x-coordinate of the ECDH shared point, with `salt = utf8("nip44-v2")` — and is therefore uniformly random, suitable for direct use as an HMAC key. Each party computes it with their own private key and the other party's public key; the result is identical to both. `d` is the full 64-hex-character HMAC output and reveals no information about the slug to passive observers. The domain prefix `"agent-memory/v1/d-tag"` (followed by a single `0x00` byte separating it from the slug bytes) is fixed and version-tagged independently of this NIP's assigned number; future versions MUST change it to avoid colliding with deployed v1 records.
 
 Implementations MUST NOT include the slug or any plaintext form of it in tags.
 
@@ -73,7 +73,7 @@ Implementations MUST NOT include the slug or any plaintext form of it in tags.
 }
 ```
 
-There MUST be exactly one `d` tag and it MUST be the value derived in *Addressing*. There MUST be exactly one `p` tag and it MUST contain `pubkey_o`; it both identifies the owner publicly and tells the agent which counterparty key was used (the owner uses the event's `pubkey` field as the same hint in the opposite direction). Implementations MAY include a [NIP-31](31.md) `["alt", "encrypted agent memory record"]` tag (or equivalent fixed string) to give unknown-kind viewers a non-leaking summary; additional tags beyond `d`, `p`, and `alt` are not defined by this NIP and have no effect on validity. The decrypted `content` is a JSON object (see *Bodies*).
+There MUST be exactly one `d` tag and it MUST be the value derived in *Addressing*. There MUST be exactly one `p` tag and it MUST contain `pubkey_o`; it both identifies the owner publicly and tells the agent which counterparty key was used (the owner uses the event's `pubkey` field as the same hint in the opposite direction). Implementations MAY include a [NIP-31](https://github.com/nostr-protocol/nips/blob/master/31.md) `["alt", "encrypted agent memory record"]` tag (or equivalent fixed string) to give unknown-kind viewers a non-leaking summary; additional tags beyond `d`, `p`, and `alt` are not defined by this NIP and have no effect on validity. The decrypted `content` is a JSON object (see *Bodies*).
 
 ## Bodies
 
@@ -104,23 +104,23 @@ A body with `"value": null` is a **tombstone**; the event is still published, bu
 
 `profile` is free-form UTF-8 maintained by the agent. Clients MAY maintain a local cache of `{slug → {event_id, created_at}}` for memory entries to accelerate listing, but such a cache is implementation-local and outside this NIP — the authoritative listing procedure is the walk in *Listing*.
 
-Implementations MAY additionally publish [NIP-09](09.md) deletion requests for superseded or tombstoned events of either type; the in-band tombstone (for memory) and replacement (for core) are the protocol-level semantics and are what readers act on. Per NIP-09 a deletion request MUST be authored by the same key as the events it targets, so only `pubkey_a` may delete these records; such requests SHOULD include `["k", "30174"]` and use an `a`-tag identifier `30174:<pubkey_a>:<d>`. A NIP-09 request asks honoring relays to delete every targeted event with `created_at` ≤ the request's `created_at`; whether relays honor it is their policy. A subsequent write with a later timestamp resurrects the slug under *Head selection* and is the intended recovery path. Honoring and non-honoring relays will diverge on pre-deletion history.
+Implementations MAY additionally publish [NIP-09](https://github.com/nostr-protocol/nips/blob/master/09.md) deletion requests for superseded or tombstoned events of either type; the in-band tombstone (for memory) and replacement (for core) are the protocol-level semantics and are what readers act on. Per NIP-09 a deletion request MUST be authored by the same key as the events it targets, so only `pubkey_a` may delete these records; such requests SHOULD include `["k", "30174"]` and use an `a`-tag identifier `30174:<pubkey_a>:<d>`. A NIP-09 request asks honoring relays to delete every targeted event with `created_at` ≤ the request's `created_at`; whether relays honor it is their policy. A subsequent write with a later timestamp resurrects the slug under *Head selection* and is the intended recovery path. Honoring and non-honoring relays will diverge on pre-deletion history.
 
 ## Encryption
 
-`content` is encrypted with [NIP-44](44.md) v2 using `K_c`. NIP-44 limits plaintext to 65,535 bytes; this limit applies to the body bytes passed to NIP-44 (whatever JSON serialization the implementation chose).
+`content` is encrypted with [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md) v2 using `K_c`. NIP-44 limits plaintext to 65,535 bytes; this limit applies to the body bytes passed to NIP-44 (whatever JSON serialization the implementation chose).
 
 ## Head selection
 
 An event is **valid** for this NIP if all of the following hold:
 
 1. `kind == 30174`, `pubkey == pubkey_a`, exactly one `d` tag, exactly one `p` tag, and the `p` tag value is `pubkey_o`.
-2. Its signature verifies (per [NIP-01](01.md)). Validation MUST occur before decryption (per [NIP-44](44.md)).
+2. Its signature verifies (per [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md)). Validation MUST occur before decryption (per [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md)).
 3. Its `content` decrypts under `K_c` and parses as a JSON object. Duplicate object member names anywhere in the body MUST cause this rule to fail (parsers that silently first-wins or last-wins would otherwise diverge on head selection).
 4. The body's `slug` matches the *Slugs* grammar and re-derives to the event's `d` tag per *Addressing*.
 5. The body's shape matches the type its `slug` discriminates (per *Bodies*).
 
-Let `d = derive(s)` per *Addressing*. The **head** of slug `s` is computed by querying every configured relay for `kind:30174` events authored by `pubkey_a` whose tags contain `["d", d]` and `["p", pubkey_o]`, taking the union of results, discarding invalid events, and selecting the surviving event with the greatest `created_at` (ties broken by lowest event `id` per [NIP-01](01.md)). The same procedure is used for reading, writing verification, and listing.
+Let `d = derive(s)` per *Addressing*. The **head** of slug `s` is computed by querying every configured relay for `kind:30174` events authored by `pubkey_a` whose tags contain `["d", d]` and `["p", pubkey_o]`, taking the union of results, discarding invalid events, and selecting the surviving event with the greatest `created_at` (ties broken by lowest event `id` per [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md)). The same procedure is used for reading, writing verification, and listing.
 
 ## Writing
 
@@ -128,7 +128,7 @@ To write slug `s` with body `b`:
 
 1. Compute `d` and serialize `b` to JSON. Implementations MUST reject the write if the serialized body exceeds 65,535 bytes (the NIP-44 plaintext limit).
 2. Compute the head of `s` per *Head selection* and let `T` be its `created_at` (or 0 if no head exists). Set `created_at := max(now, T + 1)`. Monotonicity defeats the NIP-01 same-second tiebreak (unpredictable under NIP-44 random nonces) and ensures fresh clients with no local state still produce strictly newer writes. If the resulting `created_at` is far enough in the future that publishing it would itself be undesirable (e.g. the prior head's `created_at` is implausibly ahead of wall-clock time), the head SHOULD be treated as clock-poisoned and the write surfaced as a conflict rather than published; choice of threshold is left to the implementation.
-3. Encrypt with NIP-44 under `K_c`. Tag `["d", d]`, `["p", pubkey_o]`. Sign and publish to the configured relays. The `p` tag carries its usual [NIP-01](01.md) meaning (a referenced pubkey), which means generic NIP-65-aware clients may also fan it out to the owner's read relays; this NIP neither requires nor forbids that behavior. Authoritative discovery is always from the agent's configured relays so that owners and observers converge on the same head set; copies arriving on owner read relays are a redundant cache, not a separate channel.
+3. Encrypt with NIP-44 under `K_c`. Tag `["d", d]`, `["p", pubkey_o]`. Sign and publish to the configured relays. The `p` tag carries its usual [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md) meaning (a referenced pubkey), which means generic NIP-65-aware clients may also fan it out to the owner's read relays; this NIP neither requires nor forbids that behavior. Authoritative discovery is always from the agent's configured relays so that owners and observers converge on the same head set; copies arriving on owner read relays are a redundant cache, not a separate channel.
 4. **Verify (recommended).** Implementations SHOULD recompute the head of `s` per *Head selection* after waiting for at least one relay's `OK` acknowledgement, optionally with a short propagation delay to absorb inter-relay skew. If the recomputed head is not the event just published, the writer SHOULD surface a **conflict** rather than silently retry. Verification is best-effort: disjoint relay sets, partitions, and writes arriving after the recompute window will not be caught and remain subject to the eventual-consistency semantics described under *Concurrency*.
 
 ## Reading

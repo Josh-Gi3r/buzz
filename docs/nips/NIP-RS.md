@@ -35,7 +35,7 @@ tracking what other users have read.
 
 ### Event Structure
 
-Clients publish a `kind:30078` addressable event (per [NIP-78](78.md)) with the following structure:
+Clients publish a `kind:30078` addressable event (per [NIP-78](https://github.com/nostr-protocol/nips/blob/master/78.md)) with the following structure:
 
 ```json
 {
@@ -77,7 +77,7 @@ Events with zero `t` tags with value `read-state`, or more than one `t` tag with
 
 #### Content
 
-The `content` field MUST be a [NIP-44](44.md) ciphertext. The NIP-44 conversation key MUST be computed as `nip44_conversation_key(user_privkey, user_pubkey)` — the user's private key as the local party and their own public key as the remote party.
+The `content` field MUST be a [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md) ciphertext. The NIP-44 conversation key MUST be computed as `nip44_conversation_key(user_privkey, user_pubkey)` — the user's private key as the local party and their own public key as the remote party.
 
 The plaintext MUST be a JSON object of the following form:
 
@@ -399,7 +399,7 @@ to other users MUST require explicit user consent.
 
 Clients SHOULD publish read state blobs to the same relays they use for general event storage. Clients that implement NIP-65 (relay list metadata) SHOULD publish to their write relays and fetch from their read relays.
 
-Each client instance maintains its own primary blob (one `kind:30078` event at its primary coordinate), plus one event per additional frontier-only coordinate if it uses any. Writing replaces the previous blob at each coordinate via parameterized replaceable event semantics ([NIP-33](33.md)).
+Each client instance maintains its own primary blob (one `kind:30078` event at its primary coordinate), plus one event per additional frontier-only coordinate if it uses any. Writing replaces the previous blob at each coordinate via parameterized replaceable event semantics ([NIP-33](https://github.com/nostr-protocol/nips/blob/master/33.md)).
 
 Clients MUST only update blobs whose decrypted `client_id` matches their own `client_id`. Clients MUST NOT overwrite another instance's blob.
 
@@ -473,7 +473,7 @@ If a device backup or clone results in two installations sharing the same `clien
 
 #### Orphaned Blob Deletion
 
-Clients MAY delete blobs from decommissioned client instances by publishing a `kind:5` deletion event per [NIP-09](09.md) targeting the orphaned event's `a` tag coordinate (`30078:<pubkey>:<d-tag-value>`). For blobs carrying no `ov_*` entries — including a client's own additional frontier-only coordinates — this is optional and unconditional: such blobs are harmless and age out naturally.
+Clients MAY delete blobs from decommissioned client instances by publishing a `kind:5` deletion event per [NIP-09](https://github.com/nostr-protocol/nips/blob/master/09.md) targeting the orphaned event's `a` tag coordinate (`30078:<pubkey>:<d-tag-value>`). For blobs carrying no `ov_*` entries — including a client's own additional frontier-only coordinates — this is optional and unconditional: such blobs are harmless and age out naturally.
 
 A blob carrying `ov_*` entries MUST NOT be deleted or abandoned until its override state has been carried forward per the carry-forward rule in Client-ID Rotation. This applies to the client's own previous primary and to same-`client_id` orphans discovered from a prior rotation or a backup/restore. A client's record of its own coordinates MAY be stale — for example restored from a backup taken before a rotation — so an unknown same-`client_id` coordinate MUST be treated as a live carrier of override state, not as a deletable duplicate, until it has been merged and carried forward.
 
@@ -779,7 +779,7 @@ that expose read activity to other users MUST require explicit user consent.
 
 | Kind | Usage |
 |------|-------|
-| `30078` | Per-client read state blob (parameterized replaceable, [NIP-78](78.md)) |
+| `30078` | Per-client read state blob (parameterized replaceable, [NIP-78](https://github.com/nostr-protocol/nips/blob/master/78.md)) |
 
 ## Backwards Compatibility
 
@@ -789,8 +789,8 @@ The override layer is the exception, and it is a relay-compatibility one rather 
 
 ## References
 
-- [NIP-01](01.md) — Basic Protocol Flow Description (defines filter `limit`, `since`, and `until`)
-- [NIP-09](09.md) — Event Deletion Request
-- [NIP-33](33.md) — Parameterized Replaceable Events
-- [NIP-44](44.md) — Versioned Encryption
-- [NIP-78](78.md) — Arbitrary Custom App Data (defines `kind:30078` for application-specific data)
+- [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md) — Basic Protocol Flow Description (defines filter `limit`, `since`, and `until`)
+- [NIP-09](https://github.com/nostr-protocol/nips/blob/master/09.md) — Event Deletion Request
+- [NIP-33](https://github.com/nostr-protocol/nips/blob/master/33.md) — Parameterized Replaceable Events
+- [NIP-44](https://github.com/nostr-protocol/nips/blob/master/44.md) — Versioned Encryption
+- [NIP-78](https://github.com/nostr-protocol/nips/blob/master/78.md) — Arbitrary Custom App Data (defines `kind:30078` for application-specific data)

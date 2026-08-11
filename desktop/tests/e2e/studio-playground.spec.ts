@@ -7,6 +7,10 @@ import { installMockBridge } from "../helpers/bridge";
 test.use({ viewport: { width: 1600, height: 1000 } });
 
 test("preview studio playground", async ({ page }) => {
+  test.skip(
+    process.env.CI === "true",
+    "Interactive playground is intended for local headed use only",
+  );
   test.setTimeout(0);
   await page.addInitScript(() => {
     window.localStorage.setItem(

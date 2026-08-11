@@ -1,7 +1,9 @@
 import * as React from "react";
 
 const PreviewStudioScreen = React.lazy(async () => {
-  const module = await import("@/features/preview-studio/ui/PreviewStudioScreen");
+  const module = await import(
+    "@/features/preview-studio/ui/PreviewStudioScreen"
+  );
   return { default: module.PreviewStudioScreen };
 });
 
@@ -27,12 +29,12 @@ export function isStandaloneStudioRequested(): boolean {
 export function StandaloneStudio() {
   return (
     <React.Suspense
-        fallback={
-          <div className="flex h-screen items-center justify-center bg-background text-sm text-muted-foreground">
-            Loading Preview Studio…
-          </div>
-        }
-      >
+      fallback={
+        <div className="flex h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+          Loading Preview Studio…
+        </div>
+      }
+    >
       <div className="h-screen w-screen overflow-hidden bg-background">
         <PreviewStudioScreen />
       </div>

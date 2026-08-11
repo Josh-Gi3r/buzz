@@ -10,7 +10,7 @@ This NIP defines `kind:30175` persona events — public, addressable definitions
 
 ## Kind
 
-This NIP claims `kind:30175` for agent persona definitions and `kind:30178` for the shareable team-catalog projection (see "Team catalog projection: kind:30178"). Both are in the NIP-33 parameterized replaceable range (30000–39999) per [NIP-01](01.md): addressed by `(pubkey, kind, d_tag)`, with only the latest event per address retained.
+This NIP claims `kind:30175` for agent persona definitions and `kind:30178` for the shareable team-catalog projection (see "Team catalog projection: kind:30178"). Both are in the NIP-33 parameterized replaceable range (30000–39999) per [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md): addressed by `(pubkey, kind, d_tag)`, with only the latest event per address retained.
 
 A dedicated kind (rather than encoding personas as NIP-78 `kind:30078` "Application-specific Data") is taken for the same reasons as [NIP-AE](NIP-AE.md): (1) it isolates this NIP's address space from any other application using the same pubkey — persona slugs cannot collide with another app's `d` tag choices; (2) it lets observers, indexers, and unknown-kind viewers identify persona events from the kind alone, without parsing content as a namespace demultiplexer.
 
@@ -53,7 +53,7 @@ The d-tag is deliberately NOT blinded (contrast with [NIP-AE](NIP-AE.md) which H
 
 There MUST be exactly one `d` tag and it MUST contain a valid slug per the grammar above. The relay enforces this constraint on ingest. There is no `p` tag — persona events are owner-to-self definitions, not directed at a counterparty.
 
-Implementations MAY include a [NIP-31](31.md) `["alt", "agent persona definition"]` tag to give unknown-kind viewers a non-leaking summary. Additional tags beyond `d` and `alt` are not defined by this NIP and have no effect on validity.
+Implementations MAY include a [NIP-31](https://github.com/nostr-protocol/nips/blob/master/31.md) `["alt", "agent persona definition"]` tag to give unknown-kind viewers a non-leaking summary. Additional tags beyond `d` and `alt` are not defined by this NIP and have no effect on validity.
 
 ## Content body
 
@@ -122,11 +122,11 @@ Persona events carry no encryption. This is deliberate:
 
 - Personas are *configuration*, not *state*. They describe what an agent should be, not what it has learned.
 - Encryption would prevent relay-side indexing, search, and third-party client rendering — all desirable for definitions that workspace members should browse.
-- Operators who need confidentiality should use relay-level access control ([NIP-42](42.md) authentication + [NIP-29](29.md) group membership) rather than event-level encryption.
+- Operators who need confidentiality should use relay-level access control ([NIP-42](https://github.com/nostr-protocol/nips/blob/master/42.md) authentication + [NIP-29](https://github.com/nostr-protocol/nips/blob/master/29.md) group membership) rather than event-level encryption.
 
 ## Replacement semantics
 
-Standard NIP-33: for a given `(pubkey, kind:30175, d_tag)`, only the event with the greatest `created_at` is the **head**. Ties are broken by lowest event `id` per [NIP-01](01.md). Relays SHOULD return only the head; clients MUST select the head from any multi-event response.
+Standard NIP-33: for a given `(pubkey, kind:30175, d_tag)`, only the event with the greatest `created_at` is the **head**. Ties are broken by lowest event `id` per [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md). Relays SHOULD return only the head; clients MUST select the head from any multi-event response.
 
 ## Writing
 
@@ -158,7 +158,7 @@ Returns all heads. Clients scope by author pubkey — two different owners MAY p
 
 ## Deletion
 
-Owners MAY publish [NIP-09](09.md) deletion requests targeting persona events. A deletion request MUST be authored by the same key (`pubkey_o`). Such requests SHOULD include `["k", "30175"]` and use an `a`-tag identifier `30175:<pubkey_o>:<slug>`.
+Owners MAY publish [NIP-09](https://github.com/nostr-protocol/nips/blob/master/09.md) deletion requests targeting persona events. A deletion request MUST be authored by the same key (`pubkey_o`). Such requests SHOULD include `["k", "30175"]` and use an `a`-tag identifier `30175:<pubkey_o>:<slug>`.
 
 A subsequent write with a later timestamp resurrects the slug under NIP-33 replacement semantics.
 
