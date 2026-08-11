@@ -36,6 +36,19 @@ grep -Fq 'gh pr create' "$workflow"
 grep -Fq 'gh issue create' "$workflow"
 grep -Fq 'UPSTREAM_SYNC_TOKEN' "$workflow"
 
+resolve_script="$tmp/resolve-released-upstream-baseline.sh"
+awk '
+  /^      - name: Resolve released upstream baseline$/ { found = 1; next }
+  found && /^        run: \|$/ { in_run = 1; next }
+  in_run && /^      - name:/ { exit }
+  in_run { sub(/^          /, ""); print }
+' "$workflow" >"$resolve_script"
+[[ -s "$resolve_script" ]] || {
+  echo "could not extract upstream baseline resolver from workflow" >&2
+  exit 1
+}
+bash -n "$resolve_script"
+
 if grep -Eq 'gh pr merge|git push[^\n]*origin[^\n]*main' "$workflow"; then
   echo "upstream sync workflow may merge or push directly to main" >&2
   exit 1
