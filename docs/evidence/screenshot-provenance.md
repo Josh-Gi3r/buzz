@@ -28,6 +28,6 @@ The hashes also match the earlier repeated `2/2` PM runs, demonstrating determin
 for this mocked E2E story. They do not expand the product truth matrix or verify OpenAI,
 Gemini, Higgsfield, HyperFrames, a live agent, or any external integration.
 
-The final clean detached worktree had an empty status. Candidate `712fe36a` is not pushed or
-publicly tagged; repeat a public clean-clone check after publication before tagging a
-release.
+The final clean detached worktree had an empty status. A fresh clone of public `main` at
+`056a82a47f2dd9e35e1a4520ad184fab45897f21` reproduced all five hashes and passed the
+public documentation audit. No immutable release tag has been published.

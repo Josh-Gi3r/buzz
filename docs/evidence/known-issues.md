@@ -19,23 +19,21 @@
 - Generic workflow actions remain incomplete.
 - Optional services require deployment-specific verification.
 - The fork still needs independent identity/signing/update/branding for public binaries.
-- GitHub settings observed on 2026-08-11 had Actions enabled, Issues disabled, and no branch
-  protection on `main`. Source publication must enable Issues and establish reviewed,
-  status-checked branch protection; no setting was changed during the local audit.
-- Clean detached-worktree verification exists for local candidate `712fe36a`, but no pushed
-  public ref, public clean-clone proof, or immutable documentation/release tag exists yet.
-- Full `just ci` passes on the post-`712fe36a` source tree after an ordering-only rustfmt
-  fix, integrated with the evidence at `d57783c5`; no pushed CI run exists yet.
-- Upstream desktop release detection and PR preparation exist in local candidate
-  `712fe36a088bf320d663a857bbd4d1b0eba159e4`. Its static contract passed, but the candidate
-  is not pushed or merged to the public default branch. Scheduled automation remains
-  unproven until published, enabled, and observed in a successful run.
+- Public `main` is protected: pull requests, three stable required checks, stale-review
+  dismissal, conversation resolution, administrator enforcement, and force-push/deletion
+  prevention are enabled. The required approval count is zero so the single-owner fork can
+  merge its own fully checked pull requests.
+- Public source and clean-clone evidence exist, but no independently signed binary or
+  immutable release tag exists yet.
+- The live upstream detector found `desktop-v0.5.9`. Its integration conflicts with the
+  fork, so the workflow aborted without changing `main` and opened issue #3. The fork still
+  inherits `desktop-v0.5.8` until that issue is resolved through a reviewed upgrade PR.
 - Without an `UPSTREAM_SYNC_TOKEN`, the `GITHUB_TOKEN` fallback may prevent the generated
   branch or pull request from triggering every expected recursive CI workflow.
 - A supplied `UPSTREAM_SYNC_TOKEN` also needs Issues write access for the conflict-reporting
   issue path; repository workflow permissions do not add scopes to that separate token.
-- The upstream detector prepares a reviewed integration PR; it deliberately does not
-  auto-merge, resolve conflicts, or certify the resulting release.
+- The upstream detector prepares a reviewed integration PR when the merge is clean; it
+  deliberately does not auto-merge, resolve conflicts, or certify the resulting release.
 
 ## Development warnings
 

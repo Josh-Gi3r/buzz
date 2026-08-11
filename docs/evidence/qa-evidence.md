@@ -108,6 +108,30 @@ Desktop Vite build:
 
 Web Vite build reported one output chunk over 500 kB.
 
+## Public release verification
+
+The release was published through reviewed [PR #1](https://github.com/Josh-Gi3r/buzz/pull/1).
+Its final source commit, `56864a163c8ff221caffcf8bc48598bf780ca9e5`, passed all 25 reported
+GitHub checks before merge as `50af5bf26416a602e9562af7e72712f39f8e4174`.
+
+The upstream-sync shell correction was then published through reviewed
+[PR #2](https://github.com/Josh-Gi3r/buzz/pull/2). Its source commit,
+`831ab5f61269e7f3b188b094ddbc94cd9e702a73`, passed all 23 reported GitHub checks before
+merge as `056a82a47f2dd9e35e1a4520ad184fab45897f21`.
+
+A fresh depth-one clone of public `main` at `056a82a4` passed the public documentation
+audit: 76 Markdown files and 142 local links. The clone was clean, contained all five
+showcase PNGs, and reproduced every SHA-256 value in
+[Screenshot provenance](screenshot-provenance.md).
+
+The live default-branch upstream workflow was manually dispatched at
+[run 31493736853](https://github.com/Josh-Gi3r/buzz/actions/runs/31493736853). It resolved
+the newly available `desktop-v0.5.9`, attempted the integration, aborted safely on merge
+conflicts, left `main` unchanged, and created
+[issue #3](https://github.com/Josh-Gi3r/buzz/issues/3). The run concludes failure by design
+when manual integration is required; this proves the conflict-reporting path, not a
+successful upstream merge.
+
 ## Scope and exclusions
 
 The full `just ci` rerun passed, but ignored tests did not execute. This evidence does not
@@ -116,5 +140,5 @@ tests, ignored OS-keychain tests, ignored release-mode performance tests, or oth
 infrastructure-gated paths.
 
 It also does not verify packaging, signing/notarization, installers, update delivery, a live
-deployment, paid/external providers, or desktop E2E beyond the deterministic showcase. No
-public tag or pushed clean-clone verification exists yet.
+deployment, paid/external providers, or a completed `desktop-v0.5.9` integration. No public
+binary or release tag exists yet.

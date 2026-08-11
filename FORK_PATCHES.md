@@ -86,8 +86,8 @@ The broader open-source documentation tree and showcase screenshots were added o
 The following release-maintenance files were integrated at `5d0b11f8` and verified in the
 clean detached worktree at DCO-signed candidate
 `712fe36a088bf320d663a857bbd4d1b0eba159e4`. They did **not** exist at product baseline
-`d36f3933`. Because the verification candidate is not pushed or merged to the public default
-branch, they are not evidence that automation is already live:
+`d36f3933`. They were later published through reviewed PR #1; the resolver shell correction
+was published through reviewed PR #2:
 
 | Path | Release-candidate purpose |
 |---|---|
@@ -99,8 +99,9 @@ branch, they are not evidence that automation is already live:
 | `scripts/audit-public-docs.mjs` | Audit public Markdown/HTML links and reject private local paths. |
 | `.github/workflows/ci.yml` | Release-candidate modification that invokes the sync, publishing-guard, and public-doc contracts. |
 
-These paths need a committed default-branch revision and successful GitHub Actions evidence
-before documentation may call the weekly detector operational. See
+Public default-branch run 31493736853 detected `desktop-v0.5.9`, aborted its conflicting
+integration without changing `main`, and opened issue #3. This verifies detection and
+conflict reporting, not a completed upstream upgrade. See
 [`docs/development/fork-and-upgrades.md`](docs/development/fork-and-upgrades.md).
 
 After `712fe36a`, the first full `just ci` run required one formatting-only adjustment to an
