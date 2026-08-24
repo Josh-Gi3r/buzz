@@ -1,6 +1,6 @@
 # Fork patch ledger
 
-This ledger records the BUZZ — LIVE PREVIEW STUDIO boundary on top of Block Buzz Desktop `v0.5.9` at `ee33722615ca1e7b8efb03e2ed641d99448c8899`. The feature was originally developed against `v0.5.8`; the source delta from `v0.5.8` to `v0.5.9` has since been applied locally without importing upstream GitHub Actions workflows.
+This ledger records the BUZZ — LIVE PREVIEW STUDIO boundary on top of Block Buzz Desktop `v0.5.18` at `39f8b4693572bc866bb980716551335141d681e5`. The feature was originally developed against `v0.5.8` and is replayed onto stable upstream releases without importing upstream GitHub Actions workflows.
 
 The aim is a narrow integration boundary: BUZZ — LIVE PREVIEW STUDIO owns its feature directory and assets; inherited files carry only routing, navigation, native-command, CSP, test, package, or distribution seams.
 
@@ -22,7 +22,7 @@ The aim is a narrow integration boundary: BUZZ — LIVE PREVIEW STUDIO owns its 
 | `desktop/scripts/check-px-text.mjs` | Allow fixed-canvas guest/demo styles, not application UI text. |
 | `desktop/src-tauri/src/commands/mod.rs` | Register the media-tools command module. |
 | `desktop/src-tauri/src/lib.rs` | Register the media-tool availability/execution commands. |
-| `desktop/src-tauri/tauri.conf.json` | Permit explicit HTTP(S) frames for packaged previews. |
+| `desktop/src-tauri/tauri.conf.json` | Use the fork product identity and permit explicit HTTP(S) frames for packaged previews. |
 | `desktop/src-tauri/tests/csp.rs` | Assert the packaged frame policy. |
 | `desktop/src/app/AppShell.helpers.ts` | Add the BUZZ — LIVE PREVIEW STUDIO shell view. |
 | `desktop/src/app/AppShell.tsx` | Connect BUZZ — LIVE PREVIEW STUDIO navigation to the sidebar. |
@@ -31,10 +31,12 @@ The aim is a narrow integration boundary: BUZZ — LIVE PREVIEW STUDIO owns its 
 | `desktop/src/app/routes.ts` | Register the BUZZ — LIVE PREVIEW STUDIO route. |
 | `desktop/src/features/messages/ui/MessageRow.tsx` | Show the safe agent-URL handoff. |
 | `desktop/src/features/sidebar/ui/AppSidebar.tsx` | Pass the BUZZ — LIVE PREVIEW STUDIO selection handler. |
+| `desktop/src/features/sidebar/ui/AppSidebar.types.ts` | Declare the BUZZ — LIVE PREVIEW STUDIO shell selection contract. |
 | `desktop/src/features/sidebar/ui/AppSidebarPinnedHeader.tsx` | Show the flag-gated sidebar entry. |
 | `desktop/src/main.tsx` | Support the standalone Studio entry used by development/showcase tooling. |
 | `desktop/src/shared/styles/globals.css` | Import Studio theme tokens. |
 | `desktop/src/shared/ui/ViewLoadingFallback.tsx` | Add the Studio loading-view kind. |
+| `desktop/src/shared/lib/localStorageSweep.ts` | Keep browser timer typing valid with the desktop's Node type policy; upstream candidate. |
 | `desktop/src/features/agents/lib/personaCatalogRelay.test.mjs` | Template-literal lint correction; upstream candidate. |
 | `desktop/src/features/onboarding/communityOnboarding.tsx` | Explicit browser timer typing; upstream candidate. |
 | `docs/nips/NIP-{AE,AM,AP,ER,RS}.md` | Replace repository-relative references to external Nostr NIPs with canonical upstream URLs so the inherited drafts render correctly in this standalone fork. |
@@ -56,6 +58,7 @@ These glob groups cover every file added at the product baseline:
 | `desktop/tests/e2e/film-verify.spec.ts` | Fixture-backed film engine acceptance. |
 | `desktop/tests/e2e/generate-verify.spec.ts` | Generation UI/configuration acceptance, not live-provider success. |
 | `desktop/tests/e2e/preview-studio-showcase.spec.ts` | Deterministic documentation narrative. |
+| `desktop/tests/e2e/institution-studio.spec.ts` | Domain-pack selection and no-implicit-provisioning acceptance path. |
 | `desktop/tests/e2e/revision-rail.spec.ts` | Local revision UI acceptance. |
 | `desktop/tests/e2e/studio-playground.spec.ts` | Studio development surface. |
 | `desktop/tests/e2e/video-panel-verify.spec.ts` | Video generation panel/fail-closed behavior. |

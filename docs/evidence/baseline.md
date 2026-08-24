@@ -2,7 +2,7 @@
 
 | Role | Ref | Meaning |
 |---|---|---|
-| Current upstream desktop source | `desktop-v0.5.9` at `ee33722615ca1e7b8efb03e2ed641d99448c8899` | Exact stable release tree. The launch commit is based on upstream `538e5e113fc33571f939c87b925567fd4e277109`, the tree-identical `main` integration of that release. |
+| Current upstream desktop source | `desktop-v0.5.18` at `39f8b4693572bc866bb980716551335141d681e5` | Exact stable release tree onto which the fork-owned Preview Studio changes are replayed. |
 | Fork product code | `d36f39336b05036f90ba20e273746374c25aaf3e` | BUZZ — LIVE PREVIEW STUDIO product behavior described here. |
 | Original development baseline | `f3de860574bb3119018b4592353e9761635aeb07` | Official `desktop-v0.5.8` source used when BUZZ — LIVE PREVIEW STUDIO was introduced. |
 | Source documentation/showcase snapshot | `887d6da441684abda30a7284d004f6d4dd52a767` | Starting point for this editorial pass, not its final commit. |

@@ -45,7 +45,7 @@ BUZZ — LIVE PREVIEW STUDIO state is local to this device. It does not yet sync
 
 ## Run from source
 
-This fork includes Buzz Desktop `v0.5.9`. It does not yet publish independently
+This fork includes Buzz Desktop `v0.5.18`. It does not yet publish independently
 signed binaries, so the supported path is a source checkout. Exact upstream, product, and
 verification refs are recorded in the [evidence baseline](docs/evidence/baseline.md).
 
@@ -73,7 +73,7 @@ Review `.env.example` before connecting to anything beyond a local development s
 
 ## Fork and distribution
 
-BUZZ — LIVE PREVIEW STUDIO is an additive desktop layer on Buzz Desktop `v0.5.9`. Its integration is documented in [FORK_PATCHES.md](FORK_PATCHES.md), including the small set of fork-owned seams that must be reviewed during future upgrades.
+BUZZ — LIVE PREVIEW STUDIO is an additive desktop layer on Buzz Desktop `v0.5.18`. Its integration is documented in [FORK_PATCHES.md](FORK_PATCHES.md), including the small set of fork-owned seams that must be reviewed during future upgrades.
 
 Public builds still need a distinct bundle identifier, icons, signing identity, and update channel before they can be distributed as an independent product.
 

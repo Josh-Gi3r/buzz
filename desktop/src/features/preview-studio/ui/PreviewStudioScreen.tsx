@@ -1,4 +1,5 @@
 import {
+  Bot,
   Check,
   CircleDashed,
   Layers3,
@@ -26,6 +27,7 @@ import { listImplementedRenderers, resolveRenderer } from "../lib/registry";
 import type { Artifact, DecisionStatus } from "../lib/types";
 import { useArtifactLibrary } from "../hooks";
 import { GeneratePanel } from "./GeneratePanel";
+import { InstitutionStudioPanel } from "./InstitutionStudioPanel";
 import { PreviewStage } from "./PreviewStage";
 import { RevisionRail } from "./RevisionRail";
 import { artifactThumbnail } from "../lib/thumbnails";
@@ -79,6 +81,7 @@ export function PreviewStudioScreen() {
   const [slideIndex, setSlideIndex] = React.useState(0);
   const [playheadSeconds, setPlayheadSeconds] = React.useState(0);
   const [generateOpen, setGenerateOpen] = React.useState(false);
+  const [institutionOpen, setInstitutionOpen] = React.useState(false);
   const [selectedRevisionId, setSelectedRevisionId] = React.useState<
     string | null
   >(null);
@@ -196,6 +199,17 @@ export function PreviewStudioScreen() {
               data-testid="preview-studio-file-input"
               onChange={(e) => void handleFiles(e.target.files)}
             />
+            <Button
+              type="button"
+              variant={institutionOpen ? "secondary" : "ghost"}
+              size="sm"
+              className="h-8 gap-1.5"
+              onClick={() => setInstitutionOpen((value) => !value)}
+              data-testid="preview-studio-open-institution"
+            >
+              <Bot className="h-3.5 w-3.5" />
+              Institution
+            </Button>
             <Button
               type="button"
               variant="secondary"
@@ -472,6 +486,10 @@ export function PreviewStudioScreen() {
               if (!addGeneratedVid(video)) setSessionOnly(true);
             }}
           />
+        ) : null}
+
+        {institutionOpen ? (
+          <InstitutionStudioPanel onClose={() => setInstitutionOpen(false)} />
         ) : null}
 
         {inspectorOpen ? (

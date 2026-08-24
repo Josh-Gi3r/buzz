@@ -9,9 +9,10 @@ Before replacing the public default branch:
 1. verify the canonical repository is the public `Josh-Gi3r/buzz` fork of `block/buzz`;
 2. enable repository Issues so upstream-sync conflicts can create their deduplicated issue;
 3. push the signed candidate to a review branch rather than directly to `main`;
-4. open a pull request, require the repository CI checks, and inspect the rendered README;
+4. run the documented local exact-commit gates, attach their evidence to a pull request,
+   and inspect the rendered README;
 5. merge only the reviewed candidate, then protect `main` against force pushes and require
-   pull requests plus the stable required checks;
+   pull requests;
 6. verify the default-branch README, images, documentation links, and fork disclaimer from
    GitHub's public renderer;
 7. run the local upstream desktop contract and confirm its no-upgrade path at the recorded

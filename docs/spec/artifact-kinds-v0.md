@@ -1,8 +1,8 @@
 # Artifact Kinds v0 (proposal)
 
-**Status:** proposal only — **not registered** in `crates/buzz-core/src/kind.rs`  
-**Relay integration:** kind constants + ingest scopes land in a future relay PR after this allocation is accepted  
-**Depends on:** [artifact-manifest-v1.md](./artifact-manifest-v1.md), [artifact-review-v1.md](./artifact-review-v1.md)  
+**Status:** proposal only — **not registered** in `crates/buzz-core/src/kind.rs`
+**Relay integration:** kind constants + ingest scopes land in a future relay PR after this allocation is accepted
+**Depends on:** [artifact-manifest-v1.md](./artifact-manifest-v1.md), [artifact-review-v1.md](./artifact-review-v1.md)
 **Collision audit refs:** fork product `d36f39336b05036f90ba20e273746374c25aaf3e` and official upstream observed at `f8f2ef0440e7a074223ec04dc3b32d817b8b9d9b`. Repeat the audit before registration.
 
 ## Goal

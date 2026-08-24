@@ -1,4 +1,5 @@
 import { Card } from "@/shared/ui/card";
+import { BuzzLoadingState } from "@/shared/ui/BuzzLoadingState";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { cn } from "@/shared/lib/cn";
 import { channelChrome } from "@/shared/layout/chromeLayout";
@@ -403,8 +404,12 @@ export function ViewLoadingFallback({
       {shouldShowChannelHeader ? <LoadingHeaderSkeleton /> : null}
       {kind === "agents" ? <AgentsLoadingBody /> : null}
       {kind === "workflows" ? <CardListLoadingBody /> : null}
-      {kind === "projects" ? <CardListLoadingBody /> : null}
-      {kind === "preview-studio" ? <CardListLoadingBody /> : null}
+      {kind === "projects" ? (
+        <BuzzLoadingState fill label="Loading projects" />
+      ) : null}
+      {kind === "preview-studio" ? (
+        <BuzzLoadingState fill label="Loading Preview Studio" />
+      ) : null}
       {kind === "channel" ? (
         <ChannelLoadingBody hasHeader={shouldShowChannelHeader} />
       ) : null}

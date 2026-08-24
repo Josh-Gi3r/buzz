@@ -1,7 +1,7 @@
 # Fork and upstream upgrades
 
-This fork currently includes Block Buzz Desktop `v0.5.9` at
-`ee33722615ca1e7b8efb03e2ed641d99448c8899`.
+This fork currently includes Block Buzz Desktop `v0.5.18` at
+`39f8b4693572bc866bb980716551335141d681e5`.
 
 The public repository intentionally contains no GitHub Actions workflows. Upgrades happen
 locally, under the maintainer's control, and nothing is pushed automatically.

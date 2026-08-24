@@ -2,6 +2,16 @@
 
 BUZZ — LIVE PREVIEW STUDIO keeps an agent's build and the Buzz conversation close together. Its production handoff begins when a recognized agent posts a safe HTTP(S) URL. Buzz creates or updates a device-local website artifact and opens that URL in a sandboxed responsive frame.
 
+## Institution Studio
+
+Institution Studio adds reusable Blueballs domain packs for a remittance corridor,
+stablecoin issuer, neobank, wallet, card programme, FX venue, and treasury platform.
+Selecting a pack creates or refreshes a local Buzz team template and its bounded
+specialist personas. Runtime, model, and provider remain unset so the builder's
+existing Buzz defaults apply only when the team is deliberately deployed through
+the Agents flow. The template step does not copy credentials, start agents, join a
+channel, deploy software, or perform a financial operation.
+
 ## Shipped production journey
 
 1. A configured agent or another reachable development process starts a website server.
