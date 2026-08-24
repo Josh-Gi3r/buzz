@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Elena Marsh</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #11100e; }
+      body { font-family: "Inter", sans-serif; }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+      .bed { position: absolute; inset: 0; background: #11100e; }
+      .clip { position: absolute; inset: 0; overflow: hidden; }
+      .fade { position: absolute; inset: 0; opacity: 0; }
+      .frame { position: absolute; inset: 0; overflow: hidden; }
+      .ken { display: block; width: 1920px; height: 1080px; object-fit: cover; transform-origin: center center; }
+      .wash-bottom { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(17,16,14,0.78) 0%, rgba(17,16,14,0.10) 46%, rgba(17,16,14,0) 70%); }
+      .wash-soft { position: absolute; inset: 0; background: linear-gradient(150deg, rgba(17,16,14,0.42) 0%, rgba(17,16,14,0.06) 55%, rgba(17,16,14,0.34) 100%); }
+      .type { position: absolute; left: 132px; bottom: 128px; color: #fdfbf7; font-family: "EB Garamond", serif; }
+      .type h1 { font-size: 118px; font-weight: 400; line-height: 1.02; letter-spacing: -0.015em; }
+      .type h2 { font-size: 92px; font-weight: 400; line-height: 1.06; letter-spacing: -0.015em; }
+      .type .kicker { font-family: "Inter", sans-serif; font-size: 24px; letter-spacing: 0.32em; text-transform: uppercase; color: rgba(253,251,247,0.82); margin-top: 26px; }
+      .rule { width: 92px; height: 1px; background: rgba(253,251,247,0.72); margin-bottom: 34px; }
+      .mark { position: absolute; left: 132px; top: 118px; font-size: 22px; letter-spacing: 0.34em; text-transform: uppercase; color: rgba(253,251,247,0.86); }
+      .end .type { left: 50%; bottom: auto; top: 50%; transform: translate(-50%, -50%); text-align: center; }
+      .end .rule { margin: 0 auto 34px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="25.4" data-width="1920" data-height="1080">
+      <div class="bed"></div>
+
+      <section id="scene-opening" class="clip" data-start="0" data-duration="5.4" data-track-index="1">
+        <div class="fade" id="scene-opening-fade">
+          <div class="frame"><img class="ken" id="scene-opening-img" src="assets/hero.jpg" alt="Elena Marsh" /></div>
+          <div class="wash-bottom"></div>
+          <div class="type" id="scene-opening-type">
+            <div class="rule"></div>
+            <h1>Elena Marsh</h1>
+            <p class="kicker">Wedding photography · Lake Como</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-morning" class="clip" data-start="4.7" data-duration="4.2" data-track-index="2">
+        <div class="fade" id="scene-morning-fade">
+          <div class="frame"><img class="ken" id="scene-morning-img" src="assets/gallery-1.jpg" alt="The morning" /></div>
+          <div class="wash-soft"></div>
+          <p class="mark" id="scene-morning-mark">The morning</p>
+        </div>
+      </section>
+
+      <section id="scene-ceremony" class="clip" data-start="8.2" data-duration="4.2" data-track-index="1">
+        <div class="fade" id="scene-ceremony-fade">
+          <div class="frame"><img class="ken" id="scene-ceremony-img" src="assets/gallery-2.jpg" alt="The ceremony" /></div>
+          <div class="wash-soft"></div>
+          <p class="mark" id="scene-ceremony-mark">The ceremony</p>
+        </div>
+      </section>
+
+      <section id="scene-details" class="clip" data-start="11.7" data-duration="3.6" data-track-index="2">
+        <div class="fade" id="scene-details-fade">
+          <div class="frame"><img class="ken" id="scene-details-img" src="assets/gallery-3.jpg" alt="Elena Marsh" /></div>
+          <div class="wash-soft"></div>
+        </div>
+      </section>
+
+      <section id="scene-evening" class="clip" data-start="14.6" data-duration="4" data-track-index="1">
+        <div class="fade" id="scene-evening-fade">
+          <div class="frame"><img class="ken" id="scene-evening-img" src="assets/gallery-4.jpg" alt="The evening" /></div>
+          <div class="wash-soft"></div>
+          <p class="mark" id="scene-evening-mark">The evening</p>
+        </div>
+      </section>
+
+      <section id="scene-archway" class="clip" data-start="17.9" data-duration="3.8" data-track-index="2">
+        <div class="fade" id="scene-archway-fade">
+          <div class="frame"><img class="ken" id="scene-archway-img" src="assets/deck-approach.jpg" alt="Elena Marsh" /></div>
+          <div class="wash-soft"></div>
+        </div>
+      </section>
+
+      <section id="scene-closing" class="clip end" data-start="21" data-duration="4.4" data-track-index="1">
+        <div class="fade" id="scene-closing-fade">
+          <div class="frame"><img class="ken" id="scene-closing-img" src="assets/deck-closing.jpg" alt="Elena Marsh" /></div>
+          <div class="wash-soft"></div>
+          <div class="type" id="scene-closing-type">
+            <div class="rule"></div>
+            <h2>Days worth keeping.</h2>
+            <p class="kicker">elenamarsh.com</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      tl.fromTo("#scene-opening-fade", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power2.out" }, 0);
+      tl.to("#scene-opening-fade", { opacity: 0, duration: 0.7, ease: "power2.in" }, 4.7);
+      tl.fromTo("#scene-opening-img", {"scale":1.12}, { ...{"scale":1}, duration: 5.4, ease: "none" }, 0);
+      tl.fromTo("#scene-morning-fade", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power2.out" }, 4.7);
+      tl.to("#scene-morning-fade", { opacity: 0, duration: 0.7, ease: "power2.in" }, 8.2);
+      tl.fromTo("#scene-morning-img", {"scale":1}, { ...{"scale":1.11}, duration: 4.2, ease: "none" }, 4.7);
+      tl.fromTo("#scene-morning-mark", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 5.2);
+      tl.fromTo("#scene-ceremony-fade", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power2.out" }, 8.2);
+      tl.to("#scene-ceremony-fade", { opacity: 0, duration: 0.7, ease: "power2.in" }, 11.7);
+      tl.fromTo("#scene-ceremony-img", {"scale":1.12}, { ...{"scale":1}, duration: 4.2, ease: "none" }, 8.2);
+      tl.fromTo("#scene-ceremony-mark", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 8.7);
+      tl.fromTo("#scene-details-fade", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power2.out" }, 11.7);
+      tl.to("#scene-details-fade", { opacity: 0, duration: 0.7, ease: "power2.in" }, 14.6);
+      tl.fromTo("#scene-details-img", {"scale":1.06,"xPercent":-1.5}, { ...{"scale":1.06,"xPercent":1.5}, duration: 3.6, ease: "none" }, 11.7);
+      tl.fromTo("#scene-evening-fade", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power2.out" }, 14.6);
+      tl.to("#scene-evening-fade", { opacity: 0, duration: 0.7, ease: "power2.in" }, 17.9);
+      tl.fromTo("#scene-evening-img", {"scale":1.12}, { ...{"scale":1}, duration: 4, ease: "none" }, 14.6);
+      tl.fromTo("#scene-evening-mark", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 15.1);
+      tl.fromTo("#scene-archway-fade", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power2.out" }, 17.9);
+      tl.to("#scene-archway-fade", { opacity: 0, duration: 0.7, ease: "power2.in" }, 21);
+      tl.fromTo("#scene-archway-img", {"scale":1.08,"yPercent":1.5}, { ...{"scale":1.02,"yPercent":-0.5}, duration: 3.8, ease: "none" }, 17.9);
+      tl.fromTo("#scene-closing-fade", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power2.out" }, 21);
+      tl.to("#scene-closing-fade", { opacity: 0, duration: 0.7, ease: "power2.in" }, 24.7);
+      tl.fromTo("#scene-closing-img", {"scale":1.12}, { ...{"scale":1}, duration: 4.4, ease: "none" }, 21);
+
+      tl.fromTo("#scene-opening-type", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 1.1, ease: "power3.out" }, 0.9);
+      tl.to("#scene-opening-type", { opacity: 0, duration: 0.5, ease: "power2.in" }, 4.5);
+      tl.fromTo("#scene-closing-type", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, 22);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

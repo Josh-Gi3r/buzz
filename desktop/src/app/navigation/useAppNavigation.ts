@@ -103,6 +103,17 @@ export function useAppNavigation() {
     [commitNavigation],
   );
 
+  const goPreviewStudio = React.useCallback(
+    (behavior?: NavigationBehavior) =>
+      commitNavigation(
+        {
+          to: "/preview-studio",
+        },
+        behavior,
+      ),
+    [commitNavigation],
+  );
+
   const goProject = React.useCallback(
     (
       projectId: string,
@@ -404,6 +415,7 @@ export function useAppNavigation() {
     goNewWorkflowForChannel,
     goProject,
     goProjects,
+    goPreviewStudio,
     goPulse,
     goProfile,
     goSettings,

@@ -192,6 +192,20 @@ fn connect_src_allows_ipc_and_cleartext_relays() {
 }
 
 #[test]
+fn frame_src_allows_explicit_preview_studio_urls() {
+    // BUZZ — LIVE PREVIEW STUDIO only creates this frame after the user opens an agent's
+    // URL. The iframe's sandbox remains the isolation boundary; this directive
+    // merely permits user-selected HTTP(S) sites to render in packaged builds.
+    let allowed = sources("frame-src");
+    for source in ["https:", "http:"] {
+        assert!(
+            allowed.contains(&source.to_owned()),
+            "frame-src must allow {source}"
+        );
+    }
+}
+
+#[test]
 fn script_src_stays_free_of_unsafe_inline_and_eval() {
     let allowed = sources("script-src");
     // The inline boot script in index.html is covered by Tauri's build-time

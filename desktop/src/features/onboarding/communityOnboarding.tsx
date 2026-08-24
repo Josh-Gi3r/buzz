@@ -285,12 +285,12 @@ export function isTransactionStillConnecting(
 export async function resolveProfileCheckAction(
   fetchProfile: () => Promise<Profile>,
   timeoutMs: number,
-  scheduleTimeout: (
-    fn: () => void,
-    ms: number,
-  ) => ReturnType<typeof setTimeout> = (fn, ms) => window.setTimeout(fn, ms),
+  // Typed as the browser timer id: the default implementation calls
+  // window.setTimeout, so ambient Node types must not redefine this.
+  scheduleTimeout: (fn: () => void, ms: number) => number = (fn, ms) =>
+    window.setTimeout(fn, ms),
 ): Promise<ProfileCheckAction> {
-  let timerId: ReturnType<typeof setTimeout> | undefined;
+  let timerId: number | undefined;
   try {
     const profile = await Promise.race([
       fetchProfile(),

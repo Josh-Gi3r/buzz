@@ -18,6 +18,7 @@
 @import "./globals/image-lightbox.css";
 @import "./globals/video-review.css";
 @import "./globals/progress.css";
+@import "../theme/studio/studio.css";
 
 @config "../../../tailwind.config.js";
 

@@ -109,6 +109,7 @@ export function AppSidebar({
   onCreateAgent,
   onSelectAgents,
   onSelectProjects,
+  onSelectPreviewStudio,
   onSelectPulse,
   onSelectWorkflows,
   onSelectHome,
@@ -509,6 +510,7 @@ export function AppSidebar({
                 onSelectAgents={onSelectAgents}
                 onSelectHome={onSelectHome}
                 onSelectProjects={onSelectProjects}
+                onSelectPreviewStudio={onSelectPreviewStudio}
                 onSelectPulse={onSelectPulse}
                 onSelectWorkflows={onSelectWorkflows}
                 projectsOverviewActive={projectsOverviewActive}

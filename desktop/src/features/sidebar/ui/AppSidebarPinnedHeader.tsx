@@ -1,4 +1,4 @@
-import { Activity, Bot, Folders, Inbox, Zap } from "lucide-react";
+import { Activity, Bot, Folders, Inbox, Sparkles, Zap } from "lucide-react";
 
 import { TopbarSearch } from "@/features/search/ui/TopbarSearch";
 import { SidebarProjectsSection } from "@/features/sidebar/ui/SidebarProjectsSection";
@@ -20,7 +20,8 @@ type SidebarSelectedView =
   | "agents"
   | "workflows"
   | "pulse"
-  | "projects";
+  | "projects"
+  | "preview-studio";
 
 type AppSidebarPinnedHeaderProps = {
   channelLabels: Record<string, string>;
@@ -43,6 +44,7 @@ type AppSidebarPrimaryMenuProps = {
   onSelectAgents: () => void;
   onSelectHome: () => void;
   onSelectProjects: () => void;
+  onSelectPreviewStudio: () => void;
   onSelectPulse: () => void;
   onSelectWorkflows: () => void;
   projectsOverviewActive: boolean;
@@ -93,6 +95,7 @@ export function AppSidebarPrimaryMenu({
   onSelectAgents,
   onSelectHome,
   onSelectProjects,
+  onSelectPreviewStudio,
   onSelectPulse,
   onSelectWorkflows,
   projectsOverviewActive,
@@ -151,6 +154,20 @@ export function AppSidebarPrimaryMenu({
               >
                 <Folders className="h-4 w-4" />
                 <SidebarMenuLabel>Projects</SidebarMenuLabel>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </FeatureGate>
+          <FeatureGate feature="preview-studio">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                data-testid="open-preview-studio-view"
+                isActive={selectedView === "preview-studio"}
+                onClick={onSelectPreviewStudio}
+                tooltip="BUZZ — LIVE PREVIEW STUDIO"
+                type="button"
+              >
+                <Sparkles className="h-4 w-4" />
+                <SidebarMenuLabel>BUZZ — LIVE PREVIEW STUDIO</SidebarMenuLabel>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </FeatureGate>

@@ -30,6 +30,13 @@
       "name": "Agent-managed profiles",
       "description": "Let agents manage their own relay name and avatar instead of restoring the desktop copy",
       "platforms": ["desktop"]
+    },
+    {
+      "id": "preview-studio",
+      "name": "BUZZ — LIVE PREVIEW STUDIO",
+      "description": "Live website and web-app previews from agent messages, plus a local artifact review library (experimental)",
+      "defaultEnabled": true,
+      "platforms": ["desktop"]
     }
   ]
 }

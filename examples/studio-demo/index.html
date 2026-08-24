@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<!-- Apache-2.0. A static, self-contained visual mock of the BUZZ — LIVE PREVIEW STUDIO
+     direction. It is NOT the Buzz desktop app and does not use or affect a Buzz
+     install. Part of an independent community fork; not affiliated with Block, Inc. -->
+<html lang="en" data-visual-profile="studio">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BUZZ — LIVE PREVIEW STUDIO — local demo</title>
+  <style>
+    :root {
+      --bg: #0c0f14;
+      --fg: #e8ecf4;
+      --muted: #8b95a8;
+      --primary: #a78bfa;
+      --primary-dim: rgba(167, 139, 250, 0.18);
+      --border: rgba(255, 255, 255, 0.1);
+      --glass: rgba(18, 22, 32, 0.55);
+      --lens: rgba(22, 28, 40, 0.5);
+      --danger: #f87171;
+      --ok: #4ade80;
+      --radius: 16px;
+      --blur: 20px;
+      font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; background: var(--bg); color: var(--fg); }
+    body {
+      background:
+        radial-gradient(120% 80% at 10% 0%, rgba(167,139,250,0.14), transparent 55%),
+        radial-gradient(90% 70% at 90% 20%, rgba(56,189,248,0.1), transparent 50%),
+        radial-gradient(70% 50% at 50% 100%, rgba(251,191,36,0.06), transparent 45%),
+        var(--bg);
+    }
+    .app { display: flex; flex-direction: column; height: 100%; }
+    .banner {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      font-size: 12px;
+      color: #fde68a;
+      background: rgba(120, 53, 15, 0.45);
+      border-bottom: 1px solid rgba(251, 191, 36, 0.25);
+      text-align: center;
+    }
+    .banner strong { color: #fef3c7; }
+    header.top {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(var(--blur));
+      background: var(--glass);
+    }
+    header.top h1 { font-size: 14px; margin: 0; font-weight: 600; letter-spacing: -0.02em; }
+    header.top p { margin: 2px 0 0; font-size: 11px; color: var(--muted); }
+    header .actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+    button, .btn {
+      appearance: none; border: 1px solid var(--border); background: rgba(255,255,255,0.06);
+      color: var(--fg); border-radius: 999px; padding: 6px 12px; font-size: 12px;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    }
+    button:hover { background: rgba(255,255,255,0.1); }
+    button.primary { background: var(--primary-dim); border-color: rgba(167,139,250,0.4); color: #ddd6fe; }
+    button.danger { color: var(--danger); border-color: rgba(248,113,113,0.35); }
+    button.active { background: var(--primary); color: #1a1028; border-color: transparent; font-weight: 600; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .body { display: flex; flex: 1; min-height: 0; }
+    .rail {
+      width: 240px; flex-shrink: 0; border-right: 1px solid var(--border);
+      background: var(--glass); backdrop-filter: blur(var(--blur));
+      display: flex; flex-direction: column;
+    }
+    .rail .label {
+      padding: 12px 14px 8px; font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted); font-weight: 600;
+    }
+    .list { flex: 1; overflow: auto; padding: 0 8px 12px; }
+    .item {
+      width: 100%; text-align: left; border-radius: 12px; padding: 10px 10px;
+      margin-bottom: 4px; border: 1px solid transparent; background: transparent;
+      color: var(--muted); display: flex; gap: 10px; align-items: flex-start;
+      position: relative;
+    }
+    .item:hover { background: rgba(255,255,255,0.05); color: var(--fg); }
+    .item.active {
+      background: var(--primary-dim); color: var(--fg);
+      border-color: rgba(167,139,250,0.35); box-shadow: 0 0 0 1px rgba(167,139,250,0.1);
+    }
+    .item .meta { min-width: 0; flex: 1; }
+    .item .title { display: block; font-size: 13px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item .sub { display: block; font-size: 11px; opacity: 0.7; text-transform: capitalize; margin-top: 2px; }
+    .item-row { position: relative; }
+    .item-row .del {
+      position: absolute; right: 6px; top: 6px; padding: 4px 6px; font-size: 11px;
+      opacity: 0; border-radius: 8px;
+    }
+    .item-row:hover .del { opacity: 1; }
+    .stage-wrap {
+      flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative;
+    }
+    .stage {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 24px; overflow: auto; min-height: 0;
+    }
+    .lens {
+      width: min(920px, 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--lens);
+      backdrop-filter: blur(24px);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.35), 0 0 40px rgba(167,139,250,0.12);
+      padding: 16px;
+    }
+    .lens.empty { padding: 56px 32px; text-align: center; }
+    .lens img, .lens video {
+      width: 100%; max-height: min(70vh, 640px); object-fit: contain;
+      border-radius: 16px; display: block; background: #000;
+    }
+    .lens img { cursor: zoom-in; }
+    .lens .cap { text-align: center; font-size: 11px; color: var(--muted); margin-top: 10px; }
+    .strip {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      padding: 10px 16px; border-top: 1px solid var(--border);
+      background: var(--glass); backdrop-filter: blur(var(--blur));
+    }
+    .strip code {
+      font-size: 11px; background: rgba(255,255,255,0.06); padding: 3px 8px;
+      border-radius: 6px; color: var(--muted); max-width: 14rem; overflow: hidden; text-overflow: ellipsis;
+    }
+    .strip .grow { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .inspector {
+      width: 300px; flex-shrink: 0; border-left: 1px solid var(--border);
+      background: var(--glass); backdrop-filter: blur(var(--blur));
+      display: flex; flex-direction: column; min-height: 0;
+    }
+    .inspector .label {
+      padding: 12px 14px 8px; font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted); font-weight: 600;
+    }
+    .inspector .content { flex: 1; overflow: auto; padding: 0 14px 16px; font-size: 12px; }
+    .inspector h3 { font-size: 12px; margin: 14px 0 8px; }
+    .inspector dl { margin: 0; }
+    .inspector dt { color: var(--muted); }
+    .inspector dd { margin: 0 0 6px; text-align: right; }
+    .inspector .row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+    .chip {
+      display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 999px;
+      border: 1px solid var(--border); margin: 2px; color: var(--muted);
+    }
+    .reviews { max-height: 160px; overflow: auto; margin-bottom: 8px; }
+    .review {
+      border: 1px solid var(--border); border-radius: 10px; padding: 8px;
+      margin-bottom: 6px; background: rgba(0,0,0,0.2);
+    }
+    .review time { display: block; font-size: 10px; color: var(--muted); margin-top: 4px; }
+    textarea {
+      width: 100%; min-height: 64px; border-radius: 10px; border: 1px solid var(--border);
+      background: rgba(0,0,0,0.3); color: var(--fg); padding: 8px; font: inherit; resize: vertical;
+    }
+    .foot { font-size: 10px; color: var(--muted); padding: 10px 14px; border-top: 1px solid var(--border); }
+    .lightbox {
+      position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.85);
+      display: none; align-items: center; justify-content: center; padding: 32px;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+    .lightbox .close {
+      position: absolute; top: 16px; right: 16px; border-radius: 999px;
+    }
+    .icon { width: 18px; height: 18px; opacity: 0.85; flex-shrink: 0; }
+    .icon-lg {
+      width: 56px; height: 56px; border-radius: 16px; margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--primary-dim); border: 1px solid rgba(167,139,250,0.3);
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="banner">
+      <strong>Local demo only</strong> — not Buzz. No relay, no account, no nest.
+      Does not use or affect your Buzz app.
+    </div>
+    <header class="top">
+      <div>
+        <h1>✦ BUZZ — LIVE PREVIEW STUDIO</h1>
+        <p>Standalone proof of concept · artifact stage · review</p>
+      </div>
+      <div class="actions">
+        <input type="file" id="fileInput" accept="image/*,video/*" multiple hidden />
+        <button type="button" class="primary" id="btnImport">Import media</button>
+        <button type="button" id="btnReset">Reset demos</button>
+        <button type="button" id="btnInspector">Inspector</button>
+      </div>
+    </header>
+    <div class="body">
+      <aside class="rail">
+        <div class="label">Library</div>
+        <div class="list" id="library"></div>
+        <div class="foot" id="libFoot">0 artifacts</div>
+      </aside>
+      <main class="stage-wrap">
+        <div class="stage" id="stage"></div>
+        <div class="strip">
+          <span style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Revision</span>
+          <code id="revId">—</code>
+          <div class="grow">
+            <span id="decisionLabel" style="font-size:11px;color:var(--muted)">Pending</span>
+            <button type="button" data-decision="pending">pending</button>
+            <button type="button" data-decision="approved">approved</button>
+            <button type="button" data-decision="changes_requested">changes requested</button>
+          </div>
+        </div>
+      </main>
+      <aside class="inspector" id="inspector">
+        <div class="label">Inspector</div>
+        <div class="content" id="inspectorBody"></div>
+      </aside>
+    </div>
+  </div>
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
+    <button type="button" class="close" id="lbClose">Close</button>
+    <img id="lbImg" alt="" />
+  </div>
+  <script>
+    /**
+     * Standalone BUZZ — LIVE PREVIEW STUDIO demo.
+     * NOT Buzz. Storage key isolated. No network servers required for UI.
+     * Demo images/videos load from public sample URLs when online.
+     */
+    const STORE_KEY = "buzz.studio.demo.v1.standalone";
+    const SAMPLE_IMAGE = "https://picsum.photos/id/1015/1600/1000";
+    const SAMPLE_IMAGE_B = "https://picsum.photos/id/1016/1200/800";
+    const SAMPLE_VIDEO =
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+
+    function uid(p = "id") {
+      return p + "_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    }
+
+    function seed() {
+      const now = Date.now();
+      const arts = [
+        { id: "art_home", title: "Homepage redesign", type: "image", uri: SAMPLE_IMAGE, rev: "rev_home", createdAt: now - 864e5 },
+        { id: "art_brand", title: "Brand still", type: "image", uri: SAMPLE_IMAGE_B, rev: "rev_brand", createdAt: now - 8e7 },
+        { id: "art_cut", title: "Campaign motion cut", type: "video", uri: SAMPLE_VIDEO, rev: "rev_cut", createdAt: now - 172e5 },
+        { id: "art_deck", title: "Investor deck", type: "deck", uri: null, rev: "rev_deck", createdAt: now - 25e7 },
+      ];
+      return {
+        artifacts: arts,
+        reviews: {},
+        decisions: Object.fromEntries(arts.map((a) => [a.rev, "pending"])),
+      };
+    }
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (!raw) {
+          const s = seed();
+          save(s);
+          return s;
+        }
+        return JSON.parse(raw);
+      } catch {
+        return seed();
+      }
+    }
+
+    function save(state) {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      } catch (_) {}
+    }
+
+    let state = load();
+    let selectedId = state.artifacts[0]?.id || null;
+    let inspectorOpen = true;
+    let comment = "";
+
+    const $ = (id) => document.getElementById(id);
+
+    function selected() {
+      return state.artifacts.find((a) => a.id === selectedId) || null;
+    }
+
+    function setDecision(status) {
+      const a = selected();
+      if (!a) return;
+      state.decisions[a.rev] = status;
+      save(state);
+      render();
+    }
+
+    function addReview() {
+      const a = selected();
+      const body = ($("reviewInput")?.value || "").trim();
+      if (!a || !body) return;
+      if (!state.reviews[a.rev]) state.reviews[a.rev] = [];
+      state.reviews[a.rev].push({ id: uid("r"), body, at: Date.now() });
+      save(state);
+      render();
+    }
+
+    function removeArt(id) {
+      state.artifacts = state.artifacts.filter((a) => a.id !== id);
+      if (selectedId === id) selectedId = state.artifacts[0]?.id || null;
+      save(state);
+      render();
+    }
+
+    async function importFiles(fileList) {
+      const files = Array.from(fileList || []);
+      for (const file of files) {
+        if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) continue;
+        const uri = await readDataUrl(file);
+        const type = file.type.startsWith("video/") ? "video" : "image";
+        const art = {
+          id: uid("art"),
+          title: file.name.replace(/\.[^.]+$/, "") || file.name,
+          type,
+          uri,
+          rev: uid("rev"),
+          createdAt: Date.now(),
+          local: true,
+        };
+        state.artifacts.unshift(art);
+        state.decisions[art.rev] = "pending";
+        selectedId = art.id;
+      }
+      save(state);
+      render();
+    }
+
+    function readDataUrl(file) {
+      return new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => rej(r.error);
+        r.readAsDataURL(file);
+      });
+    }
+
+    function renderLibrary() {
+      const el = $("library");
+      el.innerHTML = "";
+      if (!state.artifacts.length) {
+        el.innerHTML = `<p style="padding:16px;font-size:12px;color:var(--muted);text-align:center">No artifacts. Import image or video.</p>`;
+      }
+      for (const a of state.artifacts) {
+        const row = document.createElement("div");
+        row.className = "item-row";
+        row.innerHTML = `
+          <button type="button" class="item${a.id === selectedId ? " active" : ""}">
+            <span class="icon">${a.type === "video" ? "▶" : a.type === "image" ? "▣" : "▤"}</span>
+            <span class="meta">
+              <span class="title"></span>
+              <span class="sub"></span>
+            </span>
+          </button>
+          <button type="button" class="del danger" title="Delete" aria-label="Delete artifact">✕</button>
+        `;
+        row.querySelector(".title").textContent = a.title;
+        row.querySelector(".sub").textContent = a.type + (a.local ? " · local" : " · demo");
+        row.querySelector(".item").addEventListener("click", () => {
+          selectedId = a.id;
+          render();
+        });
+        row.querySelector(".del").addEventListener("click", () => {
+          removeArt(a.id);
+        });
+        el.appendChild(row);
+      }
+      $("libFoot").textContent = state.artifacts.length + " artifacts · localStorage only";
+    }
+
+    function renderStage() {
+      const a = selected();
+      const stage = $("stage");
+      if (!a) {
+        stage.innerHTML = `
+          <div class="lens empty">
+            <div class="icon-lg">✦</div>
+            <h2 style="margin:0 0 8px;font-size:18px">Select an artifact</h2>
+            <p style="margin:0;color:var(--muted);font-size:13px">Library left · stage center · inspector right</p>
+          </div>`;
+        $("revId").textContent = "—";
+        return;
+      }
+      $("revId").textContent = a.rev;
+      if (a.type === "image" && a.uri) {
+        stage.innerHTML = `
+          <div class="lens">
+            <img id="stageImg" alt="" />
+            <div class="cap"></div>
+          </div>`;
+        const img = stage.querySelector("#stageImg");
+        img.src = a.uri;
+        img.alt = a.title;
+        stage.querySelector(".cap").textContent = a.title + " · click to expand";
+        img.addEventListener("click", () => openLightbox(a.uri, a.title));
+      } else if (a.type === "video" && a.uri) {
+        stage.innerHTML = `
+          <div class="lens">
+            <video id="stageVid" controls playsinline></video>
+            <div class="cap"></div>
+          </div>`;
+        const v = stage.querySelector("#stageVid");
+        v.src = a.uri;
+        stage.querySelector(".cap").textContent = a.title;
+      } else {
+        stage.innerHTML = `
+          <div class="lens empty">
+            <div class="icon-lg">▤</div>
+            <h2 style="margin:0 0 8px;font-size:18px"></h2>
+            <p style="margin:0;color:var(--muted);font-size:13px">
+              No media adapter for this type in the standalone demo.<br/>
+              Import image/video to exercise the stage.
+            </p>
+          </div>`;
+        stage.querySelector("h2").textContent = a.title;
+      }
+      const dec = state.decisions[a.rev] || "pending";
+      $("decisionLabel").textContent =
+        dec === "approved" ? "Approved" : dec === "changes_requested" ? "Changes requested" : "Pending";
+      document.querySelectorAll("[data-decision]").forEach((b) => {
+        b.classList.toggle("active", b.dataset.decision === dec);
+      });
+    }
+
+    function renderInspector() {
+      const panel = $("inspector");
+      panel.style.display = inspectorOpen ? "flex" : "none";
+      const a = selected();
+      const body = $("inspectorBody");
+      if (!a) {
+        body.innerHTML = `<p style="color:var(--muted)">Select an artifact.</p>`;
+        return;
+      }
+      const revs = state.reviews[a.rev] || [];
+      body.innerHTML = `
+        <h3>Manifest</h3>
+        <div class="row"><dt>Type</dt><dd style="text-transform:capitalize">${a.type}</dd></div>
+        <div class="row"><dt>Source</dt><dd>${a.local ? "local file" : "demo URL"}</dd></div>
+        <div class="row"><dt>Revision</dt><dd style="font-family:monospace;font-size:10px">${a.rev}</dd></div>
+        <h3>Capabilities</h3>
+        <div>
+          <span class="chip">view</span>
+          <span class="chip">comment</span>
+          <span class="chip">approve</span>
+          ${a.type === "video" ? '<span class="chip">time</span>' : ""}
+          ${a.type === "image" ? '<span class="chip">region</span>' : ""}
+        </div>
+        <h3>Reviews (${revs.length})</h3>
+        <div class="reviews" id="reviewList"></div>
+        <textarea id="reviewInput" placeholder="Leave a review comment…"></textarea>
+        <button type="button" class="primary" id="btnReview" style="width:100%;margin-top:8px;justify-content:center">Add review</button>
+        <h3>Security</h3>
+        <p style="color:var(--muted);line-height:1.45;margin:0">
+          This page is not Buzz. No relay. No account. Data stays in this browser origin under
+          <code style="font-size:10px">${STORE_KEY}</code>.
+        </p>
+      `;
+      const list = body.querySelector("#reviewList");
+      if (!revs.length) {
+        list.innerHTML = `<p style="color:var(--muted);font-size:11px">No comments yet.</p>`;
+      } else {
+        for (const r of revs) {
+          const d = document.createElement("div");
+          d.className = "review";
+          d.innerHTML = `<div></div><time></time>`;
+          d.querySelector("div").textContent = r.body;
+          d.querySelector("time").textContent = new Date(r.at).toLocaleString();
+          list.appendChild(d);
+        }
+      }
+      body.querySelector("#btnReview").addEventListener("click", addReview);
+    }
+
+    function openLightbox(src, alt) {
+      $("lbImg").src = src;
+      $("lbImg").alt = alt || "";
+      $("lightbox").classList.add("open");
+    }
+
+    function render() {
+      renderLibrary();
+      renderStage();
+      renderInspector();
+    }
+
+    $("btnImport").addEventListener("click", () => $("fileInput").click());
+    $("fileInput").addEventListener("change", (e) => {
+      importFiles(e.target.files).finally(() => {
+        e.target.value = "";
+      });
+    });
+    $("btnReset").addEventListener("click", () => {
+      if (confirm("Reset to demo seeds? Local imports in this demo store will be cleared.")) {
+        state = seed();
+        selectedId = state.artifacts[0]?.id || null;
+        save(state);
+        render();
+      }
+    });
+    $("btnInspector").addEventListener("click", () => {
+      inspectorOpen = !inspectorOpen;
+      render();
+    });
+    document.querySelectorAll("[data-decision]").forEach((b) => {
+      b.addEventListener("click", () => setDecision(b.dataset.decision));
+    });
+    $("lbClose").addEventListener("click", () => $("lightbox").classList.remove("open"));
+    $("lightbox").addEventListener("click", (e) => {
+      if (e.target === $("lightbox")) $("lightbox").classList.remove("open");
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") $("lightbox").classList.remove("open");
+    });
+
+    render();
+  </script>
+</body>
+</html>
