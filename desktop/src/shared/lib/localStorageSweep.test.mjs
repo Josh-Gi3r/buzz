@@ -29,7 +29,14 @@ function makeLocalStorage(entries = []) {
 }
 
 function installWindow(localStorage, overrides = {}) {
-  globalThis.window = { localStorage, ...overrides };
+  globalThis.window = {
+    localStorage,
+    setTimeout: (...args) => globalThis.setTimeout(...args),
+    clearTimeout: (...args) => globalThis.clearTimeout(...args),
+    setInterval: (...args) => globalThis.setInterval(...args),
+    clearInterval: (...args) => globalThis.clearInterval(...args),
+    ...overrides,
+  };
 }
 
 const snapshot = (updatedAt) => JSON.stringify({ updatedAt, payload: "cache" });
