@@ -36,6 +36,7 @@ The aim is a narrow integration boundary: BUZZ — LIVE PREVIEW STUDIO owns its 
 | `desktop/src/main.tsx` | Support the standalone Studio entry used by development/showcase tooling. |
 | `desktop/src/shared/styles/globals.css` | Import Studio theme tokens. |
 | `desktop/src/shared/ui/ViewLoadingFallback.tsx` | Add the Studio loading-view kind. |
+| `desktop/src/shared/lib/localStorageSweep.ts` | Keep browser timer typing valid with the desktop's Node type policy; upstream candidate. |
 | `desktop/src/features/agents/lib/personaCatalogRelay.test.mjs` | Template-literal lint correction; upstream candidate. |
 | `desktop/src/features/onboarding/communityOnboarding.tsx` | Explicit browser timer typing; upstream candidate. |
 | `docs/nips/NIP-{AE,AM,AP,ER,RS}.md` | Replace repository-relative references to external Nostr NIPs with canonical upstream URLs so the inherited drafts render correctly in this standalone fork. |
@@ -57,6 +58,7 @@ These glob groups cover every file added at the product baseline:
 | `desktop/tests/e2e/film-verify.spec.ts` | Fixture-backed film engine acceptance. |
 | `desktop/tests/e2e/generate-verify.spec.ts` | Generation UI/configuration acceptance, not live-provider success. |
 | `desktop/tests/e2e/preview-studio-showcase.spec.ts` | Deterministic documentation narrative. |
+| `desktop/tests/e2e/institution-studio.spec.ts` | Domain-pack selection and no-implicit-provisioning acceptance path. |
 | `desktop/tests/e2e/revision-rail.spec.ts` | Local revision UI acceptance. |
 | `desktop/tests/e2e/studio-playground.spec.ts` | Studio development surface. |
 | `desktop/tests/e2e/video-panel-verify.spec.ts` | Video generation panel/fail-closed behavior. |

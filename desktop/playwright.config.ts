@@ -33,6 +33,7 @@ export default defineConfig({
         "**/deck-editable.spec.ts",
         "**/film-verify.spec.ts",
         "**/preview-studio-showcase.spec.ts",
+        "**/institution-studio.spec.ts",
         "**/sidebar-offcanvas-rail.spec.ts",
         "**/tooltip-semantics.spec.ts",
         "**/search-scope-screenshots.spec.ts",

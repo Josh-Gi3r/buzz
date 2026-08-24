@@ -326,8 +326,8 @@ function sweepChunked(now: number, isAlive: () => boolean): () => void {
  */
 export function startLocalStorageSweep(): () => void {
   let alive = true;
-  let intervalId: ReturnType<typeof window.setInterval> | null = null;
-  let bootTimeoutId: ReturnType<typeof globalThis.setTimeout> | null = null;
+  let intervalId: number | null = null;
+  let bootTimeoutId: number | null = null;
   let cancelCurrentSweep: (() => void) | null = null;
 
   const runSweep = () => {
@@ -336,7 +336,7 @@ export function startLocalStorageSweep(): () => void {
   };
 
   try {
-    bootTimeoutId = globalThis.setTimeout(runSweep, BOOT_SWEEP_FLOOR_MS);
+    bootTimeoutId = window.setTimeout(runSweep, BOOT_SWEEP_FLOOR_MS);
     intervalId = window.setInterval(runSweep, SWEEP_INTERVAL_MS);
   } catch (error) {
     console.warn("[localStorageSweep] scheduler setup failed:", error);
@@ -345,7 +345,7 @@ export function startLocalStorageSweep(): () => void {
   return () => {
     alive = false;
     try {
-      if (bootTimeoutId !== null) globalThis.clearTimeout(bootTimeoutId);
+      if (bootTimeoutId !== null) window.clearTimeout(bootTimeoutId);
       if (intervalId !== null) window.clearInterval(intervalId);
       cancelCurrentSweep?.();
       cancelCurrentSweep = null;
