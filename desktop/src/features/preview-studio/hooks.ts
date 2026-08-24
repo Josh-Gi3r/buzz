@@ -25,11 +25,27 @@ export function useArtifactLibrary() {
   const [library, setLibrary] = React.useState<ArtifactLibrarySnapshot>(() =>
     loadLibrary(),
   );
+  const libraryRef = React.useRef(library);
+
+  const replaceLibrary = React.useCallback(
+    (
+      update:
+        | ArtifactLibrarySnapshot
+        | ((previous: ArtifactLibrarySnapshot) => ArtifactLibrarySnapshot),
+    ) => {
+      const next =
+        typeof update === "function" ? update(libraryRef.current) : update;
+      libraryRef.current = next;
+      setLibrary(next);
+      return next;
+    },
+    [],
+  );
 
   const importFiles = React.useCallback(
     async (files: FileList | File[]): Promise<ImportFilesResult> => {
       const list = Array.from(files);
-      let snap = loadLibrary();
+      let snap = libraryRef.current;
       let persisted = true;
       for (const file of list) {
         if (!isImportableType(file.type)) continue;
@@ -37,35 +53,41 @@ export function useArtifactLibrary() {
         snap = result.snapshot;
         persisted &&= result.persisted;
       }
-      setLibrary(snap);
+      replaceLibrary(snap);
       return { snapshot: snap, persisted };
     },
-    [],
+    [replaceLibrary],
   );
 
-  const remove = React.useCallback((artifactId: string) => {
-    setLibrary((prev) => deleteArtifact(prev, artifactId));
-  }, []);
+  const remove = React.useCallback(
+    (artifactId: string) => {
+      replaceLibrary((prev) => deleteArtifact(prev, artifactId));
+    },
+    [replaceLibrary],
+  );
 
   const review = React.useCallback(
     (revisionId: string, body: string, timeMs?: number, slide?: number) => {
-      setLibrary((prev) =>
+      replaceLibrary((prev) =>
         addReview(prev, { revisionId, body, timeMs, slide }),
       );
     },
-    [],
+    [replaceLibrary],
   );
 
   const decide = React.useCallback(
     (revisionId: string, status: DecisionStatus) => {
-      setLibrary((prev) => setDecision(prev, revisionId, status));
+      replaceLibrary((prev) => setDecision(prev, revisionId, status));
     },
-    [],
+    [replaceLibrary],
   );
 
-  const saveDeck = React.useCallback((revisionId: string, deck: unknown) => {
-    setLibrary((prev) => saveSourceRevision(prev, revisionId, { deck }));
-  }, []);
+  const saveDeck = React.useCallback(
+    (revisionId: string, deck: unknown) => {
+      replaceLibrary((prev) => saveSourceRevision(prev, revisionId, { deck }));
+    },
+    [replaceLibrary],
+  );
 
   const addGenerated = React.useCallback(
     (input: {
@@ -74,43 +96,42 @@ export function useArtifactLibrary() {
       title: string;
       model: string;
     }): { persisted: boolean; artifactId?: string } => {
-      let persisted = true;
-      let artifactId: string | undefined;
-      setLibrary((prev) => {
-        const result = addGeneratedImage(prev, input);
-        persisted = result.persisted;
-        artifactId = result.snapshot.artifacts[0]?.id;
-        return result.snapshot;
-      });
-      return { persisted, artifactId };
+      const result = addGeneratedImage(libraryRef.current, input);
+      replaceLibrary(result.snapshot);
+      return {
+        persisted: result.persisted,
+        artifactId: result.snapshot.artifacts[0]?.id,
+      };
     },
-    [],
+    [replaceLibrary],
   );
 
   const addGeneratedVid = React.useCallback(
     (input: { url: string; title: string; model: string }): boolean => {
-      let persisted = true;
-      setLibrary((prev) => {
-        const result = addGeneratedVideo(prev, input);
-        persisted = result.persisted;
-        return result.snapshot;
-      });
-      return persisted;
+      const result = addGeneratedVideo(libraryRef.current, input);
+      replaceLibrary(result.snapshot);
+      return result.persisted;
     },
-    [],
+    [replaceLibrary],
   );
 
-  const saveFilm = React.useCallback((revisionId: string, film: unknown) => {
-    setLibrary((prev) => saveSourceRevision(prev, revisionId, { film }));
-  }, []);
+  const saveFilm = React.useCallback(
+    (revisionId: string, film: unknown) => {
+      replaceLibrary((prev) => saveSourceRevision(prev, revisionId, { film }));
+    },
+    [replaceLibrary],
+  );
 
-  const saveWeb = React.useCallback((revisionId: string, web: unknown) => {
-    setLibrary((prev) => saveSourceRevision(prev, revisionId, { web }));
-  }, []);
+  const saveWeb = React.useCallback(
+    (revisionId: string, web: unknown) => {
+      replaceLibrary((prev) => saveSourceRevision(prev, revisionId, { web }));
+    },
+    [replaceLibrary],
+  );
 
   const reset = React.useCallback(() => {
-    setLibrary(resetLibrary());
-  }, []);
+    replaceLibrary(resetLibrary());
+  }, [replaceLibrary]);
 
   return {
     library,

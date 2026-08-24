@@ -24,4 +24,10 @@ test("shows reusable institution packs without provisioning live agents", async 
   await expect(panel.getByText("Reserve Treasury")).toBeVisible();
   await expect(panel.getByText("Smart Contracts")).toBeVisible();
   await expect(page.getByTestId("institution-studio-result")).toHaveCount(0);
+  await expect(
+    page.getByTestId("institution-studio-desktop-required"),
+  ).toBeVisible();
+  await expect(
+    page.getByTestId("institution-studio-create-team"),
+  ).toBeDisabled();
 });

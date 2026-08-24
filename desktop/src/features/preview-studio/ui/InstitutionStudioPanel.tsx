@@ -1,6 +1,7 @@
 import { Bot, Check, ChevronRight, ShieldCheck, X } from "lucide-react";
 import * as React from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { isTauri } from "@tauri-apps/api/core";
 
 import { INSTITUTION_PACKS, institutionPack } from "../lib/institutionPacks";
 import {
@@ -23,8 +24,13 @@ export function InstitutionStudioPanel({
   );
   const [error, setError] = React.useState<string | null>(null);
   const pack = institutionPack(selectedId);
+  const canProvision = isTauri();
 
   async function createPack() {
+    if (!canProvision) {
+      setError("Open Preview Studio in the Buzz desktop app to create teams.");
+      return;
+    }
     setCreating(true);
     setError(null);
     setResult(null);
@@ -155,13 +161,22 @@ export function InstitutionStudioPanel({
             </Button>
           </div>
         ) : null}
+        {!canProvision ? (
+          <p
+            className="rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-2xs text-muted-foreground"
+            data-testid="institution-studio-desktop-required"
+          >
+            Team creation uses Buzz’s protected local agent store. Open this
+            project in the Buzz desktop app to create or refresh the template.
+          </p>
+        ) : null}
       </div>
 
       <div className="border-t border-border/50 p-4">
         <Button
           type="button"
           className="w-full"
-          disabled={creating}
+          disabled={creating || !canProvision}
           onClick={() => void createPack()}
           data-testid="institution-studio-create-team"
         >
